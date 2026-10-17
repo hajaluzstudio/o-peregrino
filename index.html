@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Peregrino — Sistema de Investidores & Governança | Haja Luz Studio</title>
+  <meta name="description" content="Plataforma comercial e de governança societária do jogo Peregrino. Acompanhamento em tempo real, cotas com Fator Pioneiro e registro criptográfico com Hash SHA-256.">
+  <link rel="icon" type="image/png" href="favicon_logo_PPrancheta-1.png">
+  <link rel="shortcut icon" type="image/png" href="assets/img/favicon.png">
+  <link rel="apple-touch-icon" href="assets/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=4">
+  <!-- Anti-Flicker & Persistência Instantânea de Sessão F5 -->
+  <script>
+    (function() {
+      try {
+        var uid = localStorage.getItem("peregrino_logged_user_id") || sessionStorage.getItem("peregrino_logged_user_id");
+        var isLogged = localStorage.getItem("peregrino_is_logged_in") === "true" || sessionStorage.getItem("peregrino_is_logged_in") === "true";
+        if (uid || isLogged) {
+          document.documentElement.classList.add("user-logged-in");
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <style>
+    html.user-logged-in #login-screen {
+      display: none !important;
+    }
+    html.user-logged-in .viewport-wrapper {
+      display: flex !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TELA DE LOGIN ESTILO ORACULUM SAAS (PALETA MINERAL DOURADA) -->
+  <div id="login-screen" class="login-screen">
+    
+    <!-- Botão Superior Esquerdo: '← IR PARA O DOSSIÊ COMERCIAL' -->
+    <a href="dossie_comercial.html" class="oraculum-top-nav-btn" title="Abrir Dossiê Comercial Completo" onclick="if(window.App && typeof App.openDossieWindow === 'function'){ App.openDossieWindow(); return false; }">
+      ← IR PARA O DOSSIÊ
+    </a>
+
+    <!-- Marca Superior Direita: Haja Luz Studio (Logo Vertical Oficial) -->
+    <div class="oraculum-top-brand">
+      <img src="assets/img/logo_hajaluz_vertical.png" alt="Haja Luz Studio" class="oraculum-top-brand-img" />
+    </div>
+
+    <!-- Canvas de Efeito de Poeira Antiga Flutuante (Partículas Atmosféricas) -->
+    <canvas id="ancient-dust-canvas" class="ancient-dust-canvas"></canvas>
+
+    <!-- Luz Ambiente Radial com Parallax -->
+    <div class="login-parallax-glow"></div>
+
+    <!-- Envoltório de Perspectiva 3D para Efeito Parallax no Card -->
+    <div class="login-card-perspective-wrapper">
+      <div class="login-card">
+        <!-- Reflexo Especular Dinâmico (Glass Glare) -->
+        <div class="login-card-glare"></div>
+
+        <!-- Emblema Oficial Haja Luz 2 -->
+        <div class="login-haja-luz-emblem">
+          <img src="assets/img/logo_hajaluz_02.png" alt="Haja Luz" class="login-emblem-img" />
+        </div>
+
+        <!-- Badge 'SEJA BEM-VINDO' -->
+        <div class="oraculum-badge">SEJA BEM-VINDO</div>
+
+        <!-- Cabeçalho com Logo Oficial em Destaque -->
+        <div class="login-brand-header">
+          <img src="assets/img/logo_peregrino.png" alt="Peregrino" class="login-logo-img" />
+          <div class="oraculum-subtitle">O caminho, e a verdade e a vida</div>
+        </div>
+
+        <!-- Formulário de Login -->
+        <form id="login-form" class="login-form" onsubmit="App.handleLogin(event)">
+          <div class="oraculum-field-group">
+            <label class="oraculum-field-label">E-MAIL DE ACESSO</label>
+            <input type="email" id="login-email-input" class="oraculum-input" placeholder="seu.email@peregrino.org" value="" required autocomplete="email" />
+          </div>
+
+          <div class="oraculum-field-group">
+            <label class="oraculum-field-label">CHAVE DE ACESSO / SENHA</label>
+            <div class="oraculum-pass-wrapper">
+              <input type="password" id="login-pass-input" class="oraculum-input" placeholder="••••••••••••" value="" required autocomplete="current-password" />
+              <button type="button" class="oraculum-pass-toggle" onclick="App.togglePasswordVisibility()" title="Exibir / Ocultar Senha">
+                <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div id="login-error-msg" style="display: none; font-size: 11.5px; color: #e53e3e; background: rgba(229, 62, 62, 0.1); border: 1px solid rgba(229, 62, 62, 0.3); padding: 8px 12px; border-radius: var(--radius-sm);"></div>
+
+          <!-- Botão Primário: 'ENTRAR NA PLATAFORMA →' -->
+          <button type="submit" class="oraculum-btn-submit">
+            <span>ENTRAR NA PLATAFORMA →</span>
+          </button>
+
+          <!-- Divisor e Acesso de Apresentação VIP (Passe 48h) -->
+          <div style="display: flex; align-items: center; gap: 8px; margin: 14px 0 12px; opacity: 0.65;">
+            <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.15);"></div>
+            <span style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--gold-accent);">Convidado / Apresentação</span>
+            <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.15);"></div>
+          </div>
+
+          <button type="button" class="btn-guest-vip" onclick="App.enterAsVipGuest()" style="width: 100%; padding: 10px 14px; background: rgba(221, 196, 187, 0.08); border: 1px solid rgba(221, 196, 187, 0.35); border-radius: var(--radius-sm); color: var(--gold-accent); font-size: 11.5px; font-weight: 700; letter-spacing: 0.6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease;">
+            <span>CONHECER O PROJETO (PASSE VIP 48H) &rarr;</span>
+          </button>
+
+          <!-- Rodapé do Card -->
+          <div class="oraculum-card-footer">
+            <span>Painel Restrito & Confidencial de Governança</span>
+          </div>
+        </form>
+
+      </div>
+    </div>
+
+    <!-- Widget Flutuante Inferior Direito estilo 'Oraculum Live' -->
+    <div class="oraculum-live-widget" onclick="App.openSyncModal()" title="Ver status da integração local com o Godot">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span>Godot 4.7.2 Live</span>
+    </div>
+
+  </div>
+
+  <!-- TELA DE PRELOADER CINEMÁTICO FULLSCREEN (100% TELA INTEIRA) -->
+  <div id="preloader-screen" class="preloader-screen hidden">
+    <video id="preloader-video" class="preloader-fullscreen-video" playsinline muted preload="auto">
+      <source src="assets/video/preloader.mp4" type="video/mp4">
+      <source src="Preloader.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- ENVOLTÓRIO GLOBAL COM CONTROLE DE VIEWPORT (DESKTOP / TABLET / MOBILE) -->
+  <div class="viewport-wrapper">
+    
+    <!-- BARRA SUPERIOR GLOBAL -->
+    <header id="global-header" class="global-header"></header>
+
+    <!-- PALCO DO VIEWPORT (ONDE ACONTECE A SIMULAÇÃO EM TEMPO REAL) -->
+    <main id="viewport-stage" class="viewport-stage preview-desktop">
+      
+      <!-- APLICAÇÃO SAAS MODULAR EM 3 COLUNAS -->
+      <div id="app-container" class="app-container">
+        
+        <!-- BACKDROPS PARA TELAS MOBILE E TABLET -->
+        <div id="sidebar-mobile-backdrop" class="panel-mobile-backdrop" onclick="App.closeMobilePanels()"></div>
+        <div id="inspector-mobile-backdrop" class="panel-mobile-backdrop" onclick="App.closeMobilePanels()"></div>
+
+        <!-- COLUNA 1: SIDEBAR DE NAVEGAÇÃO -->
+        <aside id="sidebar" class="sidebar"></aside>
+
+        <!-- COLUNA 2: WORKSPACE CENTRAL -->
+        <section id="workspace" class="workspace">
+          <header id="workspace-header" class="workspace-header"></header>
+          <!-- BARRA DE ABAS MOBILE & TABLET (TODAS AS ABAS SEMPRE VISÍVEIS) -->
+          <nav id="mobile-tabs-nav" class="mobile-tabs-nav"></nav>
+          <div id="workspace-body" class="workspace-body"></div>
+        </section>
+
+        <!-- COLUNA 3: INSPECTOR LATERAL / TELEMETRIA EM TEMPO REAL -->
+        <aside id="inspector" class="inspector"></aside>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- MODAL DE NOVA ATUALIZAÇÃO NO DEVLOG (MODO CRIADOR) -->
+  <div id="new-post-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Publicar Nova Atualização de Desenvolvimento</h3>
+        <button class="modal-close" onclick="App.closeNewPostModal()">&times;</button>
+      </div>
+      <form class="modal-body" onsubmit="App.submitNewPost(event)">
+        <div class="form-group">
+          <label class="form-label">Título da Atualização</label>
+          <input type="text" id="modal-post-title" class="form-input" placeholder="Ex: Novo shader de iluminação do Santuário" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Categoria</label>
+          <select id="modal-post-category" class="form-select">
+            <option value="Arte 3D & Shaders">Arte 3D & Shaders</option>
+            <option value="Mecânicas & Gameplay">Mecânicas & Gameplay</option>
+            <option value="Otimização & 60 FPS">Otimização & 60 FPS</option>
+            <option value="Bases & Comunidade">Bases & Comunidade</option>
+            <option value="Distritos & Cenários">Distritos & Cenários</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Caminho da Imagem ou Render</label>
+          <input type="text" id="modal-post-media" class="form-input" value="assets/img/cidade_galileia_3d.jpg" placeholder="assets/img/nome_da_foto.jpg" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descrição Técnica & Relatório de Progresso</label>
+          <textarea id="modal-post-summary" class="form-textarea" placeholder="Descreva os avanços para os investidores..." required></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tags (separadas por vírgula)</label>
+          <input type="text" id="modal-post-tags" class="form-input" placeholder="Godot 4, Cel-Shading, 60 FPS" />
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
+          <button type="button" class="btn-secondary" onclick="App.closeNewPostModal()">Cancelar</button>
+          <button type="submit" class="btn-primary">Publicar para Investidores</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE INSPEÇÃO DO PERSONAGEM 3D (TELA CHEIA / 4K) -->
+  <div id="character-modal" class="modal-overlay">
+    <div class="modal-box modal-box-character">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <h3 id="char-modal-title">Inspeção de Modelo 3D</h3>
+          <span id="char-modal-badge" class="spec-badge" style="color: var(--gold-accent);">Godot 4.3 Cel-Shading</span>
+        </div>
+        <button class="modal-close" onclick="App.closeCharacterModal()">&times;</button>
+      </div>
+      <div class="modal-body character-modal-body">
+        <div class="char-modal-preview">
+          <img id="char-modal-img" src="" alt="Render 3D" />
+        </div>
+        <div class="char-modal-info" id="char-modal-info"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE AUDITORIA & HOMOLOGAÇÃO DE CONTRATOS (SUPERADMIN MASTER) -->
+  <div id="contract-audit-modal" class="modal-overlay">
+    <div class="modal-box modal-box-contract" style="max-width: 860px; width: 94%;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <h3 id="contract-modal-title" style="font-size: 15px; color: #ffffff; margin: 0;">Auditoria & Análise de Contrato</h3>
+          <span id="contract-modal-badge" class="contract-badge pendente">Em Análise</span>
+        </div>
+        <button class="modal-close" onclick="App.closeContractModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="contract-modal-body" style="max-height: 82vh; overflow-y: auto; padding: 22px;">
+        <!-- Preenchido dinamicamente com os dados civis, texto e botões de homologação -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE CADASTRO & EDIÇÃO DE USUÁRIOS (SUPERADMIN MASTER) -->
+  <div id="user-form-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 680px; width: 95%;">
+      <div class="modal-header">
+        <div>
+          <span class="spec-badge" style="color: var(--gold-accent);">SUPERADMIN MASTER</span>
+          <h3 id="user-modal-title" style="margin-top: 4px; font-size: 16px; color: #ffffff;">Cadastrar Novo Usuário</h3>
+        </div>
+        <button class="modal-close" onclick="App.closeUserModal()">&times;</button>
+      </div>
+
+      <form class="modal-body" onsubmit="App.submitUserForm(event)" style="max-height: 82vh; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+        <input type="hidden" id="user-form-id" />
+
+        <!-- 1. Credenciais e Perfil de Acesso -->
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-strong); padding: 14px; border-radius: var(--radius-sm);">
+          <div style="font-size: 11px; font-weight: 700; color: var(--gold-accent); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px;">
+            1 • Credenciais de Autenticação &amp; Perfil
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">NOME COMPLETO *</label>
+              <input type="text" id="user-form-name" class="form-input" placeholder="Ex: Pr. Daniel Missionário" required />
+            </div>
+
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">NÍVEL DE ACESSO / PERFIL *</label>
+              <select id="user-form-role" class="form-select" onchange="App.onUserRoleChange(this.value)" required>
+                <option value="supporter">Investidor / Apoiador Pioneiro</option>
+                <option value="creator">Administrador / Superadmin (Criador)</option>
+                <option value="guest">Convidado Especial (Acesso VIP 48h)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">E-MAIL DE LOGIN *</label>
+              <input type="email" id="user-form-email" class="form-input" placeholder="usuario@peregrino.org" required />
+            </div>
+
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">SENHA DE ACESSO *</label>
+              <div style="display: flex; gap: 6px;">
+                <input type="text" id="user-form-password" class="form-input" placeholder="Definir senha segura" required style="font-family: var(--font-mono);" />
+                <button type="button" class="btn-secondary" onclick="App.generateRandomPassword()" style="padding: 0 10px; font-size: 11px; white-space: nowrap;" title="Gerar Senha Automática">Gerar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Qualificação Civil & Institucional -->
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-strong); padding: 14px; border-radius: var(--radius-sm);">
+          <div style="font-size: 11px; font-weight: 700; color: var(--gold-accent); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px;">
+            2 • Qualificação Civil &amp; Institucional
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">CARGO / TÍTULO OFICIAL</label>
+              <input type="text" id="user-form-title" class="form-input" placeholder="Ex: Conselheiro Espiritual &amp; Investidor" />
+            </div>
+
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">INSTITUIÇÃO / COMUNIDADE</label>
+              <input type="text" id="user-form-institution" class="form-input" placeholder="Ex: Comunidade Cristã da Família" />
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 10px;">
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">CPF</label>
+              <input type="text" id="user-form-cpf" class="form-input" placeholder="000.000.000-00" />
+            </div>
+
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">TELEFONE / WHATSAPP</label>
+              <input type="text" id="user-form-phone" class="form-input" placeholder="(54) 99999-9999" />
+            </div>
+
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">CIDADE / UF</label>
+              <input type="text" id="user-form-city" class="form-input" placeholder="Passo Fundo/RS" value="Passo Fundo/RS" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Parâmetros de Aporte & Cota (Se Investidor) -->
+        <div id="user-form-supporter-fields" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-strong); padding: 14px; border-radius: var(--radius-sm);">
+          <div style="font-size: 11px; font-weight: 700; color: var(--gold-accent); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px;">
+            3 • Parâmetros Financeiros &amp; Cota Societária (Pool 49%)
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">APORTE MENSAL (R$)</label>
+              <input type="number" id="user-form-monthly" class="form-input" min="50" step="50" value="500" oninput="App.calcUserFormQuota()" />
+            </div>
+
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">MESES COMPROMETIDOS</label>
+              <input type="number" id="user-form-months" class="form-input" min="1" max="36" value="12" oninput="App.calcUserFormQuota()" />
+            </div>
+
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">COTA ESTIMADA (FATOR 1.25x)</label>
+              <div id="user-form-quota-preview" style="padding: 10px; font-family: var(--font-mono); font-weight: 700; color: var(--gold-accent); font-size: 14px; background: var(--bg-canvas); border: 1px solid var(--border-strong); border-radius: 4px; text-align: center;">
+                2,50%
+              </div>
+            </div>
+          </div>
+
+          <div class="oraculum-field-group" style="margin-top: 10px;">
+            <label class="oraculum-field-label">LOTE IN-GAME VINCULADO</label>
+            <input type="text" id="user-form-lot" class="form-input" placeholder="Ex: Distrito 4 - Lote Especial (+20% Bônus)" />
+          </div>
+        </div>
+
+        <!-- 4. Permissões de Ação na Plataforma -->
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-strong); padding: 14px; border-radius: var(--radius-sm);">
+          <div style="font-size: 11px; font-weight: 700; color: var(--gold-accent); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px;">
+            4 • Permissões Especiais no Sistema
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-secondary); cursor: pointer;">
+              <input type="checkbox" id="user-form-perm-kanban" />
+              <span>Pode editar tarefas e status do Kanban/Checklist</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-secondary); cursor: pointer;">
+              <input type="checkbox" id="user-form-perm-godot" />
+              <span>Pode sincronizar com a Godot Engine</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-secondary); cursor: pointer;">
+              <input type="checkbox" id="user-form-perm-devlog" />
+              <span>Pode criar e publicar novas postagens no Devlog Oficial</span>
+            </label>
+          </div>
+        </div>
+
+        <div id="user-form-error" style="display: none; font-size: 12px; color: #f87171; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 12px; border-radius: var(--radius-sm);"></div>
+
+        <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 4px;">
+          <div>
+            <button type="button" id="user-form-delete-btn" class="btn-secondary" style="display: none; color: #f87171; border-color: rgba(239, 68, 68, 0.4); padding: 7px 12px; font-size: 12px;" onclick="App.deleteUserFromModal()">
+              ✕ Excluir Usuário
+            </button>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button type="button" class="btn-secondary" onclick="App.closeUserModal()">Cancelar</button>
+            <button type="submit" class="btn-primary" id="user-form-submit-btn">
+              <span>Salvar &amp; Credenciar Usuário</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO DE USUÁRIO -->
+  <div id="user-delete-confirm-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 480px; width: 92%;">
+      <div class="modal-header" style="border-bottom-color: rgba(239, 68, 68, 0.3);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 34px; height: 34px; border-radius: 8px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); display: flex; align-items: center; justify-content: center; color: #f87171;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+          </div>
+          <div>
+            <span class="spec-badge" style="color: #f87171; border-color: rgba(239, 68, 68, 0.4);">AÇÃO CRÍTICA</span>
+            <h3 style="margin: 2px 0 0 0; font-size: 15px; color: #ffffff;">Excluir Usuário do Sistema</h3>
+          </div>
+        </div>
+        <button class="modal-close" onclick="App.closeDeleteUserModal()">&times;</button>
+      </div>
+
+      <div class="modal-body" style="padding: 20px;">
+        <input type="hidden" id="delete-user-target-id" />
+        
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 16px 0;">
+          Tem certeza de que deseja revogar o credenciamento e excluir este usuário da plataforma de governança?
+        </p>
+
+        <!-- Card de prévia do usuário que será excluído -->
+        <div id="delete-user-preview-card" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px;">
+          <!-- Preenchido dinamicamente via JS -->
+        </div>
+
+        <div style="background: rgba(239, 68, 68, 0.08); border-left: 3px solid #ef4444; padding: 10px 12px; border-radius: 4px; font-size: 11.5px; color: #fca5a5; line-height: 1.5; margin-bottom: 20px;">
+          <strong>Atenção:</strong> Esta ação é irreversível. As credenciais de acesso serão invalidadas e os registros de contratos vinculados a este usuário serão removidos.
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn-secondary" onclick="App.closeDeleteUserModal()">Cancelar</button>
+          <button type="button" class="btn-primary" id="confirm-delete-user-btn" style="background: #dc2626; border-color: #ef4444; color: #ffffff;" onclick="App.executeDeleteUser()">
+            Confirmar Exclusão
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDITÁVEL DO CARD KANBAN & CHECKLIST -->
+  <div id="kanban-edit-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 620px;">
+      <div class="modal-header">
+        <div>
+          <span id="modal-card-type-badge" class="spec-badge" style="color: var(--gold-accent);">DISTRITO</span>
+          <h3 id="modal-card-title-display" style="margin-top: 4px; font-size: 16px;">Editar Card</h3>
+        </div>
+        <button class="modal-close" onclick="App.closeKanbanModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
+        
+        <input type="hidden" id="modal-card-id" />
+        <input type="hidden" id="modal-card-type" />
+
+        <div id="modal-card-image-preview" style="display: none; margin-bottom: 14px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); position: relative; max-height: 220px;">
+          <img id="modal-card-img" src="" alt="Captura do Distrito" style="width: 100%; height: 220px; object-fit: cover; display: block;" />
+          <div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); padding: 4px 10px; border-radius: 4px; font-size: 11px; backdrop-filter: blur(4px);">
+            <a id="modal-card-img-link" href="#" target="_blank" style="color: var(--gold-accent); text-decoration: none; font-weight: 600;">Abrir Original 2.7K &rarr;</a>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label">Coluna no Quadro Kanban</label>
+            <select id="modal-card-column" class="form-select" onchange="App.onModalColumnChange()">
+              <option value="backlog">Planejamento / Backlog (0-25%)</option>
+              <option value="in_progress">Em Produção (26-70%)</option>
+              <option value="testing">Em Testes & 60 FPS (71-99%)</option>
+              <option value="done">Concluído & Aprovado (100%)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Porcentagem de Evolução (%)</label>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <input type="range" id="modal-card-progress" min="0" max="100" class="sim-range" oninput="App.onModalProgressInput()" />
+              <span id="modal-card-progress-val" style="font-family: var(--font-mono); font-weight: 700; color: var(--gold-accent); min-width: 45px;">80%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Descrição Técnica & Escopo</label>
+          <textarea id="modal-card-desc" class="form-textarea" style="min-height: 65px;"></textarea>
+        </div>
+
+        <!-- Checklist do Jogo -->
+        <div style="margin-top: 4px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label class="form-label" style="font-size: 13px; font-weight: 700; color: #ffffff;">Checklist de Tarefas do Jogo</label>
+            <span id="modal-card-checklist-status" class="spec-badge">3 / 5 Concluídos</span>
+          </div>
+          
+          <div id="modal-card-checklist-items" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px;">
+            <!-- Itens de checklist injetados via JS -->
+          </div>
+
+          <!-- Adicionar nova tarefa ao checklist (Superadmin exclusivo) -->
+          <div id="modal-add-task-container" style="display: flex; gap: 8px;">
+            <input type="text" id="modal-new-task-input" class="form-input" style="flex: 1;" placeholder="Nova tarefa técnica no Godot..." />
+            <button type="button" class="btn-secondary" onclick="App.addChecklistItem()">+ Adicionar Tarefa</button>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-subtle);">
+          <div id="modal-footer-notice" style="font-size: 11px; color: var(--text-muted);">Sincronização persistida em tempo real.</div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button type="button" class="btn-secondary" onclick="App.closeKanbanModal()">Fechar</button>
+            <button type="button" class="btn-primary" id="modal-save-btn" onclick="App.saveKanbanModal()">Salvar Alterações</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE SINCRONIZAÇÃO AUTOMÁTICA COM O JOGO LOCAL (GODOT) -->
+  <div id="sync-checklist-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 640px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #38a169;"></span>
+          <h3>Sincronização Direta do Projeto Godot 4.7.2</h3>
+        </div>
+        <button class="modal-close" onclick="App.closeSyncModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="font-size: 13px; line-height: 1.6;">
+        <!-- Status de Conexão Ativa -->
+        <div style="background-color: var(--bg-surface); border: 1px solid var(--border-strong); padding: 14px; border-radius: var(--radius-sm); margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <strong style="color: var(--gold-accent); font-size: 13.5px;">Projeto Local Conectado & Auditado</strong>
+            <span class="status-pill status-active" style="font-size: 10.5px;">60% Concluído</span>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); background: var(--bg-canvas); padding: 6px 10px; border-radius: 4px; word-break: break-all; margin-bottom: 10px;">
+            D:\HAJA LUZ\Antigravity\Dados_IA\scratch\O Peregrino
+          </div>
+          
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; text-align: center;">
+            <div style="background: var(--bg-canvas); padding: 8px; border-radius: 4px; border: 1px solid var(--border-subtle);">
+              <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Total Tarefas</div>
+              <div style="font-size: 16px; font-weight: 700; color: var(--text-primary);">107</div>
+            </div>
+            <div style="background: var(--bg-canvas); padding: 8px; border-radius: 4px; border: 1px solid var(--border-subtle);">
+              <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Concluídas [x]</div>
+              <div style="font-size: 16px; font-weight: 700; color: #38a169;">64</div>
+            </div>
+            <div style="background: var(--bg-canvas); padding: 8px; border-radius: 4px; border: 1px solid var(--border-subtle);">
+              <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Pendentes [ ]</div>
+              <div style="font-size: 16px; font-weight: 700; color: var(--gold-accent);">41</div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 11.5px; color: var(--text-secondary);">
+              Lotes Ativos: <strong>Pr. Adriano</strong> (+25% Fé), <strong>William</strong> (+30% Stash), <strong>Felipe</strong> (+20% Vel).
+            </span>
+            <button type="button" class="btn-primary" onclick="App.syncDirectLocal()" style="padding: 7px 14px; font-size: 12px;">
+              Sincronizar Agora (1 Clique)
+            </button>
+          </div>
+        </div>
+
+        <!-- Método Alternativo: Upload ou Download do JSON -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div style="background-color: var(--bg-canvas); border: 1px solid var(--border-subtle); padding: 12px; border-radius: var(--radius-sm);">
+            <strong style="font-size: 12px; color: var(--text-primary); display: block; margin-bottom: 4px;">Carregar checklist_peregrino.json</strong>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
+              Subir arquivo modificado manualmente.
+            </p>
+            <input type="file" id="sync-file-input" accept=".json" class="form-input" style="font-size: 11px; padding: 4px;" onchange="App.handleFileChecklistUpload(event)" />
+          </div>
+
+          <div style="background-color: var(--bg-canvas); border: 1px solid var(--border-subtle); padding: 12px; border-radius: var(--radius-sm); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <strong style="font-size: 12px; color: var(--text-primary); display: block; margin-bottom: 4px;">Exportar para o Godot</strong>
+              <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
+                Baixar JSON para a pasta do jogo.
+              </p>
+            </div>
+            <button type="button" class="btn-secondary" onclick="App.downloadChecklistJson()" style="font-size: 11px; padding: 6px 10px; width: 100%;">
+              Baixar checklist_peregrino.json
+            </button>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border-subtle);">
+          <button type="button" class="btn-secondary" onclick="App.closeSyncModal()">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DO GUIA COMPLETO DA JORNADA PEREGRINO -->
+  <div id="game-guide-modal" class="modal-overlay">
+    <div class="modal-box modal-box-guide">
+      
+      <!-- Cabeçalho do Leitor -->
+      <div class="guide-modal-header">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+            <span class="guide-chapter-num">DOCUMENTO CANÔNICO</span>
+            <span class="spec-badge" style="color: #38a169; border-color: rgba(56,161,105,0.4);">Godot 4.7.2 • Cel-Shading 60 FPS</span>
+          </div>
+          <h3 style="font-size: 16px; font-weight: 700; color: #ffffff; margin: 0;">
+            Peregrino — Guia Completo da Jornada: Missões, Progressão & Propósito
+          </h3>
+          <p style="font-size: 11.5px; color: var(--text-muted); margin: 2px 0 0 0;">
+            Haja Luz Studio • Desenvolvimento Independente • Passo Fundo/RS
+          </p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button type="button" class="btn-secondary" onclick="App.printGameGuide()" style="padding: 6px 12px; font-size: 11.5px;">
+            Imprimir / Salvar PDF
+          </button>
+          <button class="modal-close" onclick="App.closeGameGuideModal()" title="Fechar Guia">&times;</button>
+        </div>
+      </div>
+
+      <!-- Barra de Chips de Navegação por Capítulos -->
+      <div style="padding: 12px 24px 0; background: #0c0e15;">
+        <div class="guide-nav-bar">
+          <a class="guide-nav-chip" href="#guide-ch1" onclick="App.scrollToGuideSection('guide-ch1')">1. A Importância da Obra</a>
+          <a class="guide-nav-chip" href="#guide-ch2" onclick="App.scrollToGuideSection('guide-ch2')">2. Como se Joga (Mecânica)</a>
+          <a class="guide-nav-chip" href="#guide-ch3" onclick="App.scrollToGuideSection('guide-ch3')">3. Os 4 Eixos de Missões</a>
+          <a class="guide-nav-chip" href="#guide-ch4" onclick="App.scrollToGuideSection('guide-ch4')">4. Níveis & Atributos</a>
+          <a class="guide-nav-chip" href="#guide-ch5" onclick="App.scrollToGuideSection('guide-ch5')">5. As 7 Bases da Vila</a>
+          <a class="guide-nav-chip" href="#guide-ch6" onclick="App.scrollToGuideSection('guide-ch6')">6. Legado & Apoiadores</a>
+        </div>
+      </div>
+
+      <!-- Corpo do Guia com Texto Canônico Estruturado -->
+      <div class="guide-modal-body" id="game-guide-body">
+        
+        <!-- CAPÍTULO 1 -->
+        <section class="guide-chapter" id="guide-ch1">
+          <div class="guide-chapter-header">
+            <span class="guide-chapter-num">CAPÍTULO 1</span>
+            <h3 class="guide-chapter-title">A Grande Importância de Peregrino no Cenário Cultural & Espiritual</h3>
+          </div>
+          
+          <p>
+            Durante décadas, a indústria global de videogames apresentou uma dualidade prejudicial para as famílias cristãs. Por um lado, grandes produções seculares saturadas de violência gráfica gratuita, vulgaridade e niilismo moral que capturam a atenção de jovens e adolescentes por sua perfeição técnica. Por outro lado, o chamado mercado de "jogos bíblicos" permaneceu historicamente estagnado em orçamentos irrisórios, mecânicas rasas de perguntas e respostas ou gráficos amadores que afastavam qualquer jogador acostumado ao padrão moderno.
+          </p>
+
+          <div class="guide-quote-box">
+            "Não vos conformeis com este século, mas transformai-vos pela renovação da vossa mente..."
+            <span>Romanos 12:2 • Fundamento Teológico do Projeto</span>
+          </div>
+
+          <p>
+            <strong>Peregrino</strong> nasce no <strong>Haja Luz Studio</strong> para quebrar em definitivo esse paradigma. Desenvolvido no motor gráfico <strong>Godot 4.7.2</strong>, o projeto combina pesquisa arqueológica rigorosa da Judeia e Galileia do Século I com técnicas modernas de cel-shading em tempo real, física de terreno e performance cravada a 60 quadros por segundo.
+          </p>
+
+          <div class="guide-grid-2">
+            <div class="guide-card-mini">
+              <h4>Resgate Cultural da Juventude</h4>
+              <p>Oferece uma alternativa artística genuinamente nobre e envolvente, onde as horas de jogo edificam a mente, inspiram virtudes e aproximam as novas gerações dos Evangelhos.</p>
+            </div>
+            <div class="guide-card-mini">
+              <h4>Fidelidade Histórica & Teológica</h4>
+              <p>Reconstrução fidedigna de vilarejos de calcário, oliveiras milenares, rotas comerciais romanas, costumes hebraicos e diálogos fiéis às Escrituras Sagradas.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- CAPÍTULO 2 -->
+        <section class="guide-chapter" id="guide-ch2">
+          <div class="guide-chapter-header">
+            <span class="guide-chapter-num">CAPÍTULO 2</span>
+            <h3 class="guide-chapter-title">Como se Joga: A Mecânica Pacífica dos 4 Verbos Sagrados</h3>
+          </div>
+
+          <p>
+            Em <strong>Peregrino</strong>, o jogador não empunha espadas, arcos ou armas de fogo. Seguindo a advertência de que <em>as armas da nossa milícia não são carnais</em>, toda a jogabilidade é estruturada em torno de escolhas morais, auxílio comunitário e autoridade espiritual exercida através da fé e do amor.
+          </p>
+
+          <p>
+            O fluxo principal de gameplay opera em um ciclo contínuo de <strong>4 Verbos Sagrados</strong>:
+          </p>
+
+          <div class="guide-grid-2">
+            <div class="guide-card-mini" style="border-left: 3px solid var(--gold-accent);">
+              <h4 style="color: var(--gold-accent);">1. Encontrar</h4>
+              <p>Explorar o mundo aberto da Galileia e Judeia em busca de viajantes exaustos, famílias desamparadas, doentes marginalizados e leprosos que clamam por socorro nas estradas e olivais.</p>
+            </div>
+            <div class="guide-card-mini" style="border-left: 3px solid #63b3ed;">
+              <h4 style="color: #63b3ed);">2. Conhecer</h4>
+              <p>Praticar a escuta ativa e a empatia bíblica. Interagir com os personagens sem julgamentos precipitados para compreender a raiz de suas dores espirituais, materiais ou familiares.</p>
+            </div>
+            <div class="guide-card-mini" style="border-left: 3px solid #fbbf24;">
+              <h4 style="color: #fbbf24);">3. Ensinar</h4>
+              <p>Compartilhar a Palavra de Deus, parábolas de sabedoria e palavras de consolação. Tomar decisões assertivas em árvores de diálogo que restauram a esperança e desarmam a agressividade.</p>
+            </div>
+            <div class="guide-card-mini" style="border-left: 3px solid #38a169;">
+              <h4 style="color: #38a169);">4. Transformar</h4>
+              <p>Executar ações concretas de restauração: curar enfermidades, reconstruir lares abalados, partilhar pão e azeite das bases e integrar o necessitado à comunidade da vila.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- CAPÍTULO 3 -->
+        <section class="guide-chapter" id="guide-ch3">
+          <div class="guide-chapter-header">
+            <span class="guide-chapter-num">CAPÍTULO 3</span>
+            <h3 class="guide-chapter-title">Os 4 Eixos de Missões do Jogo</h3>
+          </div>
+
+          <p>
+            O universo de <strong>Peregrino</strong> é dividido em quatro grandes eixos de missões que se entrelaçam de maneira dinâmica pelo mapa:
+          </p>
+
+          <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
+            <div class="guide-card-mini">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <strong style="color: var(--gold-accent); font-size: 13.5px;">Eixo 1: O Fio de Ouro (A Linha do Tempo de Jesus)</strong>
+                <span class="spec-badge">NARRATIVA HISTÓRICA</span>
+              </div>
+              <p>
+                O jogador vive a experiência como uma testemunha ocular que caminha pelos cenários onde o Messias atua. Missões canônicas incluem presenciar o milagre em Caná da Galileia, organizar e acolher a multidão no Sermão do Monte, testemunhar a tempestade acalmada no Mar da Galileia, vivenciar o diálogo transformador junto ao Poço de Jacó em Sicar e amparar os enlutados em Betânia. O Peregrino prepara o caminho para os ensinamentos e preserva os registros da fé para as futuras gerações.
+              </p>
+            </div>
+
+            <div class="guide-card-mini">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <strong style="color: #63b3ed; font-size: 13.5px;">Eixo 2: O Despertar dos 12 Apóstolos</strong>
+                <span class="spec-badge">FORMAÇÃO & DISCIPULADO</span>
+              </div>
+              <p>
+                Missões focadas no chamado, nos dilemas pessoais e no amadurecimento dos 12 apóstolos. Ajudar Simão Pedro a superar o desânimo na beira do lago, auxiliar na inclusão de Mateus entre os discípulos superando o preconceito da comunidade e apoiar o envio de dois em dois pelas aldeias da Judeia para proclamar as Boas-Novas.
+              </p>
+            </div>
+
+            <div class="guide-card-mini">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <strong style="color: #38a169; font-size: 13.5px;">Eixo 3: Sobrevivência Comunitária & As 7 Bases (State of Decay Bíblico)</strong>
+                <span class="spec-badge">GESTÃO DE RECURSOS</span>
+              </div>
+              <p>
+                Gerenciamento cooperativo da comunidade. O jogador coleta e distribui recursos vitais (trigo, azeite, água pura, linho, madeira e ervas medicinais), constrói melhorias nas 7 bases históricas, cria enfermarias para viúvas e acolhe peregrinos que fogem de secas ou opressões nas regiões circunvizinhas.
+              </p>
+            </div>
+
+            <div class="guide-card-mini">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <strong style="color: #f87171; font-size: 13.5px;">Eixo 4: Ameaças Espirituais & Oposição</strong>
+                <span class="spec-badge">BATALHA ESPIRITUAL</span>
+              </div>
+              <p>
+                Enfrentar desafios morais e espirituais sem recorrer à violência carnal. Debates teológicos contra a hipocrisia farisaica, libertação de indivíduos atormentados por angústias e opressões espirituais mediante oração e jejum, e manutenção da paz em vilas cercadas pelo medo ou pela hostilidade de guarnições romanas.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- CAPÍTULO 4 -->
+        <section class="guide-chapter" id="guide-ch4">
+          <div class="guide-chapter-header">
+            <span class="guide-chapter-num">CAPÍTULO 4</span>
+            <h3 class="guide-chapter-title">Como Evolui: Atributos da Alma & Níveis de Maturidade</h3>
+          </div>
+
+          <p>
+            Diferente dos jogos convencionais em que o personagem acumula "pontos de força bélica ou dano crítico", a evolução em <strong>Peregrino</strong> reflete a <strong>Maturidade Espiritual</strong> e a consistência no cumprimento dos princípios do Reino.
+          </p>
+
+          <h4 style="font-size: 13.5px; color: #ffffff; margin: 16px 0 8px;">Os 6 Atributos da Alma</h4>
+
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px;">
+            <div class="guide-card-mini">
+              <strong style="color: var(--gold-accent); display: block; margin-bottom: 3px;">FÉ</strong>
+              <p style="font-size: 11.5px;">Intensifica a eficácia da oração, a resiliência espiritual contra tribulações e a capacidade de operar auxílio sobrenatural.</p>
+            </div>
+            <div class="guide-card-mini">
+              <strong style="color: #38a169; display: block; margin-bottom: 3px;">MANSIDÃO</strong>
+              <p style="font-size: 11.5px;">Desarma a hostilidade em conversas inflamadas e permite acalmar multidões agitadas sem conflito corporal.</p>
+            </div>
+            <div class="guide-card-mini">
+              <strong style="color: #63b3ed; display: block; margin-bottom: 3px;">SABEDORIA</strong>
+              <p style="font-size: 11.5px;">Desbloqueia opções profundas nas Escrituras e descobre as respostas éticas corretas em dilemas complexos.</p>
+            </div>
+            <div class="guide-card-mini">
+              <strong style="color: #fbbf24; display: block; margin-bottom: 3px;">FIRMEZA</strong>
+              <p style="font-size: 11.5px;">Aumenta a estamina e a resistência física em longas caminhadas pelo deserto, montanhas e tempestades.</p>
+            </div>
+            <div class="guide-card-mini">
+              <strong style="color: #a78bfa; display: block; margin-bottom: 3px;">LIDERANÇA</strong>
+              <p style="font-size: 11.5px;">Capacidade de mobilizar caravanas voluntárias de apoio e otimizar a velocidade de trabalho nas 7 bases.</p>
+            </div>
+            <div class="guide-card-mini">
+              <strong style="color: #f472b6; display: block; margin-bottom: 3px;">COMUNHÃO</strong>
+              <p style="font-size: 11.5px;">Eleva a harmonia dos habitantes nas vilas, reduzindo atritos sociais e multiplicando a eficiência dos celeiros.</p>
+            </div>
+          </div>
+
+          <h4 style="font-size: 13.5px; color: #ffffff; margin: 16px 0 8px;">Os 5 Níveis de Maturidade da Jornada</h4>
+
+          <table class="guide-table">
+            <thead>
+              <tr>
+                <th>Nível</th>
+                <th>Título</th>
+                <th>Foco de Gameplay</th>
+                <th>Desbloqueio Principal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1</strong></td>
+                <td><span style="color: var(--text-primary); font-weight: 600;">Firme</span></td>
+                <td>Aprendizado dos caminhos, primeiros socorros nas rotas e acolhimento em Nazaré.</td>
+                <td>Uso de ervas curativas e montagem de pequenas tendas.</td>
+              </tr>
+              <tr>
+                <td><strong>2</strong></td>
+                <td><span style="color: #63b3ed; font-weight: 600;">Elevado</span></td>
+                <td>Mediação em pequenos vilarejos, transporte de suprimentos e suporte a pescadores.</td>
+                <td>Dom de Curar Enfermidades Leves por intercessão.</td>
+              </tr>
+              <tr>
+                <td><strong>3</strong></td>
+                <td><span style="color: #38a169; font-weight: 600;">Consagrado</span></td>
+                <td>Administração avançada das 7 bases comunitárias e proteção de órfãos e viúvas.</td>
+                <td>Discernimento de Espíritos em conversas com opositores.</td>
+              </tr>
+              <tr>
+                <td><strong>4</strong></td>
+                <td><span style="color: #fbbf24; font-weight: 600;">Eminente</span></td>
+                <td>Comando de caravanas entre distritos e resolução de crises doutrinárias graves.</td>
+                <td>Liderança inspiradora e multiplicação de mantimentos.</td>
+              </tr>
+              <tr>
+                <td><strong>5</strong></td>
+                <td><span style="color: var(--gold-accent); font-weight: 700;">Pleno</span></td>
+                <td>Embaixador da reconciliação, testemunha madura dos milagres e consolidação do legado.</td>
+                <td>Operação de Fé Inabalável em tempestades e crises extremas.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- CAPÍTULO 5 -->
+        <section class="guide-chapter" id="guide-ch5">
+          <div class="guide-chapter-header">
+            <span class="guide-chapter-num">CAPÍTULO 5</span>
+            <h3 class="guide-chapter-title">As 7 Bases da Vila: O Coração da Solidariedade</h3>
+          </div>
+
+          <p>
+            Inspiradas na dinâmica de refúgio e sobrevivência comunitária (estilo <em>State of Decay</em> em perspectiva bíblica), as 7 bases funcionam como uma rede viva interligada por rotas comerciais e caravanas solidárias:
+          </p>
+
+          <div class="guide-grid-2">
+            <div class="guide-card-mini">
+              <strong>1. Pousada de Betânia</strong>
+              <p>Centro de acolhimento de viajantes cansados e recuperação rápida de estamina. Local de paz e consolo onde Lázaro, Marta e Maria exercem hospitalidade exemplar.</p>
+            </div>
+            <div class="guide-card-mini">
+              <strong>2. Poço de Sicar</strong>
+              <p>Ponto vital de abastecimento de água potável no coração de Samaria. Símbolo de quebra de preconceitos históricos e reconciliação entre povos.</p>
+            </div>
+            <div class="guide-card-mini">
+              <strong>3. Olaria de Nazaré</strong>
+              <p>Fabricação artesanal de ânforas, telhas e utensílios de cerâmica para estocar grãos e azeite com segurança nas temporadas de chuva.</p>
+            </div>
+            <div class="guide-card-mini">
+              <strong>4. Sinagoga de Cafarnaum</strong>
+              <p>Centro nevrálgico de ensino das Escrituras Sagradas, oração comunitária e acolhimento dos que buscam a cura e a palavra de vida.</p>
+            </div>
+            <div class="guide-card-mini">
+              <strong>5. Oficina de Caná</strong>
+              <p>Manutenção e forja de ferramentas agrícolas (enxadas, foices, arados de madeira) e reparo de carretas de transporte entre distritos.</p>
+            </div>
+            <div class="guide-card-mini">
+              <strong>6. Horta de Betfagé</strong>
+              <p>Produção de figos, trigo, leguminosas e cultivo de ervas medicinais utilizadas no socorro aos doentes e leprosos isolados.</p>
+            </div>
+            <div class="guide-card-mini" style="grid-column: 1 / -1;">
+              <strong>7. Refúgio do Mar da Galileia</strong>
+              <p>Píer cooperativo e secador de redes. Permite a pesca sustentável de peixes para distribuição gratuita nas vilas e transporte de caridade pelas águas.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- CAPÍTULO 6 -->
+        <section class="guide-chapter" id="guide-ch6">
+          <div class="guide-chapter-header">
+            <span class="guide-chapter-num">CAPÍTULO 6</span>
+            <h3 class="guide-chapter-title">Governança, Soberania & A Imortalização 3D dos Apoiadores</h3>
+          </div>
+
+          <p>
+            <strong>Peregrino</strong> é um projeto sustentado por um pacto transparente entre os desenvolvedores e a congregação pioneira. A governança do projeto é estruturada de forma inegociável:
+          </p>
+
+          <div class="guide-grid-2">
+            <div class="guide-card-mini">
+              <h4>Soberania Doutrinária Perpétua (51%)</h4>
+              <p>A titularidade e direção criativa pertencem exclusivamente ao <strong>Haja Luz Studio</strong>, garantindo fidelidade bíblica perpétua sem interferência de corporações seculares.</p>
+            </div>
+            <div class="guide-card-mini">
+              <h4>Pool de Participação Comunitária (49%)</h4>
+              <p>49% de todo o resultado líquido gerado pelas vendas futuras do jogo é reservado aos conselheiros e apoiadores pioneiros, auditado com hash criptográfico SHA-256 e contrato civil.</p>
+            </div>
+          </div>
+
+          <div style="background: rgba(199, 165, 152, 0.08); border: 1px solid var(--gold-accent); border-radius: var(--radius-sm); padding: 16px; margin-top: 14px;">
+            <strong style="color: var(--gold-accent); font-size: 13.5px; display: block; margin-bottom: 6px;">
+              A Imortalização 3D: Rostos Reais da Congregação Dentro da Galileia
+            </strong>
+            <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; margin: 0;">
+              Como testemunho vivo de gratidão aos parceiros que sustentam o desenvolvimento (com compromisso contínuo a partir de 12 meses), o <strong>Haja Luz Studio</strong> realiza o escaneamento e a modelagem 3D dos apoiadores reais (como o <strong>Pastor Adriano</strong>, <strong>William</strong> e <strong>Felipe</strong>). Seus modelos cel-shading em alta resolução habitam as 7 bases da Galileia e Judeia como guardiões da vila, distribuindo provisões e recepcionando os peregrinos que chegam em busca de paz.
+            </p>
+          </div>
+
+        </section>
+
+      </div>
+
+      <!-- Rodapé do Modal -->
+      <div style="padding: 14px 24px; border-top: 1px solid rgba(255, 255, 255, 0.08); background: #0c0e15; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <span style="font-size: 11.5px; color: var(--text-muted);">
+          Peregrino © 2026 Haja Luz Studio • Passo Fundo/RS • Registro Hash SHA-256
+        </span>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-secondary" onclick="App.printGameGuide()">Imprimir Guia</button>
+          <button type="button" class="btn-primary" onclick="App.closeGameGuideModal()">Concluir Leitura</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL DE VISUALIZAÇÃO EM TELA CHEIA (LIGHTBOX / GALERIA 4K) -->
+  <div id="lightbox-modal" class="modal-overlay lightbox-overlay" onclick="App.handleLightboxBackdropClick(event)">
+    <div class="lightbox-container" onclick="event.stopPropagation()">
+      <!-- Barra Superior do Lightbox -->
+      <div class="lightbox-header">
+        <div class="lightbox-title-group">
+          <span class="spec-badge" style="color: var(--gold-accent);">CAPTURA OFICIAL 3D</span>
+          <h3 id="lightbox-title">Visualização em Alta Resolução</h3>
+          <span id="lightbox-counter" class="lightbox-counter">1 / 1</span>
+        </div>
+        <div class="lightbox-actions">
+          <button type="button" class="lightbox-btn" id="lightbox-like-btn" onclick="App.toggleLightboxLike()" title="Curtir esta captura 3D">
+            <span id="lightbox-like-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </span>
+            <span id="lightbox-like-count">0</span>
+          </button>
+          <button type="button" class="lightbox-btn" id="lightbox-comments-toggle-btn" onclick="App.toggleLightboxComments()" title="Ver e adicionar comentários desta foto">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+            <span id="lightbox-comment-count">0</span>
+            <span class="lightbox-btn-label">Comentários</span>
+          </button>
+          <button type="button" class="lightbox-btn" onclick="App.toggleLightboxFullscreen()" title="Alternar Modo Tela Cheia (F)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></svg>
+            <span class="lightbox-btn-label">Tela Cheia</span>
+          </button>
+          <button type="button" class="lightbox-btn" onclick="App.openLightboxOriginal()" title="Abrir arquivo original em alta definição">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+            <span class="lightbox-btn-label">Original</span>
+          </button>
+          <button type="button" class="lightbox-close-btn" onclick="App.closeLightbox()" title="Fechar (ESC)">&times;</button>
+        </div>
+      </div>
+
+      <!-- Palco Central com Imagem e Navegação -->
+      <div class="lightbox-stage" onclick="App.handleLightboxBackdropClick(event)">
+        <button type="button" class="lightbox-nav-btn lightbox-prev" id="lightbox-prev-btn" onclick="App.lightboxPrev(event)" title="Foto Anterior (←)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+
+        <div class="lightbox-image-wrapper">
+          <img id="lightbox-img" src="" alt="Captura 3D Tela Cheia" />
+        </div>
+
+        <button type="button" class="lightbox-nav-btn lightbox-next" id="lightbox-next-btn" onclick="App.lightboxNext(event)" title="Próxima Foto (→)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      <!-- Gaveta Lateral de Comentários do Lightbox -->
+      <div id="lightbox-comments-drawer" class="lightbox-comments-drawer">
+        <div class="lightbox-comments-head">
+          <h4>Comentários da Captura 3D</h4>
+          <button type="button" class="modal-close" onclick="App.toggleLightboxComments()" style="font-size: 20px;">&times;</button>
+        </div>
+        <div class="lightbox-comments-body" id="lightbox-comments-list">
+          <!-- Comentários da foto ativa -->
+        </div>
+        <div class="lightbox-comments-foot">
+          <form class="comment-form" onsubmit="App.submitLightboxComment(event)">
+            <input type="text" id="lightbox-comment-input" class="comment-input" placeholder="Escreva seu comentário..." required autocomplete="off" />
+            <button type="submit" class="comment-submit-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              <span>Enviar</span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Barra Inferior com Legenda e Faixa de Miniaturas -->
+      <div class="lightbox-footer">
+        <div id="lightbox-caption" class="lightbox-caption">Captura de Desenvolvimento Godot 4.7.2</div>
+        <div id="lightbox-thumbnails" class="lightbox-thumbnails"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SDK Supabase Cloud & Resiliência Offline -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/qrcode.min.js"></script>
+  <script src="assets/js/icons.js?v=4"></script>
+  <script src="assets/js/supabase.js?v=4"></script>
+  <script src="assets/js/store.js?v=4"></script>
+  <script src="assets/js/app.js?v=4"></script>
+
+</body>
+</html>

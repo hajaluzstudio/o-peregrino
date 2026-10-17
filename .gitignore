@@ -1,0 +1,27 @@
+# Dependências e Ambiente
+node_modules/
+.env
+.env.local
+.env.*.local
+.vercel
+
+# Logs e arquivos de sistema
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+
+# Python & Scripts Locais Temporários
+__pycache__/
+*.py[cod]
+*$py.class
+*.ps1
+.venv/
+venv/
+ENV/
+
+# Arquivos temporários de teste local
+*.tmp
+*.bak

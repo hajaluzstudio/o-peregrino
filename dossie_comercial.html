@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dossiê Executivo Comercial Completo: Peregrino | Haja Luz Studio</title>
+  <link rel="icon" type="image/png" href="favicon_logo_PPrancheta-1.png">
+  <link rel="shortcut icon" type="image/png" href="assets/img/favicon.png">
+  <link rel="apple-touch-icon" href="assets/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #000000;
+      --card-bg: #0a0a0a;
+      --card-elevated: #111111;
+      --border: #222222;
+      --border-strong: #2c2c2c;
+      --text: #ffffff;
+      --text-sub: #d1d5db;
+      --muted: #888888;
+      --gold: #c7a598;
+      --gold-subtle: rgba(212, 184, 174, 0.14);
+      --engine: #38a169;
+      --water: #c7a598;
+      --font: "Inter", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
+    }
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: rgba(148, 163, 184, 0.3);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: var(--gold);
+    }
+    ::-webkit-scrollbar-button {
+      display: none !important;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.65;
+      letter-spacing: -0.01em;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      padding: 40px 20px;
+      scroll-behavior: smooth;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 48px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    }
+    header {
+      border-bottom: 2px solid var(--border-strong);
+      padding-bottom: 28px;
+      margin-bottom: 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .brand-title {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--gold);
+      letter-spacing: 0.5px;
+      line-height: 1.2;
+    }
+    .brand-subtitle {
+      font-size: 14px;
+      color: var(--text-sub);
+      margin-top: 6px;
+    }
+    .brand-org {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-top: 4px;
+    }
+    .badge-top {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 6px 12px;
+      background: var(--bg);
+      border: 1px solid var(--gold);
+      border-radius: 4px;
+      color: var(--gold);
+      text-align: right;
+    }
+    h2 {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-top: 36px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2 .sec-num {
+      font-family: var(--font-mono);
+      color: var(--gold);
+      font-size: 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+    p {
+      font-size: 14px;
+      color: var(--text-sub);
+      margin-bottom: 12px;
+      line-height: 1.65;
+    }
+    ul, ol {
+      margin-left: 22px;
+      margin-bottom: 16px;
+    }
+    li {
+      font-size: 14px;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+    strong {
+      color: #ffffff;
+      font-weight: 600;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 18px 0;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 18px 0;
+    }
+    .box {
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      padding: 16px;
+      border-radius: 6px;
+    }
+    .box-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .box p {
+      margin-bottom: 0;
+      font-size: 13px;
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 13px;
+    }
+    .table th, .table td {
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      text-align: left;
+    }
+    .table th {
+      background-color: var(--bg);
+      color: var(--text-sub);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .table td {
+      color: var(--text-sub);
+      background-color: var(--card-elevated);
+    }
+    .highlight-val {
+      font-family: var(--font-mono);
+      color: var(--gold);
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .callout {
+      background-color: var(--gold-subtle);
+      border: 1px solid var(--gold);
+      border-radius: 6px;
+      padding: 18px;
+      margin: 20px 0;
+    }
+    .callout h4 {
+      color: var(--gold);
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .callout p {
+      color: #ffffff;
+      margin-bottom: 0;
+      font-size: 13.5px;
+    }
+    .signatures {
+      margin-top: 48px;
+      padding-top: 28px;
+      border-top: 2px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 50px;
+    }
+    .sig-line {
+      border-top: 1px solid var(--border-strong);
+      margin-top: 48px;
+      padding-top: 10px;
+      text-align: center;
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .sig-line strong {
+      color: var(--text-sub);
+    }
+    .no-print {
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+    .btn-print {
+      background: var(--gold);
+      color: #0b0e14;
+      font-weight: 700;
+      padding: 9px 18px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 13.5px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-secondary {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border-strong);
+      font-weight: 600;
+      padding: 9px 18px;
+      border-radius: 4px;
+      font-size: 13.5px;
+      cursor: pointer;
+    }
+    @media print {
+      body { background: #fff; color: #000; padding: 0; }
+      .container { border: none; background: #fff; padding: 0; max-width: 100%; color: #000; box-shadow: none; }
+      .no-print { display: none; }
+      .box { background: #f8fafc; border-color: #cbd5e1; color: #000; }
+      .table th { background: #f1f5f9; color: #000; }
+      .table td { background: #fff; color: #000; }
+      .table td, .table th { border-color: #cbd5e1; }
+      h1, h2, h3, .box-title, .brand-title, .highlight-val, strong { color: #000 !important; }
+      p, li { color: #1e293b !important; }
+      .callout { background: #fefce8; border-color: #ca8a04; color: #000; }
+      .callout h4, .callout p { color: #000 !important; }
+      .badge-top { border-color: #000; color: #000; }
+      .signatures { border-top-color: #cbd5e1; }
+      .sig-line { border-top-color: #000; color: #000; }
+      .sig-line strong, .sig-line span { color: #000 !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; padding: 12px 16px; background: var(--card-elevated); border: 1px solid var(--border-strong); border-radius: 6px;">
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <label for="dossie-user-select" style="font-size: 11.5px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+          <span>Investidor na Assinatura:</span>
+        </label>
+        <select id="dossie-user-select" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; background: #0c0e15; color: #f1f5f9; border-color: var(--gold); cursor: pointer; outline: none; border-radius: 4px;" onchange="DossieManager.onUserChange(this.value)">
+          <!-- Preenchido dinamicamente com usuários e contratos -->
+        </select>
+        <button type="button" class="btn-secondary" onclick="DossieManager.promptCustomUser()" style="font-size: 11px; padding: 6px 10px; color: var(--gold); border-color: rgba(199,165,152,0.4);" title="Inserir nome e CPF de outro parceiro manualmente">
+          ✎ Outro Parceiro
+        </button>
+      </div>
+
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <a href="index.html" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 7px 12px;">← Voltar ao Sistema</a>
+        <button class="btn-print" onclick="window.print()" style="font-size: 12.5px; padding: 7px 16px;">
+          Imprimir / Salvar Dossiê em PDF
+        </button>
+      </div>
+    </div>
+
+    <header>
+      <div>
+        <div class="brand-title">PEREGRINO</div>
+        <div class="brand-subtitle">Dossiê Executivo de Apresentação Comercial, Mecânica & Governança Societária</div>
+        <div class="brand-org">Haja Luz Studio • CNPJ: 61.511.844/0001-91 • Passo Fundo/RS</div>
+      </div>
+      <div class="badge-top">
+        FASE 2: MVP DEFINITIVO<br>
+        <span style="font-size: 10px; color: var(--muted);">AUDITADO & REGISTRADO</span>
+      </div>
+    </header>
+
+    <!-- SEÇÃO 1: PITCH COMERCIAL & MERCADO -->
+    <h2><span class="sec-num">01</span> Visão Geral e Oportunidade de Mercado</h2>
+    <p>O mercado global de videogames movimenta mais de <strong>US$ 180 bilhões anuais</strong>, contudo apresenta uma lacuna histórica estrutural: a escassez quase absoluta de títulos de alta fidelidade visual e mecânica que comuniquem valores cristãos, fidelidade bíblica e princípios éticos sem apelar para violência explícita ou jogabilidades rasas.</p>
+    <p><strong>Peregrino</strong> é um RPG Narrativo de Mundo Aberto em terceira pessoa que une a grandiosidade de exploração urbana viva (estilo <em>GTA Clássico</em>) com a profundidade estratégica de sobrevivência comunitária (inspirada em <em>State of Decay</em>), totalmente adaptado a princípios históricos do primeiro século e pacíficos.</p>
+
+    <div class="grid-3">
+      <div class="box">
+        <div class="box-title">Plataformas</div>
+        <p>PC (Windows via Steam / Itch.io) e Dispositivos Móveis (Android / iOS).</p>
+      </div>
+      <div class="box">
+        <div class="box-title">Público-Alvo</div>
+        <p>Famílias cristãs, jovens, educadores confessionais e jogadores que buscam narrativa profunda sem violência.</p>
+      </div>
+      <div class="box">
+        <div class="box-title">Diferencial Central</div>
+        <p>Zero combate armado. Substituição por ciclo ministerial: <em>Encontrar &rarr; Conhecer &rarr; Ensinar &rarr; Transformar</em>.</p>
+      </div>
+    </div>
+
+    <!-- SEÇÃO 2: CENÁRIO E ESCOPO GEOGRÁFICO -->
+    <h2><span class="sec-num">02</span> Cenário Geográfico: Cidade Monumental Inédita</h2>
+    <p>O jogo é ambientado em uma cidade fictícia inédita e monumental, criada do zero com nome próprio exclusivo e fidelidade arquitetônica aos povoados da Galileia do primeiro século (como Cafarnaum e Nazaré).</p>
+    <p><strong>Estratégia de Produção:</strong> 100% dos recursos do lançamento concentram-se nesta única cidade massiva com território expansível. Novas cidades só serão introduzidas em expansões futuras após todo o mapa inicial ser consolidado.</p>
+
+    <!-- SEÇÃO 3: AS 7 BASES E SOBREVIVÊNCIA COMUNITÁRIA (STATE OF DECAY) -->
+    <h2><span class="sec-num">03</span> Sobrevivência Comunitária & As 7 Bases Estratégicas</h2>
+    <p>Diferente de RPGs com bases fixas, a progressão comunitária espelha o modelo consagrado de <em>State of Decay</em>: o Peregrino começa acolhendo pioneiros em uma base modesta e migra conforme o vilarejo cresce para instalações maiores.</p>
+
+    <div class="grid-2">
+      <div class="box">
+        <div class="box-title"><span>Base 01: Acampamento do Vale</span> <span>6 a 10 pessoas</span></div>
+        <p>Platô inicial de acolhimento seguro, carpintaria de leitos e primeiras provisões.</p>
+      </div>
+      <div class="box">
+        <div class="box-title"><span>Base 02: Feitoria do Cais</span> <span>12 a 16 pessoas</span></div>
+        <p>Polo pesqueiro com armazéns de salga, ancoradouro e logística do lago.</p>
+      </div>
+      <div class="box">
+        <div class="box-title"><span>Base 03: Estalagem dos Mercadores</span> <span>18 a 22 pessoas</span></div>
+        <p>Celeiros de grãos, alojamentos de caravanas e estábulo para montarias.</p>
+      </div>
+      <div class="box">
+        <div class="box-title"><span>Base 04: Posto Avançado do Deserto</span> <span>15 a 20 pessoas</span></div>
+        <p>Ponto de apoio na travessia árida para batedores e proteção contra saqueadores.</p>
+      </div>
+      <div class="box">
+        <div class="box-title"><span>Base 05: Refúgio das Fontes</span> <span>25 a 30 pessoas</span></div>
+        <p>Cachoeira das cavernas, cultivo de ervas medicinais e alta proteção natural.</p>
+      </div>
+      <div class="box">
+        <div class="box-title"><span>Base 06: Fortaleza da Ilha</span> <span>30 a 40 pessoas</span></div>
+        <p>Santuário insular no meio do lago, acessível apenas por barco, imune a cercos terrestres.</p>
+      </div>
+    </div>
+    <div class="box" style="margin-top: 10px;">
+      <div class="box-title"><span>Base 07: Cidadela do Cume (Mega Base Final)</span> <span>50+ pessoas</span></div>
+      <p>Grande comunidade no topo da serra que coroa a consolidação espiritual e comunitária de todo o território regional.</p>
+    </div>
+
+    <h3>Mecânicas de Apoio Comunitário:</h3>
+    <ul>
+      <li><strong>Rede de Postos de Apoio:</strong> Ao migrar para uma nova base, as anteriores continuam ativas gerando pescado, grãos e suprimentos em segundo plano.</li>
+      <li><strong>Limpeza Pacífica de Territórios:</strong> Para reivindicar bases ocupadas por saqueadores, o jogador usa intervenção espiritual com <em>Dons de Curas ou Milagres em área (15m)</em>. Os hostis são convertidos e tornam-se os primeiros habitantes da nova instalação.</li>
+      <li><strong>As 5 Vocações dos Convertidos:</strong>
+        <ul>
+          <li><strong>Pescador / Agricultor:</strong> Coleta alimentos, impedindo crises de fome na base.</li>
+          <li><strong>Carpinteiro / Construtor:</strong> Realiza obras de infraestrutura e amplia o limite de camas.</li>
+          <li><strong>Médico (Apoticário):</strong> Cuida de enfermos com óleos e ervas, preservando a saúde e moral.</li>
+          <li><strong>Tecelão (Fazedor de Tendas):</strong> Confecciona alforjes para o jumentinho e suprimentos de viagem.</li>
+          <li><strong>Escriba / Mestre:</strong> Discipulado interno que sustenta a fé comunitária e previne apostasia.</li>
+        </ul>
+      </li>
+    </ul>
+
+    <!-- SEÇÃO 4: OS 7 DISTRITOS DA CIDADE MONUMENTAL -->
+    <h2><span class="sec-num">04</span> Os 7 Distritos da Cidade Fictícia Monumental</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Distrito</th>
+          <th>Arquitetura e Cenário Histórico</th>
+          <th>Ponto de Interesse Chave</th>
+          <th>Status Técnico</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>01. Porto dos Pescadores</strong></td>
+          <td>Cais de pedra escura basáltica, varais de secagem e barcos de madeira.</td>
+          <td>Atracadouro e Salga de Peixes</td>
+          <td><span style="color: var(--engine); font-weight: 600;">3D Concluído / 60 FPS</span></td>
+        </tr>
+        <tr>
+          <td><strong>02. Mercado Central</strong></td>
+          <td>Núcleo urbano denso com arcos transitáveis e blocos geminados.</td>
+          <td>Poço Comunitário e Tenda de Tecidos</td>
+          <td><span style="color: var(--gold); font-weight: 600;">Em Texturização Cel-Shading</span></td>
+        </tr>
+        <tr>
+          <td><strong>03. Colina da Sinagoga</strong></td>
+          <td>Templo monumental de calcário claro, praça cerimonial em terraços.</td>
+          <td>Posto da Guarda Romana e Pátio Cerimonial</td>
+          <td>Modelagem 3D em Progresso</td>
+        </tr>
+        <tr>
+          <td><strong>04. Base da Comunidade</strong></td>
+          <td>Platô plano de expansão, celeiros e oficinas de carpintaria.</td>
+          <td>Primeiros Lotes e Tenda de Oração</td>
+          <td>Estrutura Concluída</td>
+        </tr>
+        <tr>
+          <td><strong>05. Santuário do Monte</strong></td>
+          <td>Desfiladeiro a 45m de altitude, bosque de oliveiras antigas e grutas.</td>
+          <td>Altar de Pedras Brutas e Grutas de Retiro</td>
+          <td>Greyboxing</td>
+        </tr>
+        <tr>
+          <td><strong>06. Vale das Cavernas</strong></td>
+          <td>Cânion profundo com cachoeira, correnteza e acampamento de lã.</td>
+          <td>Passadiço de Toras e Cachoeira das Fontes</td>
+          <td>Conceito 3D Definido</td>
+        </tr>
+        <tr>
+          <td><strong>07. Oásis Distante</strong></td>
+          <td>Anfiteatro rochoso no deserto com tamareiras e espelho d'água doce.</td>
+          <td>Fonte das Tamareiras</td>
+          <td>Conceito 3D Definido</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- SEÇÃO 5: MECÂNICAS, DONS E INTELIGÊNCIA ARTIFICIAL -->
+    <h2><span class="sec-num">05</span> Mecânicas Centrais & Sistema de IA Espiritual</h2>
+    <ul>
+      <li><strong>Máquina de Estados dos Cidadãos:</strong>
+        <br>&bull; <em>Sombra (Não alcançado):</em> Habitante neutro que desafia o jogador com perguntas bíblicas. Erros ativam a penalidade "Coração Endurecido" (trava o diálogo por 60s).
+        <br>&bull; <em>Cinza (Ouvinte):</em> Habitante tocado que permanece em escuta e requer discipulado.
+        <br>&bull; <em>Luz (Discípulo Ativo):</em> Converte-se em membro pleno com autonomia de IA para patrulhar a cidade sozinho e converter outros habitantes sem a presença do jogador.
+      </li>
+      <li><strong>Motor Zero-Repeat (DDA Bíblico):</strong> Banco de dados dinâmico de perguntas com rastreamento cognitivo que impede repetições para o mesmo usuário e sorteio sem reposição de nomes bíblicos (zero duplicação de nomes na cidade).</li>
+      <li><strong>Árvore de Dons Espirituais (1 Coríntios 12):</strong> Habilidades ativadas por Santificação: <em>Dom de Curas</em> (área de 15m), <em>Discernimento de Espíritos</em> (auras douradas, vermelhas e azuis), <em>Palavra de Sabedoria</em>, <em>Palavra de Ciência</em>, <em>Dom da Fé</em> e <em>Operação de Milagres</em>.</li>
+      <li><strong>Montaria do Jumentinho:</strong> Desbloqueia locomoção rápida (+60% de velocidade), reduz desconfiança de habitantes céticos e possui alforjes que servem como baú móvel para transporte de suprimentos pesados.</li>
+    </ul>
+
+    <!-- SEÇÃO 6: ENGENHARIA TÉCNICA A 60 FPS -->
+    <h2><span class="sec-num">06</span> Engenharia Técnica: Desempenho Cravado a 60 FPS</h2>
+    <p>O jogo foi desenhado do zero na engine <strong>Godot 4.x</strong> para rodar a 60 FPS contínuos tanto em PCs modestos quanto em celulares intermediários através de 4 técnicas de engenharia:</p>
+    <div class="grid-2">
+      <div class="box">
+        <div class="box-title">Distance Culling</div>
+        <p>Ocultação de pequenos adereços (ânforas, cestos) a mais de 80-120m do campo de visão.</p>
+      </div>
+      <div class="box">
+        <div class="box-title">Simulation Culling</div>
+        <p>Congelamento da física e processamento de IA nos distritos onde o jogador não está presente.</p>
+      </div>
+      <div class="box">
+        <div class="box-title">MultiMeshInstance3D</div>
+        <p>Agrupamento de centenas de rochas e oliveiras renderizadas em uma única chamada de desenho (Draw Call).</p>
+      </div>
+      <div class="box">
+        <div class="box-title">Geração Modular de Cidadãos</div>
+        <p>Variações de túnicas e adereços via código em poucas malhas base, economizando memória RAM.</p>
+      </div>
+    </div>
+
+    <!-- SEÇÃO 7: MODELO SOCIETÁRIO E FÓRMULA DE COTAS -->
+    <h2><span class="sec-num">07</span> O Modelo Societário & A Fórmula Matemática de Cotas</h2>
+    <div class="callout">
+      <h4>CLÁUSULA PETREA DE GOVERNANÇA: 51% DO CRIADOR / 49% POOL DE APOIADORES</h4>
+      <p>51% das cotas pertencem permanentemente ao Criador, garantindo a soberania artística, teológica e doutrinária. Os 49% restantes formam o pool comercial dividido entre os apoiadores proporcionalmente ao aporte e ao risco assumido.</p>
+    </div>
+
+    <h3>A Fórmula do Fator de Risco Pioneiro:</h3>
+    <p>Para recompensar os apoiadores da fase de desenvolvimento (alto risco), aplica-se o multiplicador de incentivo aos pioneiros:</p>
+    <div class="box" style="font-family: var(--font-mono); font-size: 13px; margin: 12px 0;">
+      Valor Ponderado = &sum; (Aporte Mensal &times; Meses) &times; 1,25 (Fator Pioneiro Fase de MVP)<br>
+      Cota Definitiva (%) = (Valor Ponderado / Teto de Captação da Fase) &times; 49%
+    </div>
+
+    <p><strong>Exemplo Prático com <span id="calc-example-name">Pastor Adriano</span>:</strong></p>
+    <ul>
+      <li>Aporte Mensal: <strong id="calc-monthly">R$ 500,00</strong> ao longo de <span id="calc-months">12</span> meses = <strong id="calc-total">R$ 6.000,00</strong> aportados.</li>
+      <li>Valor Ponderado com Bônus Pioneiro (1,25x): <strong id="calc-weighted">R$ 7.500,00</strong>.</li>
+      <li>Participação Definitiva Consolidada: <strong id="calc-cota">2,50%</strong> dos lucros líquidos globais do jogo.</li>
+    </ul>
+
+    <!-- SEÇÃO 8: PROJEÇÃO DE RETORNO AO INVESTIDOR -->
+    <h2><span class="sec-num">08</span> Projeções Financeiras & Retorno Recorrente (Dividendos)</h2>
+    <p>Quando o jogo iniciar comercialização na Steam, Itch.io, Google Play e App Store:</p>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Cenário de Faturamento Líquido Global</th>
+          <th>Pool dos Apoiadores (49%)</th>
+          <th>Retorno Mensal do Investidor (<span id="table-cota-header">Cota de 2,50%</span>)</th>
+          <th>Retorno Anual Estimado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>R$ 50.000,00 / mês</strong></td>
+          <td>R$ 24.500,00 / mês</td>
+          <td class="highlight-val" id="proj-50k-month">R$ 1.250,00 / mês</td>
+          <td class="highlight-val" id="proj-50k-year">R$ 15.000,00 / ano</td>
+        </tr>
+        <tr>
+          <td><strong>R$ 100.000,00 / mês</strong> (Meta Conservadora)</td>
+          <td>R$ 49.000,00 / mês</td>
+          <td class="highlight-val" id="proj-100k-month">R$ 2.500,00 / mês</td>
+          <td class="highlight-val" id="proj-100k-year">R$ 30.000,00 / ano</td>
+        </tr>
+        <tr>
+          <td><strong>R$ 250.000,00 / mês</strong> (Cenário de Expansão)</td>
+          <td>R$ 122.500,00 / mês</td>
+          <td class="highlight-val" id="proj-250k-month">R$ 6.250,00 / mês</td>
+          <td class="highlight-val" id="proj-250k-year">R$ 75.000,00 / ano</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><em>*Opção de Reinvestimento Inteligente: O investidor tem a faculdade de reinvestir seus dividendos em expansões de novos distritos, aumentando sua fatia estratégica.</em></p>
+
+    <!-- SEÇÃO 9: DESTINAÇÃO DOS RECURSOS CAPTADOS -->
+    <h2><span class="sec-num">09</span> Destinação dos Recursos Captados</h2>
+    <div class="grid-3">
+      <div class="box">
+        <div class="box-title">50% — Produção Artística</div>
+        <p>Modelagem 3D definitiva, rigging, animações de cidadãos e shaders Cel-Shading.</p>
+      </div>
+      <div class="box">
+        <div class="box-title">30% — Infraestrutura & Testes</div>
+        <p>Servidores em nuvem, testes cruzados de compatibilidade PC/Mobile e marketing inicial.</p>
+      </div>
+      <div class="box">
+        <div class="box-title">20% — Reserva Estratégica</div>
+        <p>Segurança operacional e suporte à abertura dos novos distritos e bases.</p>
+      </div>
+    </div>
+
+    <!-- SEÇÃO 10: FORMALIZAÇÃO JURÍDICA E ASSINATURAS -->
+    <h2><span class="sec-num">10</span> Formalização Jurídica & Integridade Criptográfica</h2>
+    <p>A adesão a este modelo é formalizada com registro de <strong>Hash Criptográfico SHA-256</strong> inviolável no banco de dados do sistema, garantindo auditoria em tempo real pelo painel de telemetria.</p>
+
+    <div class="signatures">
+      <div>
+        <div class="sig-line">
+          <strong>HAJA LUZ STUDIO</strong><br>
+          <span style="font-size: 11px; color: var(--gold);">CNPJ: 61.511.844/0001-91 • Passo Fundo/RS</span><br>
+          Desenvolvedor Principal &amp; Titular Soberano<br>
+          <span style="font-size: 11px;">Soberania de 51% Assegurada</span>
+        </div>
+      </div>
+      <div>
+        <div class="sig-line">
+          <strong id="sig-partner-role-title">APOIADOR / PARCEIRO COMERCIAL</strong><br>
+          <span id="sig-partner-name" style="font-weight: 700; font-size: 13.5px; color: var(--text);">Pastor Adriano</span><br>
+          <span id="sig-partner-doc" style="font-size: 11px; color: var(--text-sub);">CPF: 123.456.789-00 • Passo Fundo/RS</span><br>
+          <span id="sig-partner-institution" style="font-size: 11px; color: var(--muted); display: block;">Comunidade Cristã da Família</span>
+          <span id="sig-partner-cota" style="font-size: 11px; font-weight: 600; color: var(--gold);">Cota Titular: 2,50% no Pool de 49%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/store.js"></script>
+  <script>
+    const DossieManager = {
+      activeUser: null,
+      customUsers: [],
+
+      init() {
+        this.loadCustomUsers();
+        this.renderUserSelect();
+
+        // 1. URL search param (?user=...)
+        // 2. localStorage ('peregrino_selected_dossie_user')
+        // 3. Usuário logado na sessão ativa
+        // 4. Primeiro apoiador oficial (INV-0701)
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramUser = urlParams.get('user');
+        const storedUser = localStorage.getItem('peregrino_selected_dossie_user');
+
+        let initialId = paramUser || storedUser;
+
+        const storeRef = typeof Store !== 'undefined' ? Store : (typeof window !== 'undefined' ? window.Store : null);
+        if (!initialId && storeRef && storeRef.auth && storeRef.auth.currentUser && storeRef.auth.currentUser.role === 'supporter') {
+          initialId = storeRef.auth.currentUser.id;
+        }
+        if (!initialId) {
+          initialId = 'INV-0701';
+        }
+
+        this.selectUser(initialId);
+      },
+
+      loadCustomUsers() {
+        try {
+          const saved = localStorage.getItem('peregrino_custom_dossie_users');
+          if (saved) {
+            this.customUsers = JSON.parse(saved) || [];
+          }
+        } catch(e) {
+          this.customUsers = [];
+        }
+      },
+
+      saveCustomUsers() {
+        try {
+          localStorage.setItem('peregrino_custom_dossie_users', JSON.stringify(this.customUsers));
+        } catch(e) {}
+      },
+
+      getAllSupporters() {
+        const list = [];
+        const addedIds = new Set();
+        const storeRef = typeof Store !== 'undefined' ? Store : (typeof window !== 'undefined' ? window.Store : null);
+
+        // 1. Da lista de contratos do Store
+        if (storeRef && typeof storeRef.getContracts === 'function') {
+          storeRef.getContracts().forEach(c => {
+            const id = c.userId || c.id;
+            if (!addedIds.has(id)) {
+              addedIds.add(id);
+              list.push({
+                id: id,
+                contractId: c.id,
+                name: c.name,
+                cpf: c.cpf || 'Documento a Preencher',
+                city: c.city || 'Passo Fundo',
+                state: c.state || 'RS',
+                institution: c.institution || 'Apoiador Individual',
+                monthlyContribution: Number(c.monthlyContribution) || 500,
+                monthsCommitted: Number(c.monthsCommitted) || 12,
+                totalInvested: Number(c.totalInvested) || ((Number(c.monthlyContribution) || 500) * (Number(c.monthsCommitted) || 12)),
+                weightedValue: Number(c.weightedValue) || (Number(c.totalInvested) * 1.25),
+                equitySharePercent: Number(c.equitySharePercent) || 2.50,
+                status: c.status || 'aprovado'
+              });
+            }
+          });
+        }
+
+        // 2. Dos usuários do Store que são apoiadores mas não estavam em contratos
+        if (storeRef && Array.isArray(storeRef.users)) {
+          storeRef.users.filter(u => u.role === 'supporter').forEach(u => {
+            if (!addedIds.has(u.id)) {
+              addedIds.add(u.id);
+              list.push({
+                id: u.id,
+                contractId: null,
+                name: u.name,
+                cpf: u.cpf || '123.456.789-00',
+                city: u.city || 'Passo Fundo',
+                state: u.state || 'RS',
+                institution: u.institution || u.title || 'Apoiador Individual',
+                monthlyContribution: Number(u.monthlyContribution) || 500,
+                monthsCommitted: Number(u.monthsCommitted) || 12,
+                totalInvested: Number(u.totalInvested) || 6000,
+                weightedValue: Number(u.weightedValue) || 7500,
+                equitySharePercent: Number(u.equitySharePercent) || 2.50,
+                status: 'aprovado'
+              });
+            }
+          });
+        }
+
+        // 3. Usuários customizados criados em tela
+        this.customUsers.forEach(u => {
+          if (!addedIds.has(u.id)) {
+            addedIds.add(u.id);
+            list.push(u);
+          }
+        });
+
+        return list;
+      },
+
+      renderUserSelect() {
+        const selectEl = document.getElementById('dossie-user-select');
+        if (!selectEl) return;
+
+        const supporters = this.getAllSupporters();
+        selectEl.innerHTML = supporters.map(s => {
+          const cotaStr = s.equitySharePercent.toFixed(2).replace('.', ',');
+          const aporteStr = Number(s.monthlyContribution).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+          return `<option value="${s.id}">${s.name} (Cota ${cotaStr}% • R$ ${aporteStr}/mês)</option>`;
+        }).join('');
+      },
+
+      onUserChange(userId) {
+        this.selectUser(userId);
+      },
+
+      selectUser(userId) {
+        const supporters = this.getAllSupporters();
+        let user = supporters.find(s => s.id === userId || s.contractId === userId || s.name.toLowerCase() === (userId || '').toLowerCase());
+        
+        if (!user && supporters.length > 0) {
+          user = supporters[0];
+        }
+        if (!user) return;
+
+        this.activeUser = user;
+
+        const selectEl = document.getElementById('dossie-user-select');
+        if (selectEl) {
+          selectEl.value = user.id;
+        }
+
+        try {
+          localStorage.setItem('peregrino_selected_dossie_user', user.id);
+          const url = new URL(window.location.href);
+          url.searchParams.set('user', user.id);
+          window.history.replaceState({}, '', url.toString());
+        } catch(e) {}
+
+        this.applyUserData(user);
+      },
+
+      applyUserData(user) {
+        const cota = Number(user.equitySharePercent) || 2.50;
+        const monthly = Number(user.monthlyContribution) || 500;
+        const months = Number(user.monthsCommitted) || 12;
+        const total = Number(user.totalInvested) || (monthly * months);
+        const weighted = Number(user.weightedValue) || (total * 1.25);
+
+        const cotaStr = cota.toFixed(2).replace('.', ',') + '%';
+        const monthlyStr = 'R$ ' + monthly.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        const totalStr = 'R$ ' + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        const weightedStr = 'R$ ' + weighted.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+
+        // 1. Seção 10: Assinatura do Parceiro
+        const nameEl = document.getElementById('sig-partner-name');
+        if (nameEl) nameEl.textContent = user.name;
+
+        const docEl = document.getElementById('sig-partner-doc');
+        if (docEl) {
+          const cpfPart = user.cpf ? `CPF: ${user.cpf}` : '';
+          const locPart = (user.city || user.state) ? ` • ${user.city || ''}/${user.state || ''}` : '';
+          docEl.textContent = (cpfPart + locPart).trim().replace(/^•\s*/, '') || 'Documento a Formalizar';
+        }
+
+        const instEl = document.getElementById('sig-partner-institution');
+        if (instEl) {
+          instEl.textContent = user.institution || 'Apoiador & Parceiro Comercial';
+          instEl.style.display = user.institution ? 'block' : 'none';
+        }
+
+        const cotaEl = document.getElementById('sig-partner-cota');
+        if (cotaEl) {
+          cotaEl.textContent = `Cota Proporcional: ${cotaStr} no Pool de 49%`;
+        }
+
+        // 2. Seção 07: Exemplo Prático de Cálculo
+        const calcNameEl = document.getElementById('calc-example-name');
+        if (calcNameEl) calcNameEl.textContent = user.name;
+
+        const calcMonthlyEl = document.getElementById('calc-monthly');
+        if (calcMonthlyEl) calcMonthlyEl.textContent = monthlyStr;
+
+        const calcMonthsEl = document.getElementById('calc-months');
+        if (calcMonthsEl) calcMonthsEl.textContent = months;
+
+        const calcTotalEl = document.getElementById('calc-total');
+        if (calcTotalEl) calcTotalEl.textContent = totalStr;
+
+        const calcWeightedEl = document.getElementById('calc-weighted');
+        if (calcWeightedEl) calcWeightedEl.textContent = weightedStr;
+
+        const calcCotaEl = document.getElementById('calc-cota');
+        if (calcCotaEl) calcCotaEl.textContent = cotaStr;
+
+        // 3. Seção 08: Tabela de Projeções Financeiras
+        const headerCotaEl = document.getElementById('table-cota-header');
+        if (headerCotaEl) headerCotaEl.textContent = `Cota de ${cotaStr}`;
+
+        const calcReturn = (baseFaturamento) => {
+          const retMensal = baseFaturamento * (cota / 100);
+          const retAnual = retMensal * 12;
+          return {
+            mensal: 'R$ ' + retMensal.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) + ' / mês',
+            anual: 'R$ ' + retAnual.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) + ' / ano'
+          };
+        };
+
+        const ret50k = calcReturn(50000);
+        const ret100k = calcReturn(100000);
+        const ret250k = calcReturn(250000);
+
+        const m50 = document.getElementById('proj-50k-month');
+        const y50 = document.getElementById('proj-50k-year');
+        if (m50) m50.textContent = ret50k.mensal;
+        if (y50) y50.textContent = ret50k.anual;
+
+        const m100 = document.getElementById('proj-100k-month');
+        const y100 = document.getElementById('proj-100k-year');
+        if (m100) m100.textContent = ret100k.mensal;
+        if (y100) y100.textContent = ret100k.anual;
+
+        const m250 = document.getElementById('proj-250k-month');
+        const y250 = document.getElementById('proj-250k-year');
+        if (m250) m250.textContent = ret250k.mensal;
+        if (y250) y250.textContent = ret250k.anual;
+      },
+
+      promptCustomUser() {
+        const nome = prompt("Informe o Nome Completo do Apoiador / Parceiro:", "");
+        if (!nome || !nome.trim()) return;
+
+        const cpf = prompt("Informe o CPF do Parceiro (ou pressione OK):", "000.000.000-00");
+        const cidadeUf = prompt("Cidade e UF (Ex: Passo Fundo/RS):", "Passo Fundo/RS");
+        const inst = prompt("Instituição / Comunidade (Ex: Comunidade Cristã):", "Apoiador Individual");
+        const valorStr = prompt("Valor do Aporte Mensal em R$ (Ex: 500):", "500");
+        const mesesStr = prompt("Quantidade de Meses (Ex: 12):", "12");
+
+        const monthly = Math.max(50, parseFloat(valorStr) || 500);
+        const months = Math.max(1, parseInt(mesesStr, 10) || 12);
+        const total = monthly * months;
+        const weighted = total * 1.25;
+        const cota = parseFloat(((weighted / 120000) * 49).toFixed(2));
+
+        let city = "Passo Fundo";
+        let state = "RS";
+        if (cidadeUf && cidadeUf.includes("/")) {
+          const parts = cidadeUf.split("/");
+          city = parts[0].trim();
+          state = parts[1].trim().toUpperCase();
+        } else if (cidadeUf) {
+          city = cidadeUf.trim();
+        }
+
+        const customId = `CUSTOM-${Date.now()}`;
+        const newSupporter = {
+          id: customId,
+          contractId: null,
+          name: nome.trim(),
+          cpf: (cpf || "").trim(),
+          city: city,
+          state: state,
+          institution: (inst || "Apoiador Individual").trim(),
+          monthlyContribution: monthly,
+          monthsCommitted: months,
+          totalInvested: total,
+          weightedValue: weighted,
+          equitySharePercent: cota,
+          status: "aprovado"
+        };
+
+        this.customUsers.unshift(newSupporter);
+        this.saveCustomUsers();
+        this.renderUserSelect();
+        this.selectUser(customId);
+      }
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      DossieManager.init();
+    });
+  </script>
+</body>
+</html>

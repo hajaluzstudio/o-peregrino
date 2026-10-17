@@ -1,0 +1,578 @@
+{
+  "version": "2.0-SYNCHRONIZED",
+  "game": "Peregrino",
+  "engine": "Godot 4.7.2 Stable (win64)",
+  "sourceProjectPath": "D:\\HAJA LUZ\\Antigravity\\Dados_IA\\scratch\\O Peregrino",
+  "lastSync": "2026-10-10T11:48:53Z",
+  "auditMetrics": {
+    "totalTasks": 107,
+    "completedTasks": 64,
+    "pendingTasks": 41,
+    "inProgressTasks": 2,
+    "overallProgressPercent": 60
+  },
+  "characterCast": {
+    "riggedAndIntegrated": 13,
+    "supporterNPCs": [
+      "Pastor Adriano",
+      "William",
+      "Felipe"
+    ],
+    "pendingDisciples": 7
+  },
+  "terrainMetrics": {
+    "scale": "2.400m x 2.400m (5.76 km²)",
+    "heightmapResolution": "2049x2049 EXR 16-bit Float",
+    "maxAltitude": "+71.97m"
+  },
+  "districts": [
+    {
+      "id": 1,
+      "name": "Porto dos Pescadores & Orla",
+      "column": "testing",
+      "progress": 89,
+      "architecture": "Cais de basalto 3D monumental, barcos bíblicos e muretas em declive",
+      "description": "Orla do Mar da Galileia assentada em terra firme, cais de pedra com escadaria, barcos bíblicos (StandardMaterial3D madeira), 4 tendas rústicas, fogueira do peixe assado (João 21:9) e props portuários esculpidos.",
+      "poi": "Cais de Basalto, Fogueira de João 21:9, Píeres Leste/Oeste, Enseada Livre",
+      "status": "Refinamento Avançado do Cais (Foco Atual)",
+      "drawCalls": "MultiMeshInstance3D a 60 FPS cravados",
+      "checklist": [
+        {
+          "title": "Expansão da terra firme da orla (água empurrada para z=80)",
+          "done": true
+        },
+        {
+          "title": "Limpeza de quebra-mares (rochas restritas aos promontórios laterais)",
+          "done": true
+        },
+        {
+          "title": "5 Barcos Bíblicos da Galileia distribuídos (Píer Leste/Oeste e calafetagem)",
+          "done": true
+        },
+        {
+          "title": "4 Tendas rústicas de pescadores na praia (salga, reparo de redes, peixes)",
+          "done": true
+        },
+        {
+          "title": "Fogueira histórica de brasas com luz dinâmica (João 21:9) e ânforas",
+          "done": true
+        },
+        {
+          "title": "Eliminação de cápsulas placeholder e ativação dos modelos humanos 3D",
+          "done": true
+        },
+        {
+          "title": "Implantação do Cais de Basalto com escadaria e muretas 3D",
+          "done": true
+        },
+        {
+          "title": "Cenografia com 14 novos props 3D (telheiros, cestos, redes, remos)",
+          "done": true
+        },
+        {
+          "title": "Refinamento de alinhamento estrutural dos cais e transições finas",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Mercado Central",
+      "column": "in_progress",
+      "progress": 67,
+      "architecture": "Arcos de alvenaria transitáveis, toldos de feira e basalto",
+      "description": "Núcleo urbano central de Cafarnaum (coordenada 0, 0, -50) com barracas de comércio (toldos terracota, anil e linho), poço comunitário, feira livre e ponto de montaria ativa do jumentinho.",
+      "poi": "Poço Comunitário, Ponto de Montaria [E], Balcões de Oleiros, Toldos Têxteis",
+      "status": "Marco 2: Em alinhamento de vias sem sobreposição",
+      "drawCalls": "Colisões côncavas Trimesh compartilhadas",
+      "checklist": [
+        {
+          "title": "Barracas históricas de comércio com toldos coloridos e balcões",
+          "done": true
+        },
+        {
+          "title": "Pilhas de caixotes e ânforas nas margens das avenidas principais",
+          "done": true
+        },
+        {
+          "title": "Sistema de Montaria Ativa do Jumentinho selado [E] a 10.5 m/s",
+          "done": true
+        },
+        {
+          "title": "Colisões côncavas precisas em 24 casas antigas (create_trimesh_collision)",
+          "done": true
+        },
+        {
+          "title": "Alinhamento de residências e vias comerciais sem sobreposição",
+          "done": false
+        },
+        {
+          "title": "LOD dinâmico para feirantes e clientes em horário de pico",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Colina da Sinagoga e Bairro Romano",
+      "column": "in_progress",
+      "progress": 67,
+      "architecture": "Calcário claro monumental, colunatas e esplanada elevada",
+      "description": "Colina monumental em (-150, 0, -200) com Sinagoga em calcário claro, esplanada elevada com Maria Madalena e guarnição romana com sistema de cerco e prisão de Paulo e Silas.",
+      "poi": "Sinagoga Histórica, Alameda Monumental de 38 Ciprestes, Prisão Romana",
+      "status": "Marco 3: Modelagem de interiores e rolos sagrados",
+      "drawCalls": "Física ancorada StaticBody3D Layer 1 / Mask 1",
+      "checklist": [
+        {
+          "title": "Colisões Trimesh da Sinagoga e arcos monumentais",
+          "done": true
+        },
+        {
+          "title": "Alameda monumental de 38 Ciprestes pelo Caminho da Ascensão",
+          "done": true
+        },
+        {
+          "title": "Física de milagres do Terremoto na Prisão Romana (RigidBody3D e poeira)",
+          "done": true
+        },
+        {
+          "title": "Conversão do carcereiro romano para Ouvinte (Cinza)",
+          "done": true
+        },
+        {
+          "title": "Lajes de calcário antigo e colunatas da esplanada elevada",
+          "done": false
+        },
+        {
+          "title": "Interior da sala de rolos dos escribas e pergaminhos",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Base da Comunidade (Apoiadores Reais)",
+      "column": "in_progress",
+      "progress": 71,
+      "architecture": "Platô leste 14x14m com totens iluminados e tendas de apoiadores",
+      "description": "Platô leste em (200, 0, -100) com as fundações oficiais dos investidores pioneiros do Haja Luz Studio: Lote Adriano (Conselheiro), Lote William (Suprimentos) e Lote Felipe (Batedor), com motor de upgrade de tenda Nível 1 para pedra Nível 2.",
+      "poi": "Lote Pr. Adriano, Lote William, Lote Felipe, Bancada de Carpintaria",
+      "status": "Líderes NPCs e Slots Ativos (+25% Fé, +30% Stash)",
+      "drawCalls": "Otimizado 60 FPS cravados",
+      "checklist": [
+        {
+          "title": "3 Fundações demarcadas (14m x 14m) com moldura de vigas e totens",
+          "done": true
+        },
+        {
+          "title": "Tendas Nível 1 e construções Nível 2 (visible swap) implementadas",
+          "done": true
+        },
+        {
+          "title": "Líderes Apoiadores Reais posicionados com prompt [E] de interação",
+          "done": true
+        },
+        {
+          "title": "Motor de upgrade e bônus comunitários (+25% Fé, +30% Stash, +20% Vel)",
+          "done": true
+        },
+        {
+          "title": "Motor de Defesa de Base contra Cercos Espirituais (-2.0 Fé/s dreno)",
+          "done": true
+        },
+        {
+          "title": "Modelagem 3D personalizada exclusiva dos avatares dos apoiadores",
+          "done": false
+        },
+        {
+          "title": "Missões pastorais específicas de oração e contenção de crises",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Santuário do Monte & Cânion",
+      "column": "in_progress",
+      "progress": 67,
+      "architecture": "Cume panorâmico a +45m de altitude com cânion rochoso",
+      "description": "Platô elevado em (-80, 45, -450) acessado pelo Desfiladeiro do Monte, cercado por 14 formações de rochas escarpadas, monólitos sagrados de oração e Ancião de oração.",
+      "poi": "Altar de Pedras Brutas, Mirante Panorâmico a +45m, Desfiladeiro de Penhascos",
+      "status": "Marco 5: Estrutura topográfica e cânion prontos",
+      "drawCalls": "Heightmap 2.400m sem paredões artificiais flutuantes",
+      "checklist": [
+        {
+          "title": "Topografia a +45m com cânion entre penhascos íngremes",
+          "done": true
+        },
+        {
+          "title": "Monólitos de pedra sagrada e Ancião em oração no cume",
+          "done": true
+        },
+        {
+          "title": "Eliminação de paredões flutuantes via Heightmap nativo",
+          "done": true
+        },
+        {
+          "title": "Trilha do Desfiladeiro com marcos de pedra e iluminação noturna",
+          "done": true
+        },
+        {
+          "title": "Shader de transição para altar de pedras brutas e mirante",
+          "done": false
+        },
+        {
+          "title": "Evento cinematográfico do Sermão da Montanha",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Vale das Cavernas, Tendas & Cachoeira",
+      "column": "in_progress",
+      "progress": 67,
+      "architecture": "Anfiteatro rochoso natural, Grande Cachoeira de 26m e tendas beduínas",
+      "description": "Vale rústico em (380, 2, -250) com anfiteatro natural em ferradura, tendas beduínas, Eremita orando, grande fogueira com luz dinâmica e Grande Cachoeira animada (cachoeira.gdshader).",
+      "poi": "Grande Cachoeira 26m, Tendas Beduínas, Fogueira das Cavernas, Eremita",
+      "status": "Marco 6: Cenografia e shader de água ativa",
+      "drawCalls": "Cachoeira via GPU Shader + GPUParticles3D",
+      "checklist": [
+        {
+          "title": "Grande Cachoeira de 26 metros animada com cachoeira.gdshader",
+          "done": true
+        },
+        {
+          "title": "Anfiteatro rochoso contínuo em ferradura com colisão Trimesh",
+          "done": true
+        },
+        {
+          "title": "Tendas beduínas e fogueira rústica com luz dinâmica",
+          "done": true
+        },
+        {
+          "title": "NPC Eremita em oração integrado ao npc_spawner",
+          "done": true
+        },
+        {
+          "title": "Sistema de coleta de ervas medicinais nas encostas úmidas",
+          "done": false
+        },
+        {
+          "title": "Interiores transitáveis de grutas para refúgio em crises",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Oásis Escondido Distante",
+      "column": "in_progress",
+      "progress": 71,
+      "architecture": "Lago circular de água doce, cascata mansa e coroa de tamareiras",
+      "description": "Distrito 7 localizado remotamente em X = -900.0, Z = -900.0 (escala 2.400m x 2.400m), isolado da vila por cânions naturais com cascata de 9m, partículas GPUParticles3D e 15 tamareiras da Judeia.",
+      "poi": "Lago de Água Doce, Cascata Mansa 9m, Bosque de 15 Tamareiras, Câmera KEY_7",
+      "status": "Topografia fractal 2.400m e isolamento sem sobreposição",
+      "drawCalls": "Shape sharing em cache + SurfaceTool 128x128",
+      "checklist": [
+        {
+          "title": "Expansão territorial regional para 2.400m x 2.400m (4.198.401 vértices)",
+          "done": true
+        },
+        {
+          "title": "Relocação remota do Oásis para X = -900, Z = -900 prevenindo sobreposição",
+          "done": true
+        },
+        {
+          "title": "Lago circular com stylized_water.gdshader e cascata de 9m",
+          "done": true
+        },
+        {
+          "title": "Dois emissores GPUParticles3D (lâmina d'água e névoa/espuma)",
+          "done": true
+        },
+        {
+          "title": "Coroa de 15 tamareiras camuflando o oásis da vista direta da vila",
+          "done": true
+        },
+        {
+          "title": "Reativação da malha física CSGPolygon3D da Trilha do Oásis",
+          "done": false
+        },
+        {
+          "title": "Posto avançado de descanso para caravanas distantes",
+          "done": false
+        }
+      ]
+    }
+  ],
+  "bases": [
+    {
+      "id": 1,
+      "name": "Base Comunitária Principal (Platô Leste)",
+      "column": "testing",
+      "progress": 80,
+      "capacity": "20 a 35 residentes",
+      "role": "Sede Geral de Operações Comunitárias",
+      "description": "Platô leste estruturado com os 3 lotes de base building dos patrocinadores pioneiros, carpintaria, bancadas e motor de defesa contra cercos espirituais.",
+      "vocations": [
+        "Carpinteiro",
+        "Agricultor",
+        "Guarda"
+      ],
+      "peacefulConversion": "Dons de Curas (raio 15m) e Defesa de Base",
+      "status": "Ativa (Sede Operacional)",
+      "checklist": [
+        {
+          "title": "Platô demarcado de 14m x 14m com vigas de ancoragem",
+          "done": true
+        },
+        {
+          "title": "Bancadas de carpintaria e toras de madeira funcionais",
+          "done": true
+        },
+        {
+          "title": "Integração do motor de dreno de fé (-2.0 Fé/s em cerco)",
+          "done": true
+        },
+        {
+          "title": "Notificações na HUD de alerta e vitória de defesa de base",
+          "done": true
+        },
+        {
+          "title": "Celeiro automatizado de trigo e alimentos coletados",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Lote Pr. Adriano (Conselheiro Espiritual)",
+      "column": "in_progress",
+      "progress": 67,
+      "capacity": "Pilar de Fé da Vila",
+      "role": "Tenda de Oração & Santificação",
+      "description": "Lote oficial do Pastor Adriano na Base Comunitária. Concede o bônus comunitário de +25% de Fé global e desbloqueia diálogos pastorais de contenção de crises.",
+      "vocations": [
+        "Conselheiro",
+        "Intercessor"
+      ],
+      "peacefulConversion": "Palavra de Sabedoria e Oração Intercessória",
+      "status": "Tenda N1 e Mesh Swap N2 prontos",
+      "checklist": [
+        {
+          "title": "Lote demarcado com totem iluminado 'Lote Adriano'",
+          "done": true
+        },
+        {
+          "title": "Tenda Nível 1 instanciada e visível",
+          "done": true
+        },
+        {
+          "title": "Construção de pedra Nível 2 e motor de upgrade com poeira dourada",
+          "done": true
+        },
+        {
+          "title": "Bônus passivo de +25% de Fé ativado via base_building_manager",
+          "done": true
+        },
+        {
+          "title": "Modelo 3D customizado dedicado do Pastor Adriano",
+          "done": false
+        },
+        {
+          "title": "Árvore de diálogos pastorais para pacificar NPCs rebeldes",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Lote William (Gestão de Suprimentos)",
+      "column": "in_progress",
+      "progress": 67,
+      "capacity": "Armazém Central de Recursos",
+      "role": "Pilar Logístico & Stash Comunitário",
+      "description": "Lote oficial de William na Base Comunitária. Concede +30% de capacidade de Stash/estoque geral da comunidade e centraliza o fluxo de pães e peixes.",
+      "vocations": [
+        "Administrador",
+        "Logístico"
+      ],
+      "peacefulConversion": "Gestão Eficiente e Distribuição Justa",
+      "status": "Tenda N1 e Mesh Swap N2 prontos",
+      "checklist": [
+        {
+          "title": "Lote demarcado com totem iluminado 'Lote William'",
+          "done": true
+        },
+        {
+          "title": "Tenda Nível 1 instanciada e visível",
+          "done": true
+        },
+        {
+          "title": "Construção de pedra Nível 2 e motor de upgrade funcional",
+          "done": true
+        },
+        {
+          "title": "Bônus passivo de +30% de capacidade de Stash ativado",
+          "done": true
+        },
+        {
+          "title": "Modelo 3D dedicado de William com avental de mercador",
+          "done": false
+        },
+        {
+          "title": "Missões de transporte de suprimentos entre os entrepostos",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Lote Felipe (Batedor e Patrulha)",
+      "column": "in_progress",
+      "progress": 67,
+      "capacity": "Posto Avançado de Reconhecimento",
+      "role": "Pilar de Exploração & Velocidade",
+      "description": "Lote oficial de Felipe na Base Comunitária. Concede +20% de velocidade de movimento comunitária e radar antecipado de aproximação de ameaças espirituais.",
+      "vocations": [
+        "Batedor",
+        "Rastreador"
+      ],
+      "peacefulConversion": "Discernimento de Trilhas Seguras",
+      "status": "Tenda N1 e Mesh Swap N2 prontos",
+      "checklist": [
+        {
+          "title": "Lote demarcado com totem iluminado 'Lote Felipe'",
+          "done": true
+        },
+        {
+          "title": "Tenda Nível 1 instanciada e visível",
+          "done": true
+        },
+        {
+          "title": "Construção de pedra Nível 2 e motor de upgrade funcional",
+          "done": true
+        },
+        {
+          "title": "Bônus passivo de +20% de velocidade de movimento ativado",
+          "done": true
+        },
+        {
+          "title": "Modelo 3D dedicado de Felipe com manto de explorador",
+          "done": false
+        },
+        {
+          "title": "Missões de patrulha das fronteiras contra Cerco Espiritual",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Entreposto dos Pescadores (Prainha de Simão)",
+      "column": "testing",
+      "progress": 80,
+      "capacity": "15 residentes",
+      "role": "Pólo Pesqueiro & Salga",
+      "description": "Base costeira integrada ao cais de basalto com 5 barcos, tendas de salga e geração passiva de peixes salgados para o estoque da comunidade.",
+      "vocations": [
+        "Pescador",
+        "Salgador de Peixes"
+      ],
+      "peacefulConversion": "Operação de Milagres no Mar",
+      "status": "Cais de Basalto e Barcos Concluídos",
+      "checklist": [
+        {
+          "title": "Atracadouro de pedra com escadaria e muretas em declive",
+          "done": true
+        },
+        {
+          "title": "Bancadas de limpeza e talhas de salga de peixes frescas",
+          "done": true
+        },
+        {
+          "title": "Geração periódica de alimento pelo IdleManager",
+          "done": true
+        },
+        {
+          "title": "Sistema de alforje de transporte com o Jumentinho montado",
+          "done": true
+        },
+        {
+          "title": "Minigame da Pesca Maravilhosa com rede lançada",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Refúgio do Cânion das Cavernas",
+      "column": "in_progress",
+      "progress": 60,
+      "capacity": "25 residentes",
+      "role": "Posto Médico & Ervas das Grutas",
+      "description": "Base defensiva oculta nas grutas do cânion, com água abundante da cachoeira e abrigo imune a cercos de planície.",
+      "vocations": [
+        "Apoticário",
+        "Curador"
+      ],
+      "peacefulConversion": "Dons de Curar em Massa",
+      "status": "Tendas Beduínas e Fogueira Prontas",
+      "checklist": [
+        {
+          "title": "Anfiteatro natural em ferradura com colisão côncava",
+          "done": true
+        },
+        {
+          "title": "Tendas beduínas e grande fogueira com iluminação de época",
+          "done": true
+        },
+        {
+          "title": "Presença do Eremita em intercessão contínua",
+          "done": true
+        },
+        {
+          "title": "Canteiros de ervas medicinais nas encostas úmidas",
+          "done": false
+        },
+        {
+          "title": "Enfermaria das grutas com leitos para convertidos feridos",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Cidadela do Monte (Santuário Final)",
+      "column": "in_progress",
+      "progress": 50,
+      "capacity": "50+ residentes",
+      "role": "Mega Base e Centro Apostólico Regional",
+      "description": "Ponto culminante da gestão comunitária no cume a +45m de altitude, abrigando os 12 apóstolos e a congregação central da Galileia.",
+      "vocations": [
+        "Todas as 5 Vocações Bíblicas"
+      ],
+      "peacefulConversion": "Consolidação e Envio Apostólico Global",
+      "status": "Topografia a +45m Concluída (Fase Final)",
+      "checklist": [
+        {
+          "title": "Cume do monte a +45m esculpido no Heightmap 2.400m",
+          "done": true
+        },
+        {
+          "title": "Altar de pedras brutas e mirante panorâmico modelados",
+          "done": true
+        },
+        {
+          "title": "Terraços agrícolas de oliveiras e vinhas nas encostas",
+          "done": false
+        },
+        {
+          "title": "Complexo habitacional de alvenaria e santuário dos 12 apóstolos",
+          "done": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "name": "sistema-peregrino",
+  "version": "1.0.0",
+  "description": "Peregrino — Sistema de Investidores, Governança e Telemetria Godot (Haja Luz Studio)",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve ."
+  },
+  "keywords": [
+    "peregrino",
+    "godot",
+    "haja-luz-studio",
+    "investors",
+    "governance",
+    "supabase",
+    "vercel"
+  ],
+  "author": "Haja Luz Studio <hajaluzstudio@gmail.com>",
+  "license": "UNLICENSED",
+  "private": true
+}
