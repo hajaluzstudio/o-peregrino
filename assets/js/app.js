@@ -641,6 +641,10 @@ const App = {
           ${Icons.link ? Icons.link(12) : ''}
           <span>Gerar Link VIP (48h)</span>
         </button>
+        <button class="btn-secondary" style="padding: 5px 10px; font-size: 11px; display: inline-flex; align-items: center; gap: 5px; color: ${window.SupabaseBridge && window.SupabaseBridge.isOnline ? '#38a169' : '#f59e0b'}; border-color: rgba(221,196,187,0.3); cursor: pointer;" onclick="App.openSupabaseModal()" title="Configurar conexão com o banco de dados Supabase Cloud">
+          <span style="display:inline-block; width: 6px; height: 6px; border-radius: 50%; background-color: ${window.SupabaseBridge && window.SupabaseBridge.isOnline ? '#38a169' : '#f59e0b'};"></span>
+          <span>Supabase</span>
+        </button>
         <button class="btn-toggle-role" onclick="App.toggleRole()" title="Alternar entre modo criador e modo investidor">
           ${Icons.refresh(13)}
           <span>Trocar Modo</span>
@@ -2686,6 +2690,119 @@ const App = {
       }
     };
     reader.readAsText(file);
+  },
+
+  // ==========================================================================
+  // CONFIGURAÇÃO SUPABASE CLOUD (BANCO DE DADOS POSTGRESQL)
+  // ==========================================================================
+  openSupabaseModal() {
+    const modal = document.getElementById("supabase-config-modal");
+    if (!modal) return;
+    const urlInput = document.getElementById("supabase-modal-url");
+    const keyInput = document.getElementById("supabase-modal-key");
+    const config = window.SupabaseBridge ? window.SupabaseBridge.getConfig() : { url: "", anonKey: "" };
+
+    if (urlInput) urlInput.value = config.url || "";
+    if (keyInput) keyInput.value = config.anonKey || "";
+
+    this.updateSupabaseModalStatus();
+    modal.classList.add("active");
+  },
+
+  closeSupabaseModal() {
+    const modal = document.getElementById("supabase-config-modal");
+    if (modal) modal.classList.remove("active");
+  },
+
+  updateSupabaseModalStatus() {
+    const dot = document.getElementById("supabase-status-dot");
+    const title = document.getElementById("supabase-status-title");
+    const desc = document.getElementById("supabase-status-desc");
+    const isOnline = window.SupabaseBridge && window.SupabaseBridge.isOnline;
+
+    if (isOnline) {
+      if (dot) dot.style.backgroundColor = "#38a169";
+      if (title) {
+        title.innerText = "Status: Conectado com Sucesso à Nuvem";
+        title.style.color = "#38a169";
+      }
+      if (desc) desc.innerText = "Os dados estão sincronizados em tempo real com o PostgreSQL do Supabase.";
+    } else {
+      if (dot) dot.style.backgroundColor = "#f59e0b";
+      if (title) {
+        title.innerText = "Status: Desconectado (Modo Local Offline)";
+        title.style.color = "#fbbf24";
+      }
+      if (desc) desc.innerText = "Os dados estão sendo salvos no navegador via localStorage.";
+    }
+  },
+
+  async saveSupabaseConfig(event) {
+    if (event) event.preventDefault();
+    const url = (document.getElementById("supabase-modal-url").value || "").trim();
+    const key = (document.getElementById("supabase-modal-key").value || "").trim();
+
+    if (!url || !key) {
+      alert("Por favor, preencha a URL e a Anon Key do Supabase.");
+      return;
+    }
+
+    if (window.SupabaseBridge) {
+      window.SupabaseBridge.setConfig(url, key);
+      const connected = await window.SupabaseBridge.init();
+      this.updateSupabaseModalStatus();
+      this.renderHeader();
+      if (connected) {
+        this.showToast("✓ Conectado ao Supabase! Dados sincronizados.");
+      } else {
+        alert("Não foi possível conectar ao Supabase. Verifique se a URL e a Chave estão corretas e se as tabelas foram criadas via supabase_schema.sql.");
+      }
+    }
+  },
+
+  async testSupabaseConnection() {
+    if (window.SupabaseBridge) {
+      const isOnline = await window.SupabaseBridge.init();
+      this.updateSupabaseModalStatus();
+      this.renderHeader();
+      if (isOnline) {
+        this.showToast("✓ Conexão com o Supabase ativa e respondendo!");
+      } else {
+        alert("Supabase não está respondendo. Verifique a URL e a Anon Key.");
+      }
+    }
+  },
+
+  disconnectSupabase() {
+    if (confirm("Deseja desconectar do Supabase e retornar ao armazenamento local?")) {
+      try {
+        localStorage.removeItem("peregrino_supabase_url");
+        localStorage.removeItem("peregrino_supabase_anon_key");
+        if (window.SupabaseBridge) {
+          window.SupabaseBridge.client = null;
+          window.SupabaseBridge.isOnline = false;
+        }
+        const urlInput = document.getElementById("supabase-modal-url");
+        const keyInput = document.getElementById("supabase-modal-key");
+        if (urlInput) urlInput.value = "";
+        if (keyInput) keyInput.value = "";
+        this.updateSupabaseModalStatus();
+        this.renderHeader();
+        this.showToast("Supabase desconectado. Modo local ativo.");
+      } catch (e) {}
+    }
+  },
+
+  copySupabaseSql() {
+    fetch("supabase_schema.sql")
+      .then(r => r.text())
+      .then(sql => {
+        navigator.clipboard.writeText(sql);
+        this.showToast("✓ Script supabase_schema.sql copiado! Cole no SQL Editor do Supabase.");
+      })
+      .catch(() => {
+        this.showToast("Abra o arquivo supabase_schema.sql na raiz do projeto.");
+      });
   },
 
   // ==========================================================================

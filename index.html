@@ -600,6 +600,66 @@
     </div>
   </div>
 
+  <!-- MODAL DE CONFIGURAÇÃO DO BANCO DE DADOS SUPABASE CLOUD -->
+  <div id="supabase-config-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 600px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span id="supabase-status-dot" style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #f59e0b;"></span>
+          <h3 style="margin: 0; font-size: 15px;">Conexão Supabase Cloud (PostgreSQL)</h3>
+        </div>
+        <button class="modal-close" onclick="App.closeSupabaseModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="font-size: 13px; line-height: 1.6;">
+        <div id="supabase-status-banner" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); padding: 12px 14px; border-radius: var(--radius-sm); margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <strong id="supabase-status-title" style="color: #fbbf24; display: block; font-size: 13px;">Status: Desconectado (Modo Local Offline)</strong>
+            <span id="supabase-status-desc" style="font-size: 11px; color: var(--text-muted);">Os dados estão sendo salvos no navegador via localStorage.</span>
+          </div>
+          <button type="button" class="btn-secondary" onclick="App.testSupabaseConnection()" style="font-size: 11px; padding: 5px 10px;">Testar Conexão</button>
+        </div>
+
+        <form onsubmit="App.saveSupabaseConfig(event)">
+          <div class="oraculum-field-group" style="margin-bottom: 12px;">
+            <label class="oraculum-field-label" style="font-size: 11px;">PROJECT URL DO SUPABASE</label>
+            <input type="url" id="supabase-modal-url" class="oraculum-input" placeholder="https://xxxxxxxxxxxxxxxx.supabase.co" style="font-family: var(--font-mono); font-size: 12px;" required />
+          </div>
+
+          <div class="oraculum-field-group" style="margin-bottom: 14px;">
+            <label class="oraculum-field-label" style="font-size: 11px;">PROJECT API KEY (ANON / PUBLIC)</label>
+            <input type="password" id="supabase-modal-key" class="oraculum-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." style="font-family: var(--font-mono); font-size: 12px;" required />
+          </div>
+
+          <div style="background: var(--bg-canvas); border: 1px solid var(--border-subtle); padding: 12px; border-radius: var(--radius-sm); margin-bottom: 14px;">
+            <div style="font-weight: 600; color: var(--gold-accent); font-size: 11.5px; margin-bottom: 6px;">
+              📋 Onde encontrar essas credenciais no Supabase:
+            </div>
+            <ol style="margin: 0; padding-left: 18px; font-size: 11px; color: var(--text-muted); line-height: 1.6;">
+              <li>Acesse seu projeto no <strong>supabase.com</strong></li>
+              <li>Vá em <strong>Project Settings</strong> (ícone de engrenagem) ➔ <strong>API</strong></li>
+              <li>Copie a <strong>Project URL</strong> e a chave <strong>Project API Keys (`anon` / `public`)</strong></li>
+            </ol>
+            <div style="margin-top: 8px; display: flex; gap: 8px;">
+              <button type="button" class="btn-secondary" onclick="App.copySupabaseSql()" style="font-size: 10.5px; padding: 4px 8px;">
+                📄 Copiar Script SQL Completo (supabase_schema.sql)
+              </button>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; border-top: 1px solid var(--border-subtle); padding-top: 12px;">
+            <button type="button" class="btn-secondary" onclick="App.disconnectSupabase()" style="color: #ef4444; border-color: rgba(239,68,68,0.3); font-size: 11px;">
+              Limpar / Desconectar
+            </button>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn-secondary" onclick="App.closeSupabaseModal()">Cancelar</button>
+              <button type="submit" class="btn-primary" style="padding: 7px 16px; font-size: 12px;">Salvar & Conectar</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL DO GUIA COMPLETO DA JORNADA PEREGRINO -->
   <div id="game-guide-modal" class="modal-overlay">
     <div class="modal-box modal-box-guide">
@@ -1021,6 +1081,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/qrcode.min.js"></script>
   <script src="assets/js/icons.js?v=4"></script>
+  <script src="assets/js/config.js?v=4"></script>
   <script src="assets/js/supabase.js?v=4"></script>
   <script src="assets/js/store.js?v=4"></script>
   <script src="assets/js/app.js?v=4"></script>
