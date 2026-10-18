@@ -18,7 +18,7 @@ const App = {
   showNewContractForm: false,
   viewingContractId: null,
 
-  init() {
+  async init() {
     // Restaura a aba ativa salva pelo usuário para manter no mesmo local após F5
     try {
       const savedTab = localStorage.getItem("peregrino_active_tab") || sessionStorage.getItem("peregrino_active_tab");
