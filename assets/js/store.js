@@ -1308,7 +1308,7 @@ const Store = {
     } catch (e) {}
   },
 
-  addUser(data) {
+  async addUser(data) {
     if (!data.name || !data.email) {
       return { success: false, message: "Nome completo e E-mail são obrigatórios." };
     }
@@ -1398,18 +1398,18 @@ const Store = {
         localStorage.setItem("peregrino_contracts", JSON.stringify(this.contracts));
       } catch (e) {}
       if (typeof window !== "undefined" && window.SupabaseBridge) {
-        window.SupabaseBridge.saveContractToCloud(newContract);
+        await window.SupabaseBridge.saveContractToCloud(newContract);
       }
     }
 
     if (typeof window !== "undefined" && window.SupabaseBridge) {
-      window.SupabaseBridge.saveUserToCloud(newUser);
+      await window.SupabaseBridge.saveUserToCloud(newUser);
     }
 
     return { success: true, user: newUser };
   },
 
-  updateUser(userId, updatedData) {
+  async updateUser(userId, updatedData) {
     const userIndex = this.users.findIndex(u => u.id === userId);
     if (userIndex === -1) {
       return { success: false, message: "Usuário não encontrado." };
@@ -1475,12 +1475,12 @@ const Store = {
         localStorage.setItem("peregrino_contracts", JSON.stringify(this.contracts));
       } catch (e) {}
       if (typeof window !== "undefined" && window.SupabaseBridge) {
-        window.SupabaseBridge.saveContractToCloud(contract);
+        await window.SupabaseBridge.saveContractToCloud(contract);
       }
     }
 
     if (typeof window !== "undefined" && window.SupabaseBridge) {
-      window.SupabaseBridge.saveUserToCloud(user);
+      await window.SupabaseBridge.saveUserToCloud(user);
     }
 
     return { success: true, user };
@@ -1736,26 +1736,32 @@ const Store = {
   },
 
   // Atualizar Distrito no Kanban
-  updateDistrict(id, updatedData) {
+  async updateDistrict(id, updatedData) {
     const idx = this.districts.findIndex(d => d.id === id);
     if (idx !== -1) {
       this.districts[idx] = { ...this.districts[idx], ...updatedData };
       try {
         localStorage.setItem("peregrino_districts", JSON.stringify(this.districts));
       } catch (e) {}
+      if (typeof window !== "undefined" && window.SupabaseBridge) {
+        await window.SupabaseBridge.saveDistrictToCloud(this.districts[idx]);
+      }
       return this.districts[idx];
     }
     return null;
   },
 
   // Atualizar Base no Kanban
-  updateBase(id, updatedData) {
+  async updateBase(id, updatedData) {
     const idx = this.bases.findIndex(b => b.id === id);
     if (idx !== -1) {
       this.bases[idx] = { ...this.bases[idx], ...updatedData };
       try {
         localStorage.setItem("peregrino_bases", JSON.stringify(this.bases));
       } catch (e) {}
+      if (typeof window !== "undefined" && window.SupabaseBridge) {
+        await window.SupabaseBridge.saveBaseToCloud(this.bases[idx]);
+      }
       return this.bases[idx];
     }
     return null;

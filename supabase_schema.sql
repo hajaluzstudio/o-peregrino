@@ -131,32 +131,44 @@ ALTER TABLE public.peregrino_districts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.peregrino_bases ENABLE ROW LEVEL SECURITY;
 
 -- Políticas para peregrino_users
-CREATE POLICY "Permitir select para anon" ON public.peregrino_users FOR SELECT USING (true);
-CREATE POLICY "Permitir insert para anon" ON public.peregrino_users FOR INSERT WITH CHECK (true);
-CREATE POLICY "Permitir update para anon" ON public.peregrino_users FOR UPDATE USING (true);
-CREATE POLICY "Permitir delete para anon" ON public.peregrino_users FOR DELETE USING (true);
+DROP POLICY IF EXISTS "Permitir select para anon" ON public.peregrino_users;
+DROP POLICY IF EXISTS "Permitir insert para anon" ON public.peregrino_users;
+DROP POLICY IF EXISTS "Permitir update para anon" ON public.peregrino_users;
+DROP POLICY IF EXISTS "Permitir delete para anon" ON public.peregrino_users;
+DROP POLICY IF EXISTS "Permitir all para anon peregrino_users" ON public.peregrino_users;
+CREATE POLICY "Permitir all para anon peregrino_users" ON public.peregrino_users FOR ALL USING (true) WITH CHECK (true);
 
 -- Políticas para peregrino_contracts
-CREATE POLICY "Permitir select contratos" ON public.peregrino_contracts FOR SELECT USING (true);
-CREATE POLICY "Permitir insert contratos" ON public.peregrino_contracts FOR INSERT WITH CHECK (true);
-CREATE POLICY "Permitir update contratos" ON public.peregrino_contracts FOR UPDATE USING (true);
-CREATE POLICY "Permitir delete contratos" ON public.peregrino_contracts FOR DELETE USING (true);
+DROP POLICY IF EXISTS "Permitir select contratos" ON public.peregrino_contracts;
+DROP POLICY IF EXISTS "Permitir insert contratos" ON public.peregrino_contracts;
+DROP POLICY IF EXISTS "Permitir update contratos" ON public.peregrino_contracts;
+DROP POLICY IF EXISTS "Permitir delete contratos" ON public.peregrino_contracts;
+DROP POLICY IF EXISTS "Permitir all para anon peregrino_contracts" ON public.peregrino_contracts;
+CREATE POLICY "Permitir all para anon peregrino_contracts" ON public.peregrino_contracts FOR ALL USING (true) WITH CHECK (true);
 
 -- Políticas para peregrino_photo_reactions
-CREATE POLICY "Permitir select reactions" ON public.peregrino_photo_reactions FOR SELECT USING (true);
-CREATE POLICY "Permitir upsert reactions" ON public.peregrino_photo_reactions FOR ALL USING (true);
+DROP POLICY IF EXISTS "Permitir select reactions" ON public.peregrino_photo_reactions;
+DROP POLICY IF EXISTS "Permitir upsert reactions" ON public.peregrino_photo_reactions;
+DROP POLICY IF EXISTS "Permitir all para anon peregrino_photo_reactions" ON public.peregrino_photo_reactions;
+CREATE POLICY "Permitir all para anon peregrino_photo_reactions" ON public.peregrino_photo_reactions FOR ALL USING (true) WITH CHECK (true);
 
 -- Políticas para peregrino_devlog
-CREATE POLICY "Permitir select devlog" ON public.peregrino_devlog FOR SELECT USING (true);
-CREATE POLICY "Permitir insert/update devlog" ON public.peregrino_devlog FOR ALL USING (true);
+DROP POLICY IF EXISTS "Permitir select devlog" ON public.peregrino_devlog;
+DROP POLICY IF EXISTS "Permitir insert/update devlog" ON public.peregrino_devlog;
+DROP POLICY IF EXISTS "Permitir all para anon peregrino_devlog" ON public.peregrino_devlog;
+CREATE POLICY "Permitir all para anon peregrino_devlog" ON public.peregrino_devlog FOR ALL USING (true) WITH CHECK (true);
 
 -- Políticas para peregrino_districts
-CREATE POLICY "Permitir select distritos" ON public.peregrino_districts FOR SELECT USING (true);
-CREATE POLICY "Permitir all distritos" ON public.peregrino_districts FOR ALL USING (true);
+DROP POLICY IF EXISTS "Permitir select distritos" ON public.peregrino_districts;
+DROP POLICY IF EXISTS "Permitir all distritos" ON public.peregrino_districts;
+DROP POLICY IF EXISTS "Permitir all para anon peregrino_districts" ON public.peregrino_districts;
+CREATE POLICY "Permitir all para anon peregrino_districts" ON public.peregrino_districts FOR ALL USING (true) WITH CHECK (true);
 
 -- Políticas para peregrino_bases
-CREATE POLICY "Permitir select bases" ON public.peregrino_bases FOR SELECT USING (true);
-CREATE POLICY "Permitir all bases" ON public.peregrino_bases FOR ALL USING (true);
+DROP POLICY IF EXISTS "Permitir select bases" ON public.peregrino_bases;
+DROP POLICY IF EXISTS "Permitir all bases" ON public.peregrino_bases;
+DROP POLICY IF EXISTS "Permitir all para anon peregrino_bases" ON public.peregrino_bases;
+CREATE POLICY "Permitir all para anon peregrino_bases" ON public.peregrino_bases FOR ALL USING (true) WITH CHECK (true);
 
 -- ==============================================================================
 -- DADOS INICIAIS (SEED DATA)

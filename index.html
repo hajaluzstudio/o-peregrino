@@ -257,11 +257,12 @@
         <button class="modal-close" onclick="App.closeUserModal()">&times;</button>
       </div>
 
-      <form class="modal-body" onsubmit="App.submitUserForm(event)" style="max-height: 82vh; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+      <form id="user-form" onsubmit="App.submitUserForm(event)" style="display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; margin: 0;">
         <input type="hidden" id="user-form-id" />
 
-        <!-- 1. Credenciais e Perfil de Acesso -->
-        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-strong); padding: 14px; border-radius: var(--radius-sm);">
+        <div class="modal-body" style="padding: 20px; display: flex; flex-direction: column; gap: 16px; flex: 1; min-height: 0; overflow-y: auto;">
+          <!-- 1. Credenciais e Perfil de Acesso -->
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-strong); padding: 14px; border-radius: var(--radius-sm);">
           <div style="font-size: 11px; font-weight: 700; color: var(--gold-accent); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px;">
             1 • Credenciais de Autenticação &amp; Perfil
           </div>
@@ -387,9 +388,10 @@
           </div>
         </div>
 
-        <div id="user-form-error" style="display: none; font-size: 12px; color: #f87171; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 12px; border-radius: var(--radius-sm);"></div>
+          <div id="user-form-error" style="display: none; font-size: 12px; color: #f87171; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 12px; border-radius: var(--radius-sm);"></div>
+        </div>
 
-        <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 4px;">
+        <div class="modal-footer">
           <div>
             <button type="button" id="user-form-delete-btn" class="btn-secondary" style="display: none; color: #f87171; border-color: rgba(239, 68, 68, 0.4); padding: 7px 12px; font-size: 12px;" onclick="App.deleteUserFromModal()">
               ✕ Excluir Usuário
@@ -459,93 +461,98 @@
         <button class="modal-close" onclick="App.closeEditContractModal()">&times;</button>
       </div>
 
-      <form class="modal-body" onsubmit="App.submitEditContractForm(event)" style="max-height: 82vh; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+      <form id="contract-edit-form" onsubmit="App.submitEditContractForm(event)" style="display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; margin: 0;">
         <input type="hidden" id="edit-contract-id" />
 
-        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-strong); padding: 14px; border-radius: var(--radius-sm);">
-          <div style="font-size: 11px; font-weight: 700; color: var(--gold-accent); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px;">
-            1 • Qualificação Civil do Apoiador
+        <div class="modal-body" style="padding: 20px; display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0; overflow-y: auto;">
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-strong); padding: 14px; border-radius: var(--radius-sm);">
+            <div style="font-size: 11px; font-weight: 700; color: var(--gold-accent); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px;">
+              1 • Qualificação Civil do Apoiador
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="oraculum-field-group">
+                <label class="oraculum-field-label">NOME COMPLETO *</label>
+                <input type="text" id="edit-contract-name" class="form-input" required />
+              </div>
+
+              <div class="oraculum-field-group">
+                <label class="oraculum-field-label">CPF OU CNPJ *</label>
+                <input type="text" id="edit-contract-cpf" class="form-input" style="font-family: var(--font-mono);" required />
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
+              <div class="oraculum-field-group">
+                <label class="oraculum-field-label">E-MAIL OFICIAL *</label>
+                <input type="email" id="edit-contract-email" class="form-input" required />
+              </div>
+
+              <div class="oraculum-field-group">
+                <label class="oraculum-field-label">TELEFONE / WHATSAPP</label>
+                <input type="text" id="edit-contract-phone" class="form-input" placeholder="(54) 99999-9999" />
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-top: 10px;">
+              <div class="oraculum-field-group">
+                <label class="oraculum-field-label">CIDADE</label>
+                <input type="text" id="edit-contract-city" class="form-input" value="Passo Fundo" />
+              </div>
+
+              <div class="oraculum-field-group">
+                <label class="oraculum-field-label">ESTADO (UF)</label>
+                <input type="text" id="edit-contract-state" class="form-input" value="RS" maxlength="2" style="text-transform: uppercase;" />
+              </div>
+            </div>
+
+            <div class="oraculum-field-group" style="margin-top: 10px;">
+              <label class="oraculum-field-label">IGREJA / COMUNIDADE / INSTITUIÇÃO</label>
+              <input type="text" id="edit-contract-institution" class="form-input" placeholder="Comunidade Cristã da Família" />
+            </div>
           </div>
-          
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div class="oraculum-field-group">
-              <label class="oraculum-field-label">NOME COMPLETO *</label>
-              <input type="text" id="edit-contract-name" class="form-input" required />
+
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-strong); padding: 14px; border-radius: var(--radius-sm);">
+            <div style="font-size: 11px; font-weight: 700; color: var(--gold-accent); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px;">
+              2 • Condições Financeiras & Status
             </div>
 
-            <div class="oraculum-field-group">
-              <label class="oraculum-field-label">CPF OU CNPJ *</label>
-              <input type="text" id="edit-contract-cpf" class="form-input" style="font-family: var(--font-mono);" required />
-            </div>
-          </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+              <div class="oraculum-field-group">
+                <label class="oraculum-field-label">APORTE MENSAL (R$) *</label>
+                <input type="number" id="edit-contract-value" class="form-input" min="50" step="50" style="font-family: var(--font-mono);" required />
+              </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
-            <div class="oraculum-field-group">
-              <label class="oraculum-field-label">E-MAIL OFICIAL *</label>
-              <input type="email" id="edit-contract-email" class="form-input" required />
-            </div>
+              <div class="oraculum-field-group">
+                <label class="oraculum-field-label">COMPROMISSO (MESES) *</label>
+                <input type="number" id="edit-contract-months" class="form-input" min="1" max="60" value="12" required />
+              </div>
 
-            <div class="oraculum-field-group">
-              <label class="oraculum-field-label">TELEFONE / WHATSAPP</label>
-              <input type="text" id="edit-contract-phone" class="form-input" placeholder="(54) 99999-9999" />
-            </div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-top: 10px;">
-            <div class="oraculum-field-group">
-              <label class="oraculum-field-label">CIDADE</label>
-              <input type="text" id="edit-contract-city" class="form-input" value="Passo Fundo" />
+              <div class="oraculum-field-group">
+                <label class="oraculum-field-label">STATUS DO CONTRATO *</label>
+                <select id="edit-contract-status" class="form-select" required>
+                  <option value="pendente">Em Análise (Pendente)</option>
+                  <option value="aprovado">Homologado (Aprovado)</option>
+                  <option value="recusado">Recusado / Requer Ajuste</option>
+                </select>
+              </div>
             </div>
 
-            <div class="oraculum-field-group">
-              <label class="oraculum-field-label">ESTADO (UF)</label>
-              <input type="text" id="edit-contract-state" class="form-input" value="RS" maxlength="2" style="text-transform: uppercase;" />
+            <div class="oraculum-field-group" style="margin-top: 10px;">
+              <label class="oraculum-field-label">NOTAS DE AUDITORIA / PARECER DA DIRETORIA</label>
+              <textarea id="edit-contract-notes" class="form-input" rows="2" placeholder="Observações de homologação, comprovantes ou termos adicionais..."></textarea>
             </div>
-          </div>
-
-          <div class="oraculum-field-group" style="margin-top: 10px;">
-            <label class="oraculum-field-label">IGREJA / COMUNIDADE / INSTITUIÇÃO</label>
-            <input type="text" id="edit-contract-institution" class="form-input" placeholder="Comunidade Cristã da Família" />
           </div>
         </div>
 
-        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-strong); padding: 14px; border-radius: var(--radius-sm);">
-          <div style="font-size: 11px; font-weight: 700; color: var(--gold-accent); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px;">
-            2 • Condições Financeiras & Status
+        <div class="modal-footer">
+          <div></div>
+          <div style="display: flex; gap: 10px;">
+            <button type="button" class="btn-secondary" onclick="App.closeEditContractModal()">Cancelar</button>
+            <button type="submit" class="btn-primary" id="save-edit-contract-btn" style="padding: 9px 20px;">
+              Salvar Alterações
+            </button>
           </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
-            <div class="oraculum-field-group">
-              <label class="oraculum-field-label">APORTE MENSAL (R$) *</label>
-              <input type="number" id="edit-contract-value" class="form-input" min="50" step="50" style="font-family: var(--font-mono);" required />
-            </div>
-
-            <div class="oraculum-field-group">
-              <label class="oraculum-field-label">COMPROMISSO (MESES) *</label>
-              <input type="number" id="edit-contract-months" class="form-input" min="1" max="60" value="12" required />
-            </div>
-
-            <div class="oraculum-field-group">
-              <label class="oraculum-field-label">STATUS DO CONTRATO *</label>
-              <select id="edit-contract-status" class="form-select" required>
-                <option value="pendente">Em Análise (Pendente)</option>
-                <option value="aprovado">Homologado (Aprovado)</option>
-                <option value="recusado">Recusado / Requer Ajuste</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="oraculum-field-group" style="margin-top: 10px;">
-            <label class="oraculum-field-label">NOTAS DE AUDITORIA / PARECER DA DIRETORIA</label>
-            <textarea id="edit-contract-notes" class="form-input" rows="2" placeholder="Observações de homologação, comprovantes ou termos adicionais..."></textarea>
-          </div>
-        </div>
-
-        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px;">
-          <button type="button" class="btn-secondary" onclick="App.closeEditContractModal()">Cancelar</button>
-          <button type="submit" class="btn-primary" id="save-edit-contract-btn" style="padding: 9px 20px;">
-            Salvar Alterações
-          </button>
         </div>
       </form>
     </div>

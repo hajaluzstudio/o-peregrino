@@ -641,10 +641,6 @@ const App = {
           ${Icons.link ? Icons.link(12) : ''}
           <span>Gerar Link VIP (48h)</span>
         </button>
-        <button class="btn-secondary" style="padding: 5px 10px; font-size: 11px; display: inline-flex; align-items: center; gap: 5px; color: ${window.SupabaseBridge && window.SupabaseBridge.isOnline ? '#38a169' : '#f59e0b'}; border-color: rgba(221,196,187,0.3); cursor: pointer;" onclick="App.openSupabaseModal()" title="Configurar conexão com o banco de dados Supabase Cloud">
-          <span style="display:inline-block; width: 6px; height: 6px; border-radius: 50%; background-color: ${window.SupabaseBridge && window.SupabaseBridge.isOnline ? '#38a169' : '#f59e0b'};"></span>
-          <span>Supabase</span>
-        </button>
         <button class="btn-toggle-role" onclick="App.toggleRole()" title="Alternar entre modo criador e modo investidor">
           ${Icons.refresh(13)}
           <span>Trocar Modo</span>
@@ -2611,7 +2607,7 @@ const App = {
     this.renderModalChecklist();
   },
 
-  saveKanbanModal() {
+  async saveKanbanModal() {
     if (!this.isKanbanEditable()) {
       this.showToast("Permissão negada: somente o Superadmin pode salvar alterações no Kanban.");
       return;
@@ -2626,16 +2622,33 @@ const App = {
     this.activeModalItem.column = col;
     this.activeModalItem.progress = progress;
 
-    if (this.activeModalType === "district") {
-      Store.updateDistrict(this.activeModalItem.id, this.activeModalItem);
-      this.renderDistritos(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
-    } else {
-      Store.updateBase(this.activeModalItem.id, this.activeModalItem);
-      this.renderBases(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
+    const saveBtn = document.getElementById("modal-save-btn");
+    const origText = saveBtn ? saveBtn.textContent : "";
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Salvando na Nuvem...";
     }
 
-    this.closeKanbanModal();
-    this.showToast("✓ Alterações salvas no Kanban com sucesso!");
+    try {
+      if (this.activeModalType === "district") {
+        await Store.updateDistrict(this.activeModalItem.id, this.activeModalItem);
+        this.renderDistritos(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
+      } else {
+        await Store.updateBase(this.activeModalItem.id, this.activeModalItem);
+        this.renderBases(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
+      }
+
+      this.closeKanbanModal();
+      this.showToast("✓ Alterações salvas na nuvem com sucesso!");
+    } catch (e) {
+      console.error("Erro ao salvar kanban:", e);
+      this.showToast("⚠️ Erro ao salvar na nuvem.");
+    } finally {
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = origText;
+      }
+    }
   },
 
   // ==========================================================================
@@ -5780,7 +5793,7 @@ const App = {
     }
   },
 
-  submitUserForm(e) {
+  async submitUserForm(e) {
     if (e) e.preventDefault();
 
     const id = document.getElementById("user-form-id").value;
@@ -5830,25 +5843,47 @@ const App = {
       canPostDevlog
     };
 
-    let result;
-    if (id) {
-      result = Store.updateUser(id, userData);
-    } else {
-      result = Store.addUser(userData);
+    const submitBtn = document.getElementById("user-form-submit-btn");
+    const origBtnHtml = submitBtn ? submitBtn.innerHTML : "";
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span>Salvando no Supabase Cloud...</span>`;
     }
 
-    if (!result.success) {
+    try {
+      let result;
+      if (id) {
+        result = await Store.updateUser(id, userData);
+      } else {
+        result = await Store.addUser(userData);
+      }
+
+      if (!result.success) {
+        if (errorEl) {
+          errorEl.textContent = result.message;
+          errorEl.style.display = "block";
+        }
+        return;
+      }
+
+      this.closeUserModal();
+      this.renderSidebar();
+      if (typeof this.renderUsuarios === "function") {
+        this.renderUsuarios(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
+      }
+      this.showToast(id ? `✓ Dados de ${userData.name} persistidos no Supabase Cloud!` : `✓ Usuário ${userData.name} cadastrado na nuvem com sucesso!`);
+    } catch (err) {
+      console.error("Erro ao salvar usuário:", err);
       if (errorEl) {
-        errorEl.textContent = result.message;
+        errorEl.textContent = `Erro ao salvar: ${err.message || err}`;
         errorEl.style.display = "block";
       }
-      return;
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = origBtnHtml;
+      }
     }
-
-    this.closeUserModal();
-    this.renderSidebar();
-    this.renderUsuarios(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
-    this.showToast(id ? `✓ Dados de ${userData.name} atualizados com sucesso!` : `✓ Usuário ${userData.name} credenciado com sucesso!`);
   },
 
   openDeleteUserModal(userId) {

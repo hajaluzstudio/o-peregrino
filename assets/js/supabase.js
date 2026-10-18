@@ -187,6 +187,33 @@ const SupabaseBridge = {
         } catch (e) {}
       }
 
+      // 4. Sincronizar Distritos do Supabase
+      try {
+        const { data: dists } = await this.client.from("peregrino_districts").select("*");
+        if (dists && dists.length > 0) {
+          dists.forEach(d => {
+            const loc = Store.districts.find(item => item.id === d.id);
+            if (loc) {
+              if (d.progress !== undefined && d.progress !== null) loc.progress = Number(d.progress);
+              if (d.status) loc.status = d.status;
+            }
+          });
+        }
+      } catch (de) {}
+
+      // 5. Sincronizar Bases do Supabase
+      try {
+        const { data: bses } = await this.client.from("peregrino_bases").select("*");
+        if (bses && bses.length > 0) {
+          bses.forEach(b => {
+            const loc = Store.bases.find(item => item.id === b.id);
+            if (loc) {
+              if (b.status) loc.status = b.status;
+            }
+          });
+        }
+      } catch (be) {}
+
       return true;
     } catch (e) {
       console.warn("Erro durante sincronização com Supabase:", e);
@@ -194,10 +221,13 @@ const SupabaseBridge = {
     }
   },
 
-  // Persistir Usuário no Supabase (Upsert)
+  // Persistir Usuário no Supabase (Update ou Insert robusto)
   async saveUserToCloud(user) {
     await this.ensureClient();
-    if (!this.client) return false;
+    if (!this.client) {
+      console.warn("⚠️ Supabase Client não disponível para salvar usuário.");
+      return false;
+    }
     try {
       const record = {
         id: user.id,
@@ -216,11 +246,11 @@ const SupabaseBridge = {
         institution: user.institution || "Mecenas da Comunidade",
         avatar_letter: user.avatarLetter || "P",
         join_date: user.joinDate || new Date().toLocaleDateString("pt-BR"),
-        monthly_contribution: user.monthlyContribution || 0,
-        months_committed: user.monthsCommitted || 12,
-        total_invested: user.totalInvested || 0,
-        weighted_value: user.weightedValue || 0,
-        equity_share_percent: user.equitySharePercent || 0,
+        monthly_contribution: Number(user.monthlyContribution) || 0,
+        months_committed: Number(user.monthsCommitted) || 12,
+        total_invested: Number(user.totalInvested) || 0,
+        weighted_value: Number(user.weightedValue) || 0,
+        equity_share_percent: Number(user.equitySharePercent) || 0,
         in_game_lot: user.inGameLot || null,
         contract_hash: user.contractHash || null,
         can_edit_kanban: Boolean(user.canEditKanban),
@@ -229,11 +259,23 @@ const SupabaseBridge = {
         updated_at: new Date().toISOString()
       };
 
-      const { error } = await this.client.from("peregrino_users").upsert(record, { onConflict: "id" });
-      if (error) throw error;
+      // Tenta update primeiro para garantir atualização no PostgreSQL
+      const { data: updated, error: errUpdate } = await this.client
+        .from("peregrino_users")
+        .update(record)
+        .eq("id", user.id)
+        .select();
+
+      if (errUpdate || !updated || updated.length === 0) {
+        // Se ainda não existia ou falhou o update, tenta upsert
+        const { error: errUpsert } = await this.client.from("peregrino_users").upsert(record, { onConflict: "id" });
+        if (errUpsert) throw errUpsert;
+      }
+
+      console.log(`✓ Usuário ${user.name} (${user.id}) com perfil '${user.role}' salvo com sucesso na nuvem Supabase.`);
       return true;
     } catch (e) {
-      console.warn("Falha ao salvar usuário no Supabase:", e);
+      console.error("❌ Falha crítica ao salvar usuário no Supabase:", e);
       return false;
     }
   },
@@ -294,11 +336,11 @@ const SupabaseBridge = {
         city: contract.city || null,
         state: contract.state || null,
         institution: contract.institution || null,
-        monthly_contribution: contract.monthlyContribution,
-        months_committed: contract.monthsCommitted,
-        total_invested: contract.totalInvested,
-        weighted_value: contract.weightedValue,
-        equity_share_percent: contract.equitySharePercent,
+        monthly_contribution: Number(contract.monthlyContribution) || 0,
+        months_committed: Number(contract.monthsCommitted) || 12,
+        total_invested: Number(contract.totalInvested) || 0,
+        weighted_value: Number(contract.weightedValue) || 0,
+        equity_share_percent: Number(contract.equitySharePercent) || 0,
         contract_hash: contract.contractHash,
         signed_at: contract.signedAt || null,
         status: contract.status || "pendente",
@@ -307,11 +349,130 @@ const SupabaseBridge = {
         updated_at: new Date().toISOString()
       };
 
-      const { error } = await this.client.from("peregrino_contracts").upsert(record, { onConflict: "id" });
-      if (error) throw error;
+      const { data: updated, error: errUpdate } = await this.client
+        .from("peregrino_contracts")
+        .update(record)
+        .eq("id", contract.id)
+        .select();
+
+      if (errUpdate || !updated || updated.length === 0) {
+        const { error: errUpsert } = await this.client.from("peregrino_contracts").upsert(record, { onConflict: "id" });
+        if (errUpsert) throw errUpsert;
+      }
+
+      console.log(`✓ Contrato ${contract.id} salvo na nuvem com sucesso.`);
       return true;
     } catch (e) {
-      console.warn("Falha ao salvar contrato no Supabase:", e);
+      console.error("❌ Falha ao salvar contrato no Supabase:", e);
+      return false;
+    }
+  },
+
+  // Persistir Distrito no Supabase
+  async saveDistrictToCloud(district) {
+    await this.ensureClient();
+    if (!this.client) return false;
+    try {
+      const record = {
+        id: district.id,
+        name: district.name,
+        order_num: district.order || district.orderNum || 1,
+        biome: district.biome || null,
+        risk_level: district.riskLevel || null,
+        status: district.status || "em_andamento",
+        progress: Number(district.progress) || 0,
+        area_sqm: district.areaSqm || null,
+        budget_allocated: district.budgetAllocated || null,
+        key_features: district.keyFeatures || []
+      };
+
+      const { data: updated, error: errUpdate } = await this.client
+        .from("peregrino_districts")
+        .update(record)
+        .eq("id", district.id)
+        .select();
+
+      if (errUpdate || !updated || updated.length === 0) {
+        const { error: errUpsert } = await this.client.from("peregrino_districts").upsert(record, { onConflict: "id" });
+        if (errUpsert) throw errUpsert;
+      }
+
+      console.log(`✓ Distrito ${district.name} salvo na nuvem.`);
+      return true;
+    } catch (e) {
+      console.warn("Falha ao salvar distrito no Supabase:", e);
+      return false;
+    }
+  },
+
+  // Persistir Base no Supabase
+  async saveBaseToCloud(base) {
+    await this.ensureClient();
+    if (!this.client) return false;
+    try {
+      const record = {
+        id: base.id,
+        name: base.name,
+        order_num: base.order || base.orderNum || 1,
+        district_id: base.districtId || null,
+        faith_bonus: base.faithBonus || null,
+        capacity: base.capacity || null,
+        status: base.status || "em_andamento"
+      };
+
+      const { data: updated, error: errUpdate } = await this.client
+        .from("peregrino_bases")
+        .update(record)
+        .eq("id", base.id)
+        .select();
+
+      if (errUpdate || !updated || updated.length === 0) {
+        const { error: errUpsert } = await this.client.from("peregrino_bases").upsert(record, { onConflict: "id" });
+        if (errUpsert) throw errUpsert;
+      }
+
+      console.log(`✓ Base ${base.name} salva na nuvem.`);
+      return true;
+    } catch (e) {
+      console.warn("Falha ao salvar base no Supabase:", e);
+      return false;
+    }
+  },
+
+  // Persistir Atualização do Devlog no Supabase
+  async saveDevlogToCloud(post) {
+    await this.ensureClient();
+    if (!this.client) return false;
+    try {
+      const record = {
+        id: post.id,
+        title: post.title,
+        category: post.category,
+        badge_type: post.badgeType || "gameplay",
+        date: post.date || new Date().toLocaleDateString("pt-BR"),
+        author: post.author || "Haja Luz Studio (Dev Principal)",
+        summary: post.summary,
+        media_type: post.mediaType || "image",
+        media_url: post.mediaUrl || null,
+        caption: post.caption || null,
+        tags: post.tags || []
+      };
+
+      const { data: updated, error: errUpdate } = await this.client
+        .from("peregrino_devlog")
+        .update(record)
+        .eq("id", post.id)
+        .select();
+
+      if (errUpdate || !updated || updated.length === 0) {
+        const { error: errUpsert } = await this.client.from("peregrino_devlog").upsert(record, { onConflict: "id" });
+        if (errUpsert) throw errUpsert;
+      }
+
+      console.log(`✓ Post do Devlog ${post.id} salvo na nuvem.`);
+      return true;
+    } catch (e) {
+      console.warn("Falha ao salvar post no Supabase:", e);
       return false;
     }
   },
