@@ -3626,7 +3626,7 @@ const App = {
             <p><strong>6. DO FLUXO DE HOMOLOGAÇÃO E PROIBIÇÃO DE APROVAÇÃO AUTOMÁTICA:</strong> Ao clicar em confirmar, este termo receberá protocolo imediato com status <strong>"EM ANÁLISE PELA DIRETORIA"</strong>. O contrato será submetido à auditoria do Superadmin Master para checagem da qualificação civil e emissão da homologação definitiva pela empresa titular.</p>
           </div>
 
-          <div style="margin: 16px 0; display: flex; align-items: flex-start; gap: 10px;">
+          <div style="margin: 16px 0; display: flex; align-items: flex-start; gap: 10px; cursor: pointer;" onclick="if(event.target.id !== 'termo-concordo'){ const cb = document.getElementById('termo-concordo'); if(cb) cb.checked = !cb.checked; }">
             <input type="checkbox" id="termo-concordo" style="margin-top: 3px; cursor: pointer; transform: scale(1.15);" />
             <label for="termo-concordo" style="font-size: 12.5px; color: var(--text-secondary); cursor: pointer; line-height: 1.5;">
               Declaro, sob as penas da lei, a veracidade dos dados civis informados acima e concordo integralmente com as cláusulas deste Termo de Adesão, com a soberania de 51% do Criador e com o modelo de Revenue Share do Marco Zero.
@@ -5277,9 +5277,51 @@ const App = {
     `;
   },
 
-  // 7. MÓDULO GESTÃO DE APORTES (PAINEL DO CRIADOR)
+  async refreshContractsFromCloud(btn) {
+    const origHtml = btn ? btn.innerHTML : "";
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<span>Sincronizando...</span>`;
+    }
+    try {
+      if (typeof window !== "undefined" && window.SupabaseBridge) {
+        await window.SupabaseBridge.syncContracts();
+      }
+      const h = document.getElementById("workspace-header");
+      const b = document.getElementById("workspace-body");
+      if (h && b && this.activeTab === "gestao") {
+        this.renderGestao(h, b);
+      }
+      this.renderSidebar();
+      this.showToast("✓ Contratos sincronizados com a nuvem!");
+    } catch (e) {
+      console.warn("Erro ao atualizar contratos da nuvem:", e);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+      }
+    }
+  },
+
   // 7. MÓDULO GESTÃO DE APORTES (PAINEL DO CRIADOR / SUPERADMIN MASTER)
   renderGestao(headerEl, bodyEl) {
+    // Sincroniza silenciosamente com o Supabase Cloud se online
+    if (typeof window !== "undefined" && window.SupabaseBridge && window.SupabaseBridge.isOnline) {
+      const now = Date.now();
+      if (!this._lastContractsSync || now - this._lastContractsSync > 8000) {
+        this._lastContractsSync = now;
+        window.SupabaseBridge.syncContracts().then(changed => {
+          if (changed && this.activeTab === "gestao") {
+            const h = document.getElementById("workspace-header");
+            const b = document.getElementById("workspace-body");
+            if (h && b) this.renderGestao(h, b);
+            this.renderSidebar();
+          }
+        });
+      }
+    }
+
     const allContracts = Store.getContracts();
     const pendingContracts = allContracts.filter(c => c.status === "pendente");
     const approvedContracts = allContracts.filter(c => c.status === "aprovado");
@@ -5291,7 +5333,11 @@ const App = {
         <h2>Painel de Gestão de Aportes & Caixa</h2>
         <p>Validação de comprovantes, auditoria civil de apoiadores e homologação soberana de contratos</p>
       </div>
-      <div class="workspace-actions">
+      <div class="workspace-actions" style="display: flex; align-items: center; gap: 8px;">
+        <button class="btn-secondary" style="padding: 5px 12px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; color: var(--gold-accent); border-color: rgba(199,165,152,0.4); cursor: pointer;" onclick="App.refreshContractsFromCloud(this)" title="Buscar novos contratos assinados no banco de dados Supabase">
+          ${Icons.refresh(12)}
+          <span>Atualizar da Nuvem</span>
+        </button>
         <span class="spec-badge" style="color: #38a169; border-color: rgba(56,161,105,0.4);">Superadmin Master Ativo</span>
       </div>
     `;

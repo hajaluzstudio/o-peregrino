@@ -362,8 +362,18 @@ const SupabaseBridge = {
         .select();
 
       if (errUpdate || !updated || updated.length === 0) {
-        const { error: errUpsert } = await this.client.from("peregrino_contracts").upsert(record, { onConflict: "id" });
-        if (errUpsert) throw errUpsert;
+        let { error: errUpsert } = await this.client.from("peregrino_contracts").upsert(record, { onConflict: "id" });
+        if (errUpsert) {
+          // Se falhou por FK (user_id não presente em peregrino_users), tenta com user_id null
+          if (errUpsert.code === "23503" || (errUpsert.message && errUpsert.message.toLowerCase().includes("foreign key"))) {
+            console.warn("Aviso: Chave estrangeira de usuário pendente, salvando contrato com user_id null...");
+            record.user_id = null;
+            const retry = await this.client.from("peregrino_contracts").upsert(record, { onConflict: "id" });
+            if (retry.error) throw retry.error;
+          } else {
+            throw errUpsert;
+          }
+        }
       }
 
       console.log(`✓ Contrato ${contract.id} salvo na nuvem com sucesso.`);
@@ -372,6 +382,50 @@ const SupabaseBridge = {
       console.error("❌ Falha ao salvar contrato no Supabase:", e);
       return false;
     }
+  },
+
+  // Sincroniza e recarrega os contratos do Supabase Cloud sob demanda
+  async syncContracts() {
+    await this.ensureClient();
+    if (!this.client || !this.isOnline) return false;
+    try {
+      const { data: contracts, error: errContracts } = await this.client
+        .from("peregrino_contracts")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!errContracts && Array.isArray(contracts)) {
+        Store.contracts = contracts.map(c => ({
+          id: c.id,
+          userId: c.user_id,
+          name: c.name,
+          cpf: c.cpf,
+          email: c.email,
+          phone: c.phone,
+          city: c.city,
+          state: c.state,
+          institution: c.institution,
+          monthlyContribution: Number(c.monthly_contribution) || 0,
+          monthsCommitted: Number(c.months_committed) || 12,
+          totalInvested: Number(c.total_invested) || 0,
+          weightedValue: Number(c.weighted_value) || 0,
+          equitySharePercent: Number(c.equity_share_percent) || 0,
+          contractHash: c.contract_hash,
+          signedAt: c.signed_at,
+          status: c.status || "pendente",
+          approvedAt: c.approved_at,
+          auditNotes: c.audit_notes,
+          notes: c.audit_notes
+        }));
+        try {
+          localStorage.setItem("peregrino_contracts", JSON.stringify(Store.contracts));
+        } catch (e) {}
+        return true;
+      }
+    } catch (e) {
+      console.warn("Falha ao sincronizar contratos:", e);
+    }
+    return false;
   },
 
   // Persistir Distrito no Supabase

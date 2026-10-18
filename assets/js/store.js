@@ -1754,13 +1754,7 @@ const Store = {
 
     // Sincroniza IMEDIATAMENTE com o Supabase Cloud
     if (typeof window !== "undefined" && window.SupabaseBridge) {
-      try {
-        await window.SupabaseBridge.saveContractToCloud(newContract);
-      } catch (ce) {
-        console.error("Erro ao salvar contrato na nuvem:", ce);
-      }
-
-      // Se o apoiador não tiver registro de usuário, cria como supporter na nuvem
+      // 1. Se o apoiador não tiver registro de usuário, cria como supporter na nuvem PRIMEIRO
       try {
         const cleanEmail = newContract.email.toLowerCase();
         const existingUser = this.users.find(u => u.email && u.email.toLowerCase() === cleanEmail);
@@ -1795,6 +1789,13 @@ const Store = {
         }
       } catch (ue) {
         console.warn("Aviso ao sincronizar usuário do contrato:", ue);
+      }
+
+      // 2. Salva o contrato na nuvem Supabase
+      try {
+        await window.SupabaseBridge.saveContractToCloud(newContract);
+      } catch (ce) {
+        console.error("Erro ao salvar contrato na nuvem:", ce);
       }
     }
 
