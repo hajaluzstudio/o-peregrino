@@ -5325,7 +5325,17 @@ const App = {
               </tr>
             </thead>
             <tbody>
-              ${allContracts.map(c => `
+              ${allContracts.length === 0 ? `
+                <tr>
+                  <td colspan="7" style="padding: 40px 16px; text-align: center; color: var(--text-muted);">
+                    <div style="font-size: 14px; font-weight: 600; color: #ffffff; margin-bottom: 6px;">Nenhum contrato ativo no momento</div>
+                    <div style="font-size: 12px; color: var(--text-secondary); max-width: 460px; margin: 0 auto 14px;">Os contratos excluídos foram removidos da nuvem. Novos termos gerados ou assinados via Link VIP aparecerão aqui em tempo real.</div>
+                    <button type="button" class="btn-primary" onclick="App.showNewTermoForm(); App.switchTab('termo');" style="margin: 0 auto; display: inline-flex; align-items: center; gap: 6px;">
+                      <span>+ Cadastrar Novo Aporte</span>
+                    </button>
+                  </td>
+                </tr>
+              ` : allContracts.map(c => `
                 <tr style="border-bottom: 1px solid var(--border-subtle); cursor: pointer; transition: background 0.15s ease;"
                     onmouseover="this.style.background='rgba(255,255,255,0.03)'"
                     onmouseout="this.style.background='transparent'"

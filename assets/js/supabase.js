@@ -158,6 +158,7 @@ const SupabaseBridge = {
       if (typeof window !== "undefined" && window.App) {
         if (typeof App.updateSupabaseStatusBadge === "function") App.updateSupabaseStatusBadge();
         if (typeof App.renderSidebar === "function") App.renderSidebar();
+        if (typeof App.renderInspector === "function") App.renderInspector();
         if (App.activeTab === "usuarios" && typeof App.renderUsuarios === "function") {
           const h = document.getElementById("workspace-header");
           const b = document.getElementById("workspace-body");
@@ -167,6 +168,11 @@ const SupabaseBridge = {
           const h = document.getElementById("workspace-header");
           const b = document.getElementById("workspace-body");
           if (h && b) App.renderGestao(h, b);
+        }
+        if (App.activeTab === "termo" && typeof App.renderTermo === "function") {
+          const h = document.getElementById("workspace-header");
+          const b = document.getElementById("workspace-body");
+          if (h && b) App.renderTermo(h, b);
         }
       }
 

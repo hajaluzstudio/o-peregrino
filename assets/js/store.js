@@ -65,73 +65,26 @@ const Store = {
       availablePool: 43.00
     },
     {
-      id: "INV-0701",
-      email: "pastoradriano@peregrino.org",
-      aliases: ["pastor.adriano@comunidade.org"],
-      password: "adriano2026",
-      name: "Pastor Adriano",
-      role: "supporter", // Investidor Individual
-      title: "Conselheiro Espiritual & Investidor Pioneiro",
-      institution: "Comunidade Cristã da Família",
-      avatarLetter: "PA",
-      phone: "(11) 98765-4321",
-      joinDate: "15/01/2026",
-      monthlyContribution: 500.0,
-      monthsCommitted: 12,
-      totalInvested: 6000.0,
-      weightedValue: 7500.0,
-      equitySharePercent: 2.50,
-      inGameLot: "Distrito 4 - Lote Adriano (+25% Fé)",
-      contractHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      canEditKanban: false,
-      canSyncGodot: false,
-      canPostDevlog: false
-    },
-    {
       id: "INV-0702",
       email: "williamromani@peregrino.org",
       aliases: ["william@hajaluz.org"],
       password: "william2026",
       name: "William Romani",
-      role: "supporter",
-      title: "Gestor de Suprimentos & Investidor Pioneiro",
-      institution: "Mecenas da Comunidade",
+      legalName: "William Romani",
+      role: "creator", // Superadmin Criador
+      title: "Superadmin & Gestão Haja Luz",
+      institution: "Haja Luz Studio",
       avatarLetter: "WR",
       phone: "(11) 97654-3210",
       joinDate: "20/01/2026",
-      monthlyContribution: 400.0,
+      monthlyContribution: 0,
       monthsCommitted: 12,
       totalInvested: 4800.0,
       weightedValue: 6000.0,
       equitySharePercent: 2.00,
-      inGameLot: "Distrito 4 - Lote William (+30% Stash)",
-      contractHash: "7a8f9b2c3d4e5f601a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f7a8b",
-      canEditKanban: false,
-      canSyncGodot: false,
-      canPostDevlog: false
-    },
-    {
-      id: "INV-0703",
-      email: "felipe@peregrino.org",
-      aliases: ["felipe@hajaluz.org"],
-      password: "felipe2026",
-      name: "Felipe",
-      role: "supporter",
-      title: "Batedor e Patrulha & Investidor Pioneiro",
-      institution: "Mecenas da Comunidade",
-      avatarLetter: "F",
-      phone: "(11) 96543-2109",
-      joinDate: "25/01/2026",
-      monthlyContribution: 300.0,
-      monthsCommitted: 12,
-      totalInvested: 3600.0,
-      weightedValue: 4500.0,
-      equitySharePercent: 1.50,
-      inGameLot: "Distrito 4 - Lote Felipe (+20% Velocidade)",
-      contractHash: "1f2e3d4c5b6a70819283746554433221100ffeeddccbbaa99887766554433221",
-      canEditKanban: false,
-      canSyncGodot: false,
-      canPostDevlog: false
+      canEditKanban: true,
+      canSyncGodot: true,
+      canPostDevlog: true
     }
   ],
 
@@ -147,94 +100,8 @@ const Store = {
   // Investidor Padrão
   currentInvestor: null,
 
-  // Contratos e Termos de Adesão de Apoiadores (Hash SHA-256 e Auditoria)
-  contracts: [
-    {
-      id: "CTR-2026-001",
-      userId: "INV-0701",
-      name: "Pastor Adriano",
-      cpf: "123.456.789-00",
-      email: "pastoradriano@peregrino.org",
-      phone: "(54) 99876-5432",
-      city: "Passo Fundo",
-      state: "RS",
-      institution: "Comunidade Cristã da Família",
-      monthlyContribution: 500.0,
-      monthsCommitted: 12,
-      totalInvested: 6000.0,
-      weightedValue: 7500.0,
-      equitySharePercent: 2.50,
-      contractHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      signedAt: "15/01/2026 14:30:22",
-      status: "aprovado", // "pendente" | "aprovado" | "recusado"
-      approvedAt: "16/01/2026 09:15:00",
-      approvedBy: "Haja Luz Studio (Diretoria Soberana)"
-    },
-    {
-      id: "CTR-2026-002",
-      userId: "INV-0702",
-      name: "William Romani",
-      cpf: "234.567.890-11",
-      email: "williamromani@peregrino.org",
-      phone: "(54) 99765-4321",
-      city: "Passo Fundo",
-      state: "RS",
-      institution: "Mecenas da Comunidade",
-      monthlyContribution: 400.0,
-      monthsCommitted: 12,
-      totalInvested: 4800.0,
-      weightedValue: 6000.0,
-      equitySharePercent: 2.00,
-      contractHash: "7a8f9b2c3d4e5f601a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f7a8b",
-      signedAt: "20/01/2026 10:12:00",
-      status: "aprovado",
-      approvedAt: "20/01/2026 14:00:00",
-      approvedBy: "Haja Luz Studio (Diretoria Soberana)"
-    },
-    {
-      id: "CTR-2026-003",
-      userId: "INV-0703",
-      name: "Felipe",
-      cpf: "345.678.901-22",
-      email: "felipe@peregrino.org",
-      phone: "(54) 99654-3210",
-      city: "Passo Fundo",
-      state: "RS",
-      institution: "Mecenas da Comunidade",
-      monthlyContribution: 300.0,
-      monthsCommitted: 12,
-      totalInvested: 3600.0,
-      weightedValue: 4500.0,
-      equitySharePercent: 1.50,
-      contractHash: "1f2e3d4c5b6a70819283746554433221100ffeeddccbbaa99887766554433221",
-      signedAt: "25/01/2026 16:45:00",
-      status: "aprovado",
-      approvedAt: "26/01/2026 08:30:00",
-      approvedBy: "Haja Luz Studio (Diretoria Soberana)"
-    },
-    {
-      id: "CTR-2026-004",
-      userId: "INV-0704",
-      name: "Daniel Missionário",
-      cpf: "111.222.333-44",
-      email: "daniel@missao.org",
-      phone: "(54) 99111-2222",
-      city: "Passo Fundo",
-      state: "RS",
-      institution: "Igreja Batista da Paz",
-      monthlyContribution: 500.0,
-      monthsCommitted: 12,
-      totalInvested: 6000.0,
-      weightedValue: 7500.0,
-      equitySharePercent: 2.50,
-      contractHash: "7d25a853351862d7bb42eeb03a646301e9578bfde265da3f4e7fb7d818f659fb",
-      signedAt: "11/10/2026 09:10:00",
-      status: "pendente", // PENDENTE DE HOMOLOGAÇÃO
-      approvedAt: null,
-      approvedBy: null,
-      notes: "Aguardando auditoria e homologação soberana do Superadmin Master."
-    }
-  ],
+  // Contratos e Termos de Adesão de Apoiadores (Hash SHA-256 e Auditoria Cloud)
+  contracts: [],
 
   // As 7 Bases Estratégicas de Sobrevivência e Gestão Comunitária (State of Decay)
   bases: [
@@ -1159,53 +1026,16 @@ const Store = {
         this.auth.currentUser = null;
       }
 
-      // Contratos e Termos de Adesão Persistidos
+      // Contratos e Termos de Adesão Persistidos (Carregados do LocalStorage ou Supabase)
       const savedContracts = localStorage.getItem("peregrino_contracts");
       if (savedContracts) {
         try {
-          this.contracts = JSON.parse(savedContracts);
-        } catch (e) {}
-      }
-
-      // Garante que o contrato de homologação pendente de Daniel Missionário (CTR-2026-004)
-      // esteja presente e com status 'pendente' para o fluxo de auditoria e aprovação no modal:
-      const danielContract = this.contracts.find(c => c.id === "CTR-2026-004");
-      if (danielContract) {
-        // Se nenhum contrato estiver pendente, reseta o de Daniel para permitir auditar e aprovar
-        if (!this.contracts.some(c => c.status === "pendente")) {
-          danielContract.status = "pendente";
-          danielContract.approvedAt = null;
-          danielContract.approvedBy = null;
-          try {
-            localStorage.setItem("peregrino_contracts", JSON.stringify(this.contracts));
-          } catch (e) {}
+          this.contracts = JSON.parse(savedContracts) || [];
+        } catch (e) {
+          this.contracts = [];
         }
       } else {
-        this.contracts.unshift({
-          id: "CTR-2026-004",
-          userId: "INV-0704",
-          name: "Daniel Missionário",
-          cpf: "111.222.333-44",
-          email: "daniel@missao.org",
-          phone: "(54) 99111-2222",
-          city: "Passo Fundo",
-          state: "RS",
-          institution: "Igreja Batista da Paz",
-          monthlyContribution: 500.0,
-          monthsCommitted: 12,
-          totalInvested: 6000.0,
-          weightedValue: 7500.0,
-          equitySharePercent: 2.50,
-          contractHash: "7d25a853351862d7bb42eeb03a646301e9578bfde265da3f4e7fb7d818f659fb",
-          signedAt: "11/10/2026 09:10:00",
-          status: "pendente",
-          approvedAt: null,
-          approvedBy: null,
-          notes: "Aguardando auditoria e homologação soberana do Superadmin Master."
-        });
-        try {
-          localStorage.setItem("peregrino_contracts", JSON.stringify(this.contracts));
-        } catch (e) {}
+        this.contracts = [];
       }
 
       if (!this.currentInvestor && this.auth.currentUser && this.auth.currentUser.role === "supporter") {
