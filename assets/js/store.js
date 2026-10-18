@@ -1966,7 +1966,7 @@ const Store = {
       user.equitySharePercent = contract.equitySharePercent;
       this.saveUsers();
       if (typeof window !== "undefined" && window.SupabaseBridge) {
-        window.SupabaseBridge.saveUserToCloud(user);
+        await window.SupabaseBridge.saveUserToCloud(user);
       }
     }
 
@@ -2001,7 +2001,7 @@ const Store = {
       user.contractHash = contract.contractHash;
       this.saveUsers();
       if (typeof window !== "undefined" && window.SupabaseBridge) {
-        window.SupabaseBridge.saveUserToCloud(user);
+        await window.SupabaseBridge.saveUserToCloud(user);
       }
     }
 

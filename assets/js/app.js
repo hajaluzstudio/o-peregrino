@@ -4278,7 +4278,7 @@ const App = {
     this.openContractModal(contractId);
   },
 
-  saveEditedContract(contractId) {
+  async saveEditedContract(contractId) {
     const name = document.getElementById("modal-edit-name")?.value;
     const cpf = document.getElementById("modal-edit-cpf")?.value;
     const city = document.getElementById("modal-edit-city")?.value;
@@ -4289,7 +4289,7 @@ const App = {
     const monthlyContribution = document.getElementById("modal-edit-valor")?.value;
     const monthsCommitted = document.getElementById("modal-edit-meses")?.value;
 
-    const updated = Store.updateContract(contractId, {
+    const updated = await Store.updateContract(contractId, {
       name,
       cpf,
       city,
@@ -4321,8 +4321,8 @@ const App = {
     if (modalEl) modalEl.classList.remove("active");
   },
 
-  approveContractFromModal(contractId) {
-    const approved = Store.approveContract(contractId);
+  async approveContractFromModal(contractId) {
+    const approved = await Store.approveContract(contractId);
     if (approved) {
       this.showToast(`✓ Contrato ${contractId} homologado com sucesso!`);
       this.renderSidebar();
@@ -4336,8 +4336,8 @@ const App = {
     }
   },
 
-  reopenContractAnalysis(contractId) {
-    const reopened = Store.setContractPending(contractId);
+  async reopenContractAnalysis(contractId) {
+    const reopened = await Store.setContractPending(contractId);
     if (reopened) {
       this.showToast(`Contrato ${contractId} retornado para status EM ANÁLISE.`);
       this.renderSidebar();
@@ -4351,10 +4351,10 @@ const App = {
     }
   },
 
-  rejectContractFromModal(contractId) {
+  async rejectContractFromModal(contractId) {
     const reason = prompt("Informe o motivo da recusa ou pendência cadastral:", "Dados cadastrais incompletos ou divergentes.");
     if (reason !== null) {
-      Store.rejectContract(contractId, reason);
+      await Store.rejectContract(contractId, reason);
       this.showToast(`Contrato ${contractId} marcado com pendência.`);
       this.renderSidebar();
       this.renderInspector();
@@ -4367,8 +4367,8 @@ const App = {
     }
   },
 
-  approveContract(contractId) {
-    const approved = Store.approveContract(contractId);
+  async approveContract(contractId) {
+    const approved = await Store.approveContract(contractId);
     if (approved) {
       this.showToast(`✓ Contrato ${contractId} homologado com sucesso!`);
       this.renderSidebar();
@@ -4381,10 +4381,10 @@ const App = {
     }
   },
 
-  rejectContract(contractId) {
+  async rejectContract(contractId) {
     const reason = prompt("Informe o motivo da recusa ou pendência do contrato:", "Dados cadastrais incompletos ou requerem confirmação.");
     if (reason !== null) {
-      Store.rejectContract(contractId, reason);
+      await Store.rejectContract(contractId, reason);
       this.showToast(`Contrato ${contractId} marcado com pendência.`);
       this.renderSidebar();
       this.renderInspector();
