@@ -970,7 +970,7 @@ const Store = {
                 id: "USR-VIP",
                 name: "Convidado VIP",
                 role: "guest",
-                title: "Acesso de Apresentação (Passe 48h)",
+                title: "Acesso de Apresentação (Passe 24h)",
                 avatarLetter: "VIP",
                 canEditKanban: false,
                 canSyncGodot: false,
@@ -1717,11 +1717,15 @@ const Store = {
   },
 
   // Protocolar Novo Contrato (Inicia OBRIGATORIAMENTE em 'pendente' de análise pelo Superadmin)
-  addContract(data) {
+  async addContract(data) {
     const nextSeq = (this.contracts.length + 1).toString().padStart(3, "0");
+    const generatedUserId = data.userId && data.userId !== "USR-VIP" 
+      ? data.userId 
+      : `INV-${(this.users.length + 700 + Math.floor(Math.random() * 90)).toString().slice(-4)}`;
+
     const newContract = {
       id: `CTR-2026-${nextSeq}`,
-      userId: data.userId || (this.auth.currentUser ? this.auth.currentUser.id : `INV-${Date.now().toString().slice(-4)}`),
+      userId: generatedUserId,
       name: (data.name || "").trim(),
       cpf: (data.cpf || "").trim(),
       email: (data.email || "").trim(),
@@ -1742,11 +1746,57 @@ const Store = {
       notes: "Aguardando análise de conformidade e qualificação civil pelo Criador Soberano (Superadmin)."
     };
 
-    // Insere no início da lista
+    // Insere no início da lista local
     this.contracts.unshift(newContract);
     try {
       localStorage.setItem("peregrino_contracts", JSON.stringify(this.contracts));
     } catch (e) {}
+
+    // Sincroniza IMEDIATAMENTE com o Supabase Cloud
+    if (typeof window !== "undefined" && window.SupabaseBridge) {
+      try {
+        await window.SupabaseBridge.saveContractToCloud(newContract);
+      } catch (ce) {
+        console.error("Erro ao salvar contrato na nuvem:", ce);
+      }
+
+      // Se o apoiador não tiver registro de usuário, cria como supporter na nuvem
+      try {
+        const cleanEmail = newContract.email.toLowerCase();
+        const existingUser = this.users.find(u => u.email && u.email.toLowerCase() === cleanEmail);
+        if (!existingUser) {
+          const nameParts = newContract.name.split(/\s+/);
+          let av = nameParts[0].charAt(0).toUpperCase();
+          if (nameParts.length > 1) av += nameParts[nameParts.length - 1].charAt(0).toUpperCase();
+          const newUser = {
+            id: generatedUserId,
+            name: newContract.name,
+            email: newContract.email,
+            password: "peregrino" + Math.floor(1000 + Math.random() * 9000),
+            role: "supporter",
+            title: "Investidor / Apoiador Pioneiro (Pendente de Homologação)",
+            institution: newContract.institution,
+            avatarLetter: av,
+            cpf: newContract.cpf,
+            phone: newContract.phone,
+            city: newContract.city,
+            state: newContract.state,
+            monthlyContribution: newContract.monthlyContribution,
+            monthsCommitted: newContract.monthsCommitted,
+            totalInvested: newContract.totalInvested,
+            weightedValue: newContract.weightedValue,
+            equitySharePercent: newContract.equitySharePercent,
+            contractHash: newContract.contractHash,
+            joinDate: new Date().toLocaleDateString("pt-BR")
+          };
+          this.users.push(newUser);
+          this.saveUsers();
+          await window.SupabaseBridge.saveUserToCloud(newUser);
+        }
+      } catch (ue) {
+        console.warn("Aviso ao sincronizar usuário do contrato:", ue);
+      }
+    }
 
     return newContract;
   },

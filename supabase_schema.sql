@@ -240,29 +240,22 @@ INSERT INTO public.peregrino_users (
 )
 ON CONFLICT (id) DO NOTHING;
 
--- Contrato Demonstrativo Inicial
-INSERT INTO public.peregrino_contracts (
-    id, user_id, name, cpf, email, phone, city, state, institution,
-    monthly_contribution, months_committed, total_invested, weighted_value, equity_share_percent,
-    contract_hash, signed_at, status, approved_at
-) VALUES (
-    'CTR-2026-001',
-    'INV-0701',
-    'Pastor Adriano',
-    '123.456.789-00',
-    'pastoradriano@peregrino.org',
-    '(54) 99876-5432',
-    'Passo Fundo',
-    'RS',
-    'Comunidade Cristã da Família',
-    500.00,
-    12,
-    6000.00,
-    7500.00,
-    2.50,
-    'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-    '15/01/2026 14:30:22',
-    'aprovado',
-    '16/01/2026 09:15:00'
-)
-ON CONFLICT (id) DO NOTHING;
+-- 7. TABELA DE TOKENS VIP TEMPORÁRIOS (PASSES DE APRESENTAÇÃO 24H)
+CREATE TABLE IF NOT EXISTS public.peregrino_vip_tokens (
+    token TEXT PRIMARY KEY,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    expires_at TIMESTAMPTZ NOT NULL,
+    duration_hours INTEGER DEFAULT 24,
+    created_by TEXT REFERENCES public.peregrino_users(id) ON DELETE SET NULL,
+    revoked BOOLEAN DEFAULT FALSE,
+    notes TEXT
+);
+
+ALTER TABLE public.peregrino_vip_tokens ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Permitir all para anon peregrino_vip_tokens" ON public.peregrino_vip_tokens;
+CREATE POLICY "Permitir all para anon peregrino_vip_tokens" ON public.peregrino_vip_tokens FOR ALL USING (true) WITH CHECK (true);
+
+-- NOTA DE CONFORMIDADE:
+-- Novos contratos assinados por investidores ou convidados VIP entram com status 'pendente'
+-- na tabela peregrino_contracts para auditoria civil e aprovação do Superadmin em "Gestão de Aportes".
+

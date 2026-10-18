@@ -27,12 +27,12 @@ const App = {
       }
     } catch (e) {}
 
-    // 1. Verifica se o acesso veio com parâmetro de convite VIP (?vip=1, ?convite=1, ?token=...)
+    // 1. Verifica se o acesso veio com parâmetro de convite VIP (?vip=..., ?convite=..., ?token=...)
     const urlParams = new URLSearchParams(window.location.search);
-    const hasVipParam = urlParams.has("vip") || urlParams.has("convite") || urlParams.has("token");
+    const vipToken = urlParams.get("vip") || urlParams.get("convite") || urlParams.get("token");
 
-    if (hasVipParam && !Store.auth.isLoggedIn) {
-      this.enterAsVipGuest(true);
+    if (vipToken && !Store.auth.isLoggedIn) {
+      await this.enterAsVipGuest(vipToken);
       return;
     }
 
@@ -56,7 +56,7 @@ const App = {
             localStorage.removeItem("peregrino_logged_user_id");
             Store.auth.isLoggedIn = false;
             Store.auth.currentUser = null;
-            alert("O seu Passe de Apresentação VIP de 48 horas expirou.\n\nPara solicitar um novo passe ou formalizar sua adesão como apoiador oficial, entre em contato com a Diretoria do Haja Luz Studio.");
+            alert("O seu Passe de Apresentação VIP de 24 horas expirou.\n\nPara solicitar um novo passe ou formalizar sua adesão como apoiador oficial, entre em contato com a Diretoria do Haja Luz Studio.");
           }
         } catch(e) {}
       }
@@ -86,39 +86,38 @@ const App = {
     }
   },
 
-  // Iniciar Acesso como Convidado VIP com validade estrita de 48 horas
-  enterAsVipGuest(isAutomatic = false) {
-    const existing = localStorage.getItem("peregrino_vip_invite");
-    let vipData;
+  // Iniciar Acesso como Convidado VIP com validade estrita de 24 horas na nuvem
+  async enterAsVipGuest(token = "peregrino24h") {
+    let expiresAtMs = Date.now() + (24 * 60 * 60 * 1000);
 
-    if (existing) {
+    // Valida o token no Supabase Cloud
+    if (typeof window !== "undefined" && window.SupabaseBridge) {
       try {
-        vipData = JSON.parse(existing);
+        const validation = await window.SupabaseBridge.validateVipToken(token);
+        if (!validation.valid) {
+          alert("O seu Passe de Apresentação VIP de 24 horas expirou ou não é válido.\n\nPara solicitar renovação de acesso ou formalizar sua adesão definitiva, contate a Diretoria do Haja Luz Studio.");
+          localStorage.removeItem("peregrino_vip_invite");
+          localStorage.removeItem("peregrino_logged_user_id");
+          this.checkAuth();
+          return;
+        }
+        if (validation.expiresAt) {
+          expiresAtMs = validation.expiresAt;
+        }
       } catch (e) {
-        vipData = null;
+        console.warn("Validação remota de VIP fallback local:", e);
       }
     }
 
-    if (vipData) {
-      if (Date.now() > vipData.expiresAt) {
-        localStorage.removeItem("peregrino_vip_invite");
-        localStorage.removeItem("peregrino_logged_user_id");
-        Store.auth.isLoggedIn = false;
-        Store.auth.currentUser = null;
-        alert("O seu Passe de Apresentação VIP de 48 horas expirou.\n\nPara solicitar renovação de acesso ou formalizar sua adesão definitiva, contate a Diretoria do Haja Luz Studio.");
-        this.checkAuth();
-        return;
-      }
-    } else {
-      // Inicia a contagem de 48 horas no primeiro clique do convidado!
-      vipData = {
-        token: "vip_" + Date.now().toString(36),
-        createdAt: Date.now(),
-        durationHours: 48,
-        expiresAt: Date.now() + (48 * 60 * 60 * 1000)
-      };
+    const vipData = {
+      token: token,
+      createdAt: Date.now(),
+      durationHours: 24,
+      expiresAt: expiresAtMs
+    };
+    try {
       localStorage.setItem("peregrino_vip_invite", JSON.stringify(vipData));
-    }
+    } catch (e) {}
 
     // Configura o usuário Convidado VIP
     Store.auth.isLoggedIn = true;
@@ -126,7 +125,7 @@ const App = {
       id: "USR-VIP",
       name: "Convidado VIP",
       role: "guest",
-      title: "Acesso de Apresentação (Passe 48h)",
+      title: "Acesso de Apresentação (Passe 24h)",
       avatarLetter: "VIP",
       canEditKanban: false,
       canSyncGodot: false,
@@ -150,7 +149,7 @@ const App = {
 
   getVipRemainingTimeFormatted() {
     const inviteStr = localStorage.getItem("peregrino_vip_invite");
-    if (!inviteStr) return "48h 00m";
+    if (!inviteStr) return "24h 00m";
     try {
       const invite = JSON.parse(inviteStr);
       const diff = invite.expiresAt - Date.now();
@@ -159,14 +158,23 @@ const App = {
       const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       return `${hours}h ${mins.toString().padStart(2, "0")}m`;
     } catch (e) {
-      return "48h 00m";
+      return "24h 00m";
     }
   },
 
-  copyVipInviteLink() {
+  async copyVipInviteLink() {
     const currentUrl = window.location.href.split("?")[0];
-    const vipLink = currentUrl + "?vip=peregrino48h";
-    this.copyPixKey(vipLink, "✓ Link de Apresentação VIP (48h) copiado! Envie no WhatsApp para o investidor.");
+    let token = "VIP-" + Date.now().toString(36).toUpperCase() + "-" + Math.random().toString(36).substring(2, 6).toUpperCase();
+    if (typeof window !== "undefined" && window.SupabaseBridge) {
+      try {
+        const res = await window.SupabaseBridge.createVipToken(24);
+        if (res && res.token) token = res.token;
+      } catch (e) {
+        console.warn("Aviso ao gerar token na nuvem:", e);
+      }
+    }
+    const vipLink = `${currentUrl}?vip=${token}`;
+    this.copyPixKey(vipLink, `✓ Link de Apresentação VIP (24h) gerado na nuvem e copiado! Token: ${token}`);
   },
 
   handleLogin(event) {
@@ -637,9 +645,9 @@ const App = {
         `}
 
         ${isCreator ? `
-        <button class="btn-secondary" style="padding: 5px 10px; font-size: 11px; display: inline-flex; align-items: center; gap: 5px; color: var(--gold-accent); border-color: rgba(221,196,187,0.3); cursor: pointer;" onclick="App.copyVipInviteLink()" title="Copiar link de convite VIP (48 horas) para enviar no WhatsApp">
+        <button class="btn-secondary" style="padding: 5px 10px; font-size: 11px; display: inline-flex; align-items: center; gap: 5px; color: var(--gold-accent); border-color: rgba(221,196,187,0.3); cursor: pointer;" onclick="App.copyVipInviteLink()" title="Gerar link de convite VIP (24 horas) na nuvem para enviar no WhatsApp">
           ${Icons.link ? Icons.link(12) : ''}
-          <span>Gerar Link VIP (48h)</span>
+          <span>Gerar Link VIP (24h)</span>
         </button>
         <button class="btn-toggle-role" onclick="App.toggleRole()" title="Alternar entre modo criador e modo investidor">
           ${Icons.refresh(13)}
@@ -922,13 +930,13 @@ const App = {
         </div>
       </div>
     ` : Store.currentRole === "guest" ? `
-      <!-- Card do Convidado VIP (Passe 48h) -->
+      <!-- Card do Convidado VIP (Passe 24h) -->
       <div class="inspector-card" style="border: 1px solid rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.05);">
         <div class="inspector-card-header">
           <div class="inspector-card-title">
             <span style="color: #fbbf24;">Passe de Apresentação VIP</span>
           </div>
-          <span class="contract-badge pendente">Passe 48h</span>
+          <span class="contract-badge pendente">Passe 24h</span>
         </div>
         <div style="font-size: 13px; font-weight: 600; color: #ffffff; margin-bottom: 2px;">
           Tempo Restante: <strong style="color: #fbbf24; font-family: var(--font-mono); font-size: 14px;">${this.getVipRemainingTimeFormatted()}</strong>
@@ -3913,54 +3921,71 @@ const App = {
       equityPercent: calc.equityPercent
     });
 
-    // Registra o contrato com status OBRIGATÓRIO: 'pendente'
-    const newContract = Store.addContract({
-      name: nome,
-      cpf: cpf,
-      city: cidade,
-      state: uf,
-      phone: telefone,
-      email: email,
-      institution: inst,
-      monthlyContribution: valor,
-      monthsCommitted: meses,
-      totalInvested: calc.totalInvested,
-      weightedValue: calc.weightedAmount,
-      equitySharePercent: calc.equityPercent,
-      contractHash: hash
-    });
-
-    // Atualiza investidor atual da sessão
-    Store.currentInvestor = {
-      name: nome,
-      cpf: cpf,
-      city: cidade,
-      state: uf,
-      phone: telefone,
-      email: email,
-      institution: inst,
-      monthlyContribution: valor,
-      monthsCommitted: meses,
-      totalInvested: calc.totalInvested,
-      weightedValue: calc.weightedAmount,
-      equitySharePercent: calc.equityPercent,
-      contractHash: hash,
-      status: "pendente",
-      contractId: newContract.id
-    };
+    // Feedback visual de transmissão para a nuvem
+    const signBtn = document.querySelector("button[onclick='App.generateAndSignTermo()']");
+    const origBtnHtml = signBtn ? signBtn.innerHTML : "";
+    if (signBtn) {
+      signBtn.disabled = true;
+      signBtn.innerHTML = `<span>Gravando na Nuvem Supabase...</span>`;
+    }
 
     try {
-      localStorage.setItem("peregrino_investor", JSON.stringify(Store.currentInvestor));
-    } catch(e) {}
+      // Registra o contrato com status OBRIGATÓRIO: 'pendente'
+      const newContract = await Store.addContract({
+        name: nome,
+        cpf: cpf,
+        city: cidade,
+        state: uf,
+        phone: telefone,
+        email: email,
+        institution: inst,
+        monthlyContribution: valor,
+        monthsCommitted: meses,
+        totalInvested: calc.totalInvested,
+        weightedValue: calc.weightedAmount,
+        equitySharePercent: calc.equityPercent,
+        contractHash: hash
+      });
 
-    this.showNewContractForm = false;
-    this.viewingContractId = newContract.id;
+      // Atualiza investidor atual da sessão
+      Store.currentInvestor = {
+        name: nome,
+        cpf: cpf,
+        city: cidade,
+        state: uf,
+        phone: telefone,
+        email: email,
+        institution: inst,
+        monthlyContribution: valor,
+        monthsCommitted: meses,
+        totalInvested: calc.totalInvested,
+        weightedValue: calc.weightedAmount,
+        equitySharePercent: calc.equityPercent,
+        contractHash: hash,
+        status: "pendente",
+        contractId: newContract.id
+      };
 
-    this.renderInspector();
-    this.renderSidebar();
-    this.renderTermo(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
+      try {
+        localStorage.setItem("peregrino_investor", JSON.stringify(Store.currentInvestor));
+      } catch(e) {}
 
-    alert(`✓ Contrato protocolado com sucesso sob ID ${newContract.id}!\n\nStatus: EM ANÁLISE PELA DIRETORIA.\nO contrato foi assinado com Hash SHA-256 e transmitido para a mesa do Superadmin Master para auditoria de qualificação civil e homologação.`);
+      this.showNewContractForm = false;
+      this.viewingContractId = newContract.id;
+
+      this.renderInspector();
+      this.renderSidebar();
+      this.renderTermo(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
+
+      alert(`✓ Contrato protocolado com sucesso sob ID ${newContract.id}!\n\nStatus: EM ANÁLISE PELA DIRETORIA.\nO contrato foi assinado com Hash SHA-256 e transmitido para o banco de dados na nuvem. Ele já está visível na mesa de homologação do Superadmin.`);
+    } catch (err) {
+      alert(`⚠️ Erro ao registrar contrato: ${err.message || err}`);
+    } finally {
+      if (signBtn) {
+        signBtn.disabled = false;
+        signBtn.innerHTML = origBtnHtml;
+      }
+    }
   },
 
   recalcTermoQuote() {

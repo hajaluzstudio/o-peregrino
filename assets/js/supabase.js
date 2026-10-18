@@ -502,6 +502,145 @@ const SupabaseBridge = {
       console.warn("Falha ao salvar reações no Supabase:", e);
       return false;
     }
+  },
+
+  // ==========================================================================
+  // GESTÃO DE CONVITES VIP 24H NA NUVEM SUPABASE
+  // ==========================================================================
+  async createVipToken(durationHours = 24) {
+    await this.ensureClient();
+    const randomPart = Math.random().toString(36).substring(2, 7).toUpperCase();
+    const timestampPart = Date.now().toString(36).toUpperCase();
+    const token = `VIP-${timestampPart}-${randomPart}`;
+    const expiresAt = new Date(Date.now() + durationHours * 3600 * 1000).toISOString();
+
+    const guestRecord = {
+      id: `USR-${token}`,
+      email: `${token.toLowerCase()}@convidado.peregrino.org`,
+      aliases: [token],
+      password: "vip" + Math.floor(1000 + Math.random() * 9000),
+      name: `Convidado VIP (${token})`,
+      role: "guest",
+      title: `Passe de Apresentação VIP (${durationHours}h)`,
+      avatar_letter: "VP",
+      contract_hash: `token:${token}|expires:${expiresAt}`,
+      can_edit_kanban: false,
+      can_sync_godot: false,
+      can_post_devlog: false,
+      join_date: new Date().toLocaleDateString("pt-BR"),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    if (this.client && this.isOnline) {
+      try {
+        await this.client.from("peregrino_users").upsert(guestRecord, { onConflict: "id" });
+        console.log(`✓ Token VIP ${token} gravado em peregrino_users com expiração para ${expiresAt}`);
+      } catch (e) {
+        console.warn("Aviso ao registrar token VIP em peregrino_users:", e);
+      }
+
+      try {
+        await this.client.from("peregrino_vip_tokens").upsert({
+          token: token,
+          expires_at: expiresAt,
+          duration_hours: durationHours,
+          notes: "Criado via link de convite VIP 24h"
+        }, { onConflict: "token" });
+      } catch (ve) {
+        // Tabela opcional
+      }
+    }
+
+    return {
+      token,
+      expiresAt,
+      durationHours
+    };
+  },
+
+  async validateVipToken(token) {
+    if (!token) return { valid: false, reason: "Token ausente" };
+    await this.ensureClient();
+
+    const cleanToken = token.trim();
+
+    if (this.client && this.isOnline) {
+      // 1. Checa se existe na tabela peregrino_vip_tokens
+      try {
+        const { data: vipData, error: vipErr } = await this.client
+          .from("peregrino_vip_tokens")
+          .select("*")
+          .eq("token", cleanToken)
+          .limit(1);
+
+        if (!vipErr && vipData && vipData.length > 0) {
+          const vRecord = vipData[0];
+          if (vRecord.revoked) {
+            return { valid: false, reason: "revogado" };
+          }
+          const expiresAtMs = new Date(vRecord.expires_at).getTime();
+          if (Date.now() > expiresAtMs) {
+            return { valid: false, reason: "expirado", expiresAt: expiresAtMs };
+          }
+          return {
+            valid: true,
+            token: cleanToken,
+            expiresAt: expiresAtMs
+          };
+        }
+      } catch (e) {}
+
+      // 2. Checa em peregrino_users
+      try {
+        const { data, error } = await this.client
+          .from("peregrino_users")
+          .select("*")
+          .or(`id.eq.USR-${cleanToken},contract_hash.ilike.%${cleanToken}%,aliases.cs.{"${cleanToken}"}`)
+          .limit(1);
+
+        if (!error && data && data.length > 0) {
+          const record = data[0];
+          const hash = record.contract_hash || "";
+          const expMatch = hash.match(/expires:([^|]+)/);
+          let expiresAtMs = null;
+          if (expMatch && expMatch[1]) {
+            expiresAtMs = new Date(expMatch[1]).getTime();
+          } else if (record.created_at) {
+            expiresAtMs = new Date(record.created_at).getTime() + 24 * 3600 * 1000;
+          }
+
+          if (expiresAtMs && Date.now() > expiresAtMs) {
+            return { valid: false, reason: "expirado", expiresAt: expiresAtMs };
+          }
+
+          return {
+            valid: true,
+            token: cleanToken,
+            user: record,
+            expiresAt: expiresAtMs || (Date.now() + 24 * 3600 * 1000)
+          };
+        }
+      } catch (e) {
+        console.warn("Falha ao checar token VIP no Supabase:", e);
+      }
+    }
+
+    // Suporte a links legacy temporários se houver
+    if (cleanToken.toLowerCase().includes("peregrino")) {
+      const existingLocal = localStorage.getItem("peregrino_vip_invite");
+      if (existingLocal) {
+        try {
+          const parsed = JSON.parse(existingLocal);
+          if (Date.now() > parsed.expiresAt) return { valid: false, reason: "expirado" };
+          return { valid: true, expiresAt: parsed.expiresAt };
+        } catch (e) {}
+      }
+      const expiresAt = Date.now() + 24 * 3600 * 1000;
+      return { valid: true, expiresAt };
+    }
+
+    return { valid: false, reason: "Token não encontrado no banco de dados." };
   }
 };
 
