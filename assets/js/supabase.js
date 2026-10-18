@@ -332,9 +332,26 @@ const SupabaseBridge = {
     await this.ensureClient();
     if (!this.client) return false;
     try {
+      // Pré-validação do user_id para evitar rejeição por Foreign Key 23503
+      let safeUserId = contract.userId || null;
+      if (safeUserId) {
+        try {
+          const { data: userExists } = await this.client
+            .from("peregrino_users")
+            .select("id")
+            .eq("id", safeUserId)
+            .limit(1);
+          if (!userExists || userExists.length === 0) {
+            safeUserId = null;
+          }
+        } catch (e) {
+          safeUserId = null;
+        }
+      }
+
       const record = {
         id: contract.id,
-        user_id: contract.userId || null,
+        user_id: safeUserId,
         name: contract.name,
         cpf: contract.cpf || null,
         email: contract.email,
