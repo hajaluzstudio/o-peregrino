@@ -126,7 +126,7 @@ const SupabaseBridge = {
 
       // 2. Sincronizar Contratos
       const { data: contracts, error: errContracts } = await this.client.from("peregrino_contracts").select("*");
-      if (!errContracts && contracts && contracts.length > 0) {
+      if (!errContracts && Array.isArray(contracts)) {
         Store.contracts = contracts.map(c => ({
           id: c.id,
           userId: c.user_id,
@@ -144,13 +144,30 @@ const SupabaseBridge = {
           equitySharePercent: Number(c.equity_share_percent) || 0,
           contractHash: c.contract_hash,
           signedAt: c.signed_at,
-          status: c.status,
+          status: c.status || "pendente",
           approvedAt: c.approved_at,
-          auditNotes: c.audit_notes
+          auditNotes: c.audit_notes,
+          notes: c.audit_notes
         }));
         try {
           localStorage.setItem("peregrino_contracts", JSON.stringify(Store.contracts));
         } catch (e) {}
+      }
+
+      // Notifica a UI para renderizar os dados sincronizados
+      if (typeof window !== "undefined" && window.App) {
+        if (typeof App.updateSupabaseStatusBadge === "function") App.updateSupabaseStatusBadge();
+        if (typeof App.renderSidebar === "function") App.renderSidebar();
+        if (App.activeTab === "usuarios" && typeof App.renderUsuarios === "function") {
+          const h = document.getElementById("workspace-header");
+          const b = document.getElementById("workspace-body");
+          if (h && b) App.renderUsuarios(h, b);
+        }
+        if (App.activeTab === "gestao" && typeof App.renderGestao === "function") {
+          const h = document.getElementById("workspace-header");
+          const b = document.getElementById("workspace-body");
+          if (h && b) App.renderGestao(h, b);
+        }
       }
 
       // 3. Sincronizar Reações de Fotos (Curtidas e Comentários)
@@ -179,7 +196,8 @@ const SupabaseBridge = {
 
   // Persistir Usuário no Supabase (Upsert)
   async saveUserToCloud(user) {
-    if (!this.client || !this.isOnline) return false;
+    await this.ensureClient();
+    if (!this.client) return false;
     try {
       const record = {
         id: user.id,
@@ -220,12 +238,25 @@ const SupabaseBridge = {
     }
   },
 
-  // Excluir Usuário no Supabase
+  async ensureClient() {
+    if (this.client && this.isOnline) return this.client;
+    await this.init();
+    return this.client;
+  },
+
+  // Excluir Usuário no Supabase e limpar contratos vinculados
   async deleteUserFromCloud(userId) {
-    if (!this.client || !this.isOnline) return false;
+    await this.ensureClient();
+    if (!this.client) return false;
     try {
+      // Exclui contratos vinculados a esse user_id para integridade referencial
+      try {
+        await this.client.from("peregrino_contracts").delete().eq("user_id", userId);
+      } catch (ce) {}
+
       const { error } = await this.client.from("peregrino_users").delete().eq("id", userId);
       if (error) throw error;
+      console.log(`✓ Usuário ${userId} excluído com sucesso do Supabase.`);
       return true;
     } catch (e) {
       console.warn("Falha ao excluir usuário no Supabase:", e);
@@ -233,9 +264,25 @@ const SupabaseBridge = {
     }
   },
 
+  // Excluir Contrato no Supabase
+  async deleteContractFromCloud(contractId) {
+    await this.ensureClient();
+    if (!this.client) return false;
+    try {
+      const { error } = await this.client.from("peregrino_contracts").delete().eq("id", contractId);
+      if (error) throw error;
+      console.log(`✓ Contrato ${contractId} excluído com sucesso do Supabase.`);
+      return true;
+    } catch (e) {
+      console.warn("Falha ao excluir contrato no Supabase:", e);
+      return false;
+    }
+  },
+
   // Persistir Contrato no Supabase
   async saveContractToCloud(contract) {
-    if (!this.client || !this.isOnline) return false;
+    await this.ensureClient();
+    if (!this.client) return false;
     try {
       const record = {
         id: contract.id,
@@ -256,7 +303,7 @@ const SupabaseBridge = {
         signed_at: contract.signedAt || null,
         status: contract.status || "pendente",
         approved_at: contract.approvedAt || null,
-        audit_notes: contract.auditNotes || null,
+        audit_notes: contract.notes || contract.auditNotes || null,
         updated_at: new Date().toISOString()
       };
 

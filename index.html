@@ -448,6 +448,149 @@
     </div>
   </div>
 
+  <!-- MODAL DE EDIÇÃO DE CONTRATO (GESTÃO DE APORTES) -->
+  <div id="contract-edit-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 680px; width: 95%;">
+      <div class="modal-header">
+        <div>
+          <span class="spec-badge" style="color: var(--gold-accent);">GESTÃO DE APORTES & HOMOLOGAÇÃO</span>
+          <h3 style="margin-top: 4px; font-size: 16px; color: #ffffff;">Editar Dados do Contrato / Aporte</h3>
+        </div>
+        <button class="modal-close" onclick="App.closeEditContractModal()">&times;</button>
+      </div>
+
+      <form class="modal-body" onsubmit="App.submitEditContractForm(event)" style="max-height: 82vh; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+        <input type="hidden" id="edit-contract-id" />
+
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-strong); padding: 14px; border-radius: var(--radius-sm);">
+          <div style="font-size: 11px; font-weight: 700; color: var(--gold-accent); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px;">
+            1 • Qualificação Civil do Apoiador
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">NOME COMPLETO *</label>
+              <input type="text" id="edit-contract-name" class="form-input" required />
+            </div>
+
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">CPF OU CNPJ *</label>
+              <input type="text" id="edit-contract-cpf" class="form-input" style="font-family: var(--font-mono);" required />
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">E-MAIL OFICIAL *</label>
+              <input type="email" id="edit-contract-email" class="form-input" required />
+            </div>
+
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">TELEFONE / WHATSAPP</label>
+              <input type="text" id="edit-contract-phone" class="form-input" placeholder="(54) 99999-9999" />
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-top: 10px;">
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">CIDADE</label>
+              <input type="text" id="edit-contract-city" class="form-input" value="Passo Fundo" />
+            </div>
+
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">ESTADO (UF)</label>
+              <input type="text" id="edit-contract-state" class="form-input" value="RS" maxlength="2" style="text-transform: uppercase;" />
+            </div>
+          </div>
+
+          <div class="oraculum-field-group" style="margin-top: 10px;">
+            <label class="oraculum-field-label">IGREJA / COMUNIDADE / INSTITUIÇÃO</label>
+            <input type="text" id="edit-contract-institution" class="form-input" placeholder="Comunidade Cristã da Família" />
+          </div>
+        </div>
+
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-strong); padding: 14px; border-radius: var(--radius-sm);">
+          <div style="font-size: 11px; font-weight: 700; color: var(--gold-accent); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px;">
+            2 • Condições Financeiras & Status
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">APORTE MENSAL (R$) *</label>
+              <input type="number" id="edit-contract-value" class="form-input" min="50" step="50" style="font-family: var(--font-mono);" required />
+            </div>
+
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">COMPROMISSO (MESES) *</label>
+              <input type="number" id="edit-contract-months" class="form-input" min="1" max="60" value="12" required />
+            </div>
+
+            <div class="oraculum-field-group">
+              <label class="oraculum-field-label">STATUS DO CONTRATO *</label>
+              <select id="edit-contract-status" class="form-select" required>
+                <option value="pendente">Em Análise (Pendente)</option>
+                <option value="aprovado">Homologado (Aprovado)</option>
+                <option value="recusado">Recusado / Requer Ajuste</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="oraculum-field-group" style="margin-top: 10px;">
+            <label class="oraculum-field-label">NOTAS DE AUDITORIA / PARECER DA DIRETORIA</label>
+            <textarea id="edit-contract-notes" class="form-input" rows="2" placeholder="Observações de homologação, comprovantes ou termos adicionais..."></textarea>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px;">
+          <button type="button" class="btn-secondary" onclick="App.closeEditContractModal()">Cancelar</button>
+          <button type="submit" class="btn-primary" id="save-edit-contract-btn" style="padding: 9px 20px;">
+            Salvar Alterações
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE EXCLUSÃO DE CONTRATO (GESTÃO DE APORTES) -->
+  <div id="contract-delete-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 500px; width: 92%;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); display: flex; align-items: center; justify-content: center; color: #f87171;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+          </div>
+          <div>
+            <span class="spec-badge" style="color: #f87171; border-color: rgba(239, 68, 68, 0.4);">AÇÃO CRÍTICA</span>
+            <h3 style="margin: 2px 0 0 0; font-size: 15px; color: #ffffff;">Excluir Contrato / Aporte</h3>
+          </div>
+        </div>
+        <button class="modal-close" onclick="App.closeDeleteContractModal()">&times;</button>
+      </div>
+
+      <div class="modal-body" style="padding: 20px;">
+        <input type="hidden" id="delete-contract-target-id" />
+        
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 16px 0;">
+          Tem certeza de que deseja excluir este contrato de aporte?
+        </p>
+
+        <div id="delete-contract-preview-card" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px;">
+        </div>
+
+        <div style="background: rgba(239, 68, 68, 0.08); border-left: 3px solid #ef4444; padding: 10px 12px; border-radius: 4px; font-size: 11.5px; color: #fca5a5; line-height: 1.5; margin-bottom: 20px;">
+          <strong>Atenção:</strong> Esta ação removerá o contrato do banco de dados na nuvem (Supabase) e do cache local de forma permanente.
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn-secondary" onclick="App.closeDeleteContractModal()">Cancelar</button>
+          <button type="button" class="btn-primary" id="confirm-delete-contract-btn" style="background: #dc2626; border-color: #ef4444; color: #ffffff;" onclick="App.executeDeleteContract()">
+            Confirmar Exclusão
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL EDITÁVEL DO CARD KANBAN & CHECKLIST -->
   <div id="kanban-edit-modal" class="modal-overlay">
     <div class="modal-box" style="max-width: 620px;">

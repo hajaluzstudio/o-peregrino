@@ -1486,7 +1486,7 @@ const Store = {
     return { success: true, user };
   },
 
-  deleteUser(userId) {
+  async deleteUser(userId) {
     if (userId === "USR-001") {
       return { success: false, message: "O Superadmin Criador Soberano (USR-001) não pode ser excluído." };
     }
@@ -1497,8 +1497,13 @@ const Store = {
     const deleted = this.users.splice(idx, 1)[0];
     this.saveUsers();
 
-    // Remove contrato vinculado se houver
+    // Remove contratos vinculados se houver
+    let removedContracts = [];
     if (this.contracts && Array.isArray(this.contracts)) {
+      removedContracts = this.contracts.filter(c => 
+        c.userId === userId || 
+        (c.email && deleted.email && c.email.toLowerCase() === deleted.email.toLowerCase())
+      );
       this.contracts = this.contracts.filter(c => 
         c.userId !== userId && 
         (!c.email || !deleted.email || c.email.toLowerCase() !== deleted.email.toLowerCase())
@@ -1516,8 +1521,16 @@ const Store = {
       this.currentInvestor = null;
     }
 
+    // Sincroniza exclusão no Supabase Cloud (await obrigatório para persistência real)
     if (typeof window !== "undefined" && window.SupabaseBridge) {
-      window.SupabaseBridge.deleteUserFromCloud(userId);
+      try {
+        await window.SupabaseBridge.deleteUserFromCloud(userId);
+        for (const rc of removedContracts) {
+          await window.SupabaseBridge.deleteContractFromCloud(rc.id);
+        }
+      } catch (e) {
+        console.warn("Aviso ao remover da nuvem Supabase:", e);
+      }
     }
 
     return { success: true, user: deleted };
@@ -1903,7 +1916,7 @@ const Store = {
   },
 
   // Atualização dos Dados Civis e Financeiros do Contrato (Superadmin)
-  updateContract(contractId, updatedData) {
+  async updateContract(contractId, updatedData) {
     const contract = this.contracts.find(c => c.id === contractId);
     if (!contract) return null;
 
@@ -1914,6 +1927,8 @@ const Store = {
     if (updatedData.city !== undefined) contract.city = updatedData.city.trim();
     if (updatedData.state !== undefined) contract.state = updatedData.state.trim().toUpperCase();
     if (updatedData.institution !== undefined) contract.institution = updatedData.institution.trim();
+    if (updatedData.status !== undefined) contract.status = updatedData.status;
+    if (updatedData.notes !== undefined) contract.notes = updatedData.notes;
 
     if (updatedData.monthlyContribution !== undefined) {
       contract.monthlyContribution = Number(updatedData.monthlyContribution) || contract.monthlyContribution;
@@ -1929,15 +1944,40 @@ const Store = {
       contract.equitySharePercent = calc.equityPercent;
     }
 
+    // Se houver usuário correspondente, atualiza dados cadastrais do usuário
+    const user = this.users.find(u => u.id === contract.userId || (u.email && contract.email && u.email.toLowerCase() === contract.email.toLowerCase()));
+    if (user) {
+      if (updatedData.name) user.name = contract.name;
+      if (updatedData.cpf) user.cpf = contract.cpf;
+      if (updatedData.phone) user.phone = contract.phone;
+      if (updatedData.city) user.city = contract.city;
+      if (updatedData.state) user.state = contract.state;
+      if (updatedData.institution) user.institution = contract.institution;
+      user.monthlyContribution = contract.monthlyContribution;
+      user.monthsCommitted = contract.monthsCommitted;
+      user.totalInvested = contract.totalInvested;
+      user.weightedValue = contract.weightedValue;
+      user.equitySharePercent = contract.equitySharePercent;
+      this.saveUsers();
+      if (typeof window !== "undefined" && window.SupabaseBridge) {
+        window.SupabaseBridge.saveUserToCloud(user);
+      }
+    }
+
     try {
       localStorage.setItem("peregrino_contracts", JSON.stringify(this.contracts));
     } catch (e) {}
+
+    // Sincroniza com Supabase Cloud
+    if (typeof window !== "undefined" && window.SupabaseBridge) {
+      await window.SupabaseBridge.saveContractToCloud(contract);
+    }
 
     return contract;
   },
 
   // Homologação / Aprovação Soberana de Contrato pelo Superadmin
-  approveContract(contractId) {
+  async approveContract(contractId) {
     const contract = this.contracts.find(c => c.id === contractId);
     if (!contract) return null;
 
@@ -1953,17 +1993,25 @@ const Store = {
       user.monthsCommitted = contract.monthsCommitted;
       user.equitySharePercent = contract.equitySharePercent;
       user.contractHash = contract.contractHash;
+      this.saveUsers();
+      if (typeof window !== "undefined" && window.SupabaseBridge) {
+        window.SupabaseBridge.saveUserToCloud(user);
+      }
     }
 
     try {
       localStorage.setItem("peregrino_contracts", JSON.stringify(this.contracts));
     } catch (e) {}
 
+    if (typeof window !== "undefined" && window.SupabaseBridge) {
+      await window.SupabaseBridge.saveContractToCloud(contract);
+    }
+
     return contract;
   },
 
   // Recusa / Solicitação de Ajuste de Contrato pelo Superadmin
-  rejectContract(contractId, reason = "Documentação civil requer ajuste cadastral.") {
+  async rejectContract(contractId, reason = "Documentação civil requer ajuste cadastral.") {
     const contract = this.contracts.find(c => c.id === contractId);
     if (!contract) return null;
 
@@ -1975,11 +2023,15 @@ const Store = {
       localStorage.setItem("peregrino_contracts", JSON.stringify(this.contracts));
     } catch (e) {}
 
+    if (typeof window !== "undefined" && window.SupabaseBridge) {
+      await window.SupabaseBridge.saveContractToCloud(contract);
+    }
+
     return contract;
   },
 
   // Reabertura de Análise / Retorno para Status 'Pendente'
-  setContractPending(contractId) {
+  async setContractPending(contractId) {
     const contract = this.contracts.find(c => c.id === contractId);
     if (!contract) return null;
 
@@ -1994,15 +2046,25 @@ const Store = {
       localStorage.setItem("peregrino_contracts", JSON.stringify(this.contracts));
     } catch (e) {}
 
+    if (typeof window !== "undefined" && window.SupabaseBridge) {
+      await window.SupabaseBridge.saveContractToCloud(contract);
+    }
+
     return contract;
   },
 
   // Exclusão de Registro de Contrato
-  deleteContract(contractId) {
-    this.contracts = this.contracts.filter(c => c.id !== contractId);
+  async deleteContract(contractId) {
+    const idx = this.contracts.findIndex(c => c.id === contractId);
+    if (idx === -1) return false;
+    const removed = this.contracts.splice(idx, 1)[0];
     try {
       localStorage.setItem("peregrino_contracts", JSON.stringify(this.contracts));
     } catch (e) {}
+
+    if (typeof window !== "undefined" && window.SupabaseBridge) {
+      await window.SupabaseBridge.deleteContractFromCloud(contractId);
+    }
     return true;
   },
 

@@ -2737,6 +2737,17 @@ const App = {
     }
   },
 
+  updateSupabaseStatusBadge() {
+    this.updateSupabaseModalStatus();
+    const btn = document.querySelector("button[onclick='App.openSupabaseModal()']");
+    const isOnline = window.SupabaseBridge && window.SupabaseBridge.isOnline;
+    if (btn) {
+      btn.style.color = isOnline ? "#38a169" : "#f59e0b";
+      const dot = btn.querySelector("span:first-child");
+      if (dot) dot.style.background = isOnline ? "#38a169" : "#f59e0b";
+    }
+  },
+
   async saveSupabaseConfig(event) {
     if (event) event.preventDefault();
     const url = (document.getElementById("supabase-modal-url").value || "").trim();
@@ -4229,9 +4240,14 @@ const App = {
               </button>
             `}
           </div>
-          <button class="btn-secondary" onclick="App.closeContractModal()">
-            <span>Fechar Modal</span>
-          </button>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-secondary" style="color: #f87171; border-color: rgba(239, 68, 68, 0.4); padding: 9px 13px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;" onclick="App.openDeleteContractModal('${contract.id}')" title="Excluir este contrato permanentemente">
+              <span>✕ Excluir Contrato</span>
+            </button>
+            <button class="btn-secondary" onclick="App.closeContractModal()">
+              <span>Fechar Modal</span>
+            </button>
+          </div>
         </div>
       `;
     }
@@ -4367,18 +4383,168 @@ const App = {
     }
   },
 
-  deleteContract(contractId) {
-    if (confirm(`Deseja realmente remover o registro do contrato ${contractId}?`)) {
-      Store.deleteContract(contractId);
-      this.showToast(`Contrato ${contractId} removido.`);
+  // ==========================================================================
+  // GESTÃO DE APORTES: EDIÇÃO E EXCLUSÃO DE CONTRATOS (SUPERADMIN)
+  // ==========================================================================
+  openEditContractModal(contractId) {
+    const contract = Store.getContracts().find(c => c.id === contractId);
+    if (!contract) return;
+
+    const modal = document.getElementById("contract-edit-modal");
+    if (!modal) return;
+
+    document.getElementById("edit-contract-id").value = contract.id;
+    document.getElementById("edit-contract-name").value = contract.name || "";
+    document.getElementById("edit-contract-cpf").value = contract.cpf || "";
+    document.getElementById("edit-contract-email").value = contract.email || "";
+    document.getElementById("edit-contract-phone").value = contract.phone || "";
+    document.getElementById("edit-contract-city").value = contract.city || "Passo Fundo";
+    document.getElementById("edit-contract-state").value = contract.state || "RS";
+    document.getElementById("edit-contract-institution").value = contract.institution || "";
+    document.getElementById("edit-contract-value").value = contract.monthlyContribution || 500;
+    document.getElementById("edit-contract-months").value = contract.monthsCommitted || 12;
+    document.getElementById("edit-contract-status").value = contract.status || "pendente";
+    document.getElementById("edit-contract-notes").value = contract.notes || contract.auditNotes || "";
+
+    modal.classList.add("active");
+  },
+
+  closeEditContractModal() {
+    const modal = document.getElementById("contract-edit-modal");
+    if (modal) modal.classList.remove("active");
+  },
+
+  async submitEditContractForm(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const contractId = document.getElementById("edit-contract-id").value;
+    if (!contractId) return;
+
+    const name = document.getElementById("edit-contract-name").value;
+    const cpf = document.getElementById("edit-contract-cpf").value;
+    const email = document.getElementById("edit-contract-email").value;
+    const phone = document.getElementById("edit-contract-phone").value;
+    const city = document.getElementById("edit-contract-city").value;
+    const state = document.getElementById("edit-contract-state").value;
+    const institution = document.getElementById("edit-contract-institution").value;
+    const monthlyContribution = document.getElementById("edit-contract-value").value;
+    const monthsCommitted = document.getElementById("edit-contract-months").value;
+    const status = document.getElementById("edit-contract-status").value;
+    const notes = document.getElementById("edit-contract-notes").value;
+
+    const btn = document.getElementById("save-edit-contract-btn");
+    const origHtml = btn ? btn.innerHTML : "";
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<span>Salvando no Supabase...</span>`;
+    }
+
+    try {
+      const updated = await Store.updateContract(contractId, {
+        name,
+        cpf,
+        email,
+        phone,
+        city,
+        state,
+        institution,
+        monthlyContribution,
+        monthsCommitted,
+        status,
+        notes
+      });
+
+      this.closeEditContractModal();
       this.renderSidebar();
       this.renderInspector();
-      if (this.activeTab === "termo") {
-        this.renderTermo(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
-      } else if (this.activeTab === "gestao") {
+      if (this.activeTab === "gestao") {
         this.renderGestao(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
+      } else if (this.activeTab === "termo") {
+        this.renderTermo(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
+      }
+      this.showToast(`✓ Contrato ${contractId} atualizado com sucesso no Supabase!`);
+    } catch (err) {
+      this.showToast(`⚠️ Erro ao atualizar contrato: ${err.message || err}`);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
       }
     }
+  },
+
+  openDeleteContractModal(contractId) {
+    const contract = Store.getContracts().find(c => c.id === contractId);
+    if (!contract) return;
+
+    const modal = document.getElementById("contract-delete-modal");
+    if (!modal) return;
+
+    document.getElementById("delete-contract-target-id").value = contract.id;
+    const preview = document.getElementById("delete-contract-preview-card");
+    if (preview) {
+      preview.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+          <div>
+            <strong style="color: #ffffff; font-size: 13.5px;">${contract.name}</strong>
+            <div style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
+              Protocolo: ${contract.id} • CPF: ${contract.cpf || 'Não informado'}
+            </div>
+          </div>
+          <span class="contract-badge ${contract.status || 'pendente'}">${contract.status === 'aprovado' ? 'Homologado' : (contract.status === 'recusado' ? 'Recusado' : 'Em Análise')}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px; margin-top: 8px;">
+          <span>Aporte: R$ ${Number(contract.monthlyContribution || 0).toFixed(2)}/mês (${contract.monthsCommitted} meses)</span>
+          <span style="color: var(--gold-accent); font-weight: 700;">Cota: ${Number(contract.equitySharePercent || 0).toFixed(2)}%</span>
+        </div>
+      `;
+    }
+
+    modal.classList.add("active");
+  },
+
+  closeDeleteContractModal() {
+    const modal = document.getElementById("contract-delete-modal");
+    if (modal) modal.classList.remove("active");
+  },
+
+  async executeDeleteContract() {
+    const contractId = document.getElementById("delete-contract-target-id").value;
+    if (!contractId) return;
+
+    const contract = Store.getContracts().find(c => c.id === contractId);
+    const supporterName = contract ? contract.name : contractId;
+
+    const btn = document.getElementById("confirm-delete-contract-btn");
+    const origHtml = btn ? btn.innerHTML : "";
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<span>Excluindo na nuvem...</span>`;
+    }
+
+    try {
+      await Store.deleteContract(contractId);
+      this.closeDeleteContractModal();
+      this.closeContractModal();
+      this.renderSidebar();
+      this.renderInspector();
+      if (this.activeTab === "gestao") {
+        this.renderGestao(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
+      } else if (this.activeTab === "termo") {
+        this.renderTermo(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
+      }
+      this.showToast(`✓ Contrato ${contractId} (${supporterName}) excluído com sucesso!`);
+    } catch (err) {
+      this.showToast(`⚠️ Erro ao excluir contrato: ${err.message || err}`);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+      }
+    }
+  },
+
+  deleteContract(contractId) {
+    this.openDeleteContractModal(contractId);
   },
 
   // ==========================================================================
@@ -5201,6 +5367,13 @@ const App = {
                           <span>Reabrir</span>
                         </button>
                       `}
+                      <button class="btn-secondary" style="padding: 6px 10px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; color: var(--gold-accent); border-color: rgba(199,165,152,0.35);" onclick="event.stopPropagation(); App.openEditContractModal('${c.id}')" title="Editar dados cadastrais e financeiros do contrato">
+                        ${Icons.edit ? Icons.edit(11) : '✎'}
+                        <span>Editar</span>
+                      </button>
+                      <button class="btn-secondary" style="padding: 6px 10px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; color: #f87171; border-color: rgba(239,68,68,0.35);" onclick="event.stopPropagation(); App.openDeleteContractModal('${c.id}')" title="Excluir este contrato permanentemente">
+                        <span>✕ Excluir</span>
+                      </button>
                       <button class="btn-secondary" style="padding: 6px 9px; font-size: 11px; cursor: pointer;" onclick="event.stopPropagation(); App.viewContractInTermo('${c.id}')" title="Ver Termo Completo">
                         <span>Ver Termo</span>
                       </button>
@@ -5734,22 +5907,39 @@ const App = {
     this.openDeleteUserModal(id);
   },
 
-  executeDeleteUser() {
+  async executeDeleteUser() {
     const userId = document.getElementById("delete-user-target-id").value;
     if (!userId) return;
 
     const user = Store.users.find(u => u.id === userId);
     const userName = user ? user.name : "Usuário";
 
-    const result = Store.deleteUser(userId);
-    this.closeDeleteUserModal();
+    const btn = document.getElementById("confirm-delete-user-btn");
+    const origHtml = btn ? btn.innerHTML : "";
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<span>Excluindo na nuvem...</span>`;
+    }
 
-    if (result.success) {
-      this.renderSidebar();
-      this.renderUsuarios(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
-      this.showToast(`✓ ${userName} foi excluído do sistema com sucesso!`);
-    } else {
-      this.showToast(`⚠️ ${result.message || "Erro ao excluir usuário."}`);
+    try {
+      const result = await Store.deleteUser(userId);
+      this.closeDeleteUserModal();
+
+      if (result.success) {
+        this.renderSidebar();
+        this.renderUsuarios(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
+        this.showToast(`✓ ${userName} foi excluído do sistema e do banco de dados!`);
+      } else {
+        this.showToast(`⚠️ ${result.message || "Erro ao excluir usuário."}`);
+      }
+    } catch (err) {
+      this.closeDeleteUserModal();
+      this.showToast(`⚠️ Erro ao excluir usuário: ${err.message || err}`);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+      }
     }
   },
 
