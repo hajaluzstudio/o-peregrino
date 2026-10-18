@@ -2638,13 +2638,6 @@ const Store = {
       return true;
     }
     return false;
-  },
-
-  init() {
-    if (typeof window !== "undefined") {
-      window.Store = this;
-    }
-    return this;
   }
 };
 
