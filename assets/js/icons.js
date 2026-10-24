@@ -60,6 +60,10 @@ const Icons = {
     return this.svg(`<rect width="14" height="20" x="5" y="2" rx="2"/><line x1="12" x2="12.01" y1="18" y2="18"/>`, size);
   },
 
+  installApp(size = 16) {
+    return this.svg(`<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 14V7"/><polyline points="9 11 12 14 15 11"/>`, size);
+  },
+
   plus(size = 16) {
     return this.svg(`<line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/>`, size);
   },

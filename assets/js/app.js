@@ -639,11 +639,11 @@ const App = {
       </div>` : `<div style="flex: 1;"></div>`}
 
       <div class="header-actions">
-        <!-- Botão PWA: Baixar/Instalar App -->
+        <!-- Botão PWA: Instalar Aplicativo -->
         ${!isAppInstalled ? `
-        <button class="btn-header-pwa-install" id="header-install-app-btn" onclick="App.promptInstallApp()" title="Baixar e instalar o aplicativo no celular">
-          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><line x1="12" x2="12.01" y1="18" y2="18"/></svg>
-          <span class="pwa-header-label">Baixar App</span>
+        <button class="btn-header-pwa-install" id="header-install-app-btn" onclick="App.promptInstallApp()" title="Instalar aplicativo móvel oficial">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 14V7"/><polyline points="9 11 12 14 15 11"/></svg>
+          <span class="pwa-header-label">Instalar App</span>
         </button>` : ''}
 
         ${user.role === 'guest' ? `
@@ -731,9 +731,9 @@ const App = {
       <div class="sidebar-section sidebar-section-pwa">
         <ul class="nav-list">
           <li class="nav-item">
-            <a class="nav-link nav-link-pwa" onclick="App.promptInstallApp()">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--gold-accent); flex-shrink: 0;"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><line x1="12" x2="12.01" y1="18" y2="18"/></svg>
-              <span id="sidebar-install-label" style="font-weight: 700; color: var(--gold-accent);">📱 Baixar App no Celular</span>
+            <a class="nav-link nav-link-pwa" onclick="App.promptInstallApp()" title="Instalar versão oficial do aplicativo">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--gold-accent); flex-shrink: 0;"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 14V7"/><polyline points="9 11 12 14 15 11"/></svg>
+              <span id="sidebar-install-label" style="font-weight: 700; color: var(--gold-accent);">Instalar Aplicativo Oficial</span>
             </a>
           </li>
         </ul>
@@ -6623,13 +6623,13 @@ const App = {
     const sidebarLabel = document.getElementById("sidebar-install-label");
 
     if (isInstalled) {
-      if (loginLabel) loginLabel.textContent = "APP INSTALADO ✓";
+      if (loginLabel) loginLabel.textContent = "APLICATIVO INSTALADO ✓";
       if (loginBtn) loginBtn.classList.add("installed");
       if (headerBtn) headerBtn.style.display = "none";
-      if (sidebarLabel) sidebarLabel.textContent = "App Instalado ✓";
+      if (sidebarLabel) sidebarLabel.textContent = "Aplicativo Instalado ✓";
     } else {
-      if (loginLabel) loginLabel.textContent = "📱 BAIXAR APLICATIVO NO CELULAR";
-      if (sidebarLabel) sidebarLabel.textContent = "📱 Baixar App no Celular";
+      if (loginLabel) loginLabel.textContent = "INSTALAR APLICATIVO OFICIAL";
+      if (sidebarLabel) sidebarLabel.textContent = "Instalar Aplicativo Oficial";
       if (headerBtn) headerBtn.style.display = "inline-flex";
     }
   },
