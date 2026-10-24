@@ -2191,6 +2191,14 @@ body {
     border-radius: 18px !important;
   }
 
+  .login-logo-img {
+    max-width: 270px !important;
+    width: 85% !important;
+    height: auto !important;
+    max-height: 52px !important;
+    object-fit: contain !important;
+  }
+
   .oraculum-top-nav-btn {
     position: relative !important;
     top: auto !important;
@@ -3123,24 +3131,49 @@ body {
   pointer-events: none;
 }
 
-/* Vídeo em tela inteira sem bordas: object-fit: cover elimina 100% das barras e do quadrado em qualquer monitor */
+/* Vídeo em tela inteira sem cortes: object-fit cover no desktop e contain adaptativo no mobile */
 .preloader-fullscreen-video {
   width: 100vw;
   height: 100vh;
-  min-width: 100vw;
-  min-height: 100vh;
   object-fit: cover;
   background-color: #000000;
   display: block;
 }
 
-/* Camada de vinheta cinematográfica garantindo fusão suave nas bordas da tela */
+/* Camada de vinheta cinematográfica no desktop */
 .preloader-screen::after {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
   background: radial-gradient(ellipse 96% 90% at 50% 50%, transparent 60%, rgba(0, 0, 0, 0.5) 85%, #000000 100%);
+}
+
+/* SMARTPHONE & RETRATO (PORTRAIT): Elimina 100% de qualquer corte no nome PEREGRINO */
+@media (max-width: 768px), (orientation: portrait), (max-aspect-ratio: 16/9) {
+  .preloader-screen {
+    background-color: #000000 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+
+  .preloader-fullscreen-video {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: auto !important;
+    max-height: 100vh !important;
+    max-height: 100dvh !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    object-fit: contain !important;
+  }
+
+  /* Remove vinheta radial escura no mobile para preservar 100% da nitidez do logotipo */
+  .preloader-screen::after {
+    display: none !important;
+  }
 }
 
 /* ==========================================================================
