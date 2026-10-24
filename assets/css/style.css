@@ -300,6 +300,91 @@ body {
   border-color: var(--gold-accent);
 }
 
+/* Botão de Logout no Header */
+.btn-header-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+  padding: 5px 9px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn-header-logout .logout-text {
+  display: inline-block !important;
+  font-size: 11px;
+  color: #fca5a5;
+}
+.btn-header-logout:hover,
+.btn-header-logout:active {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.6);
+  color: #ffffff;
+}
+.btn-header-logout:hover .logout-text,
+.btn-header-logout:active .logout-text {
+  color: #ffffff;
+}
+
+/* Botão de Logout Rápido no Topo do Menu Lateral Mobile */
+.btn-drawer-quick-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: var(--radius-sm);
+  color: #fca5a5;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-drawer-quick-logout:hover,
+.btn-drawer-quick-logout:active {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.6);
+  color: #ffffff;
+}
+
+/* Cartão de Logout no Rodapé do Menu Lateral */
+.sidebar-logout-card {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.btn-sidebar-logout {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.32);
+  border-radius: var(--radius-sm);
+  color: #fca5a5;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-sidebar-logout:hover,
+.btn-sidebar-logout:active {
+  background: rgba(239, 68, 68, 0.24);
+  border-color: rgba(239, 68, 68, 0.6);
+  color: #ffffff;
+}
+
 /* Área de Visualização com Container Ajustável */
 .viewport-stage {
   flex: 1;
@@ -1890,10 +1975,56 @@ body {
 }
 
 .btn-pwa-install-login.installed {
-  background: rgba(56, 161, 105, 0.12);
-  border-color: rgba(56, 161, 105, 0.4);
-  color: #4ade80;
-  cursor: default;
+  display: none !important;
+}
+
+@media (display-mode: standalone) {
+  .btn-pwa-install-login,
+  #login-install-app-btn {
+    display: none !important;
+  }
+}
+
+/* Divisor VIP e Botão Passe VIP */
+.login-vip-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 12px;
+  opacity: 0.65;
+}
+.login-vip-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+}
+.login-vip-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--gold-accent);
+}
+.btn-guest-vip {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(221, 196, 187, 0.08);
+  border: 1px solid rgba(221, 196, 187, 0.35);
+  border-radius: var(--radius-sm);
+  color: var(--gold-accent);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+.btn-guest-vip:hover {
+  background: rgba(221, 196, 187, 0.16);
+  border-color: var(--gold-accent);
+  box-shadow: 0 0 15px rgba(221, 196, 187, 0.2);
 }
 
 .btn-header-pwa-install {
@@ -2173,39 +2304,17 @@ body {
     font-size: 16px !important;
   }
 
-  /* Tela de Login adaptada com rolagem suave no Mobile */
+  /* Tela de Login Compacta & Otimizada no Mobile */
   .login-screen {
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
-    padding: 16px 14px 40px !important;
+    padding: 8px 12px 16px !important;
     min-height: 100vh !important;
     height: 100dvh !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    justify-content: flex-start !important;
-  }
-
-  .login-card-perspective-wrapper {
-    perspective: none !important;
-    margin: auto 0 !important;
-    width: 100% !important;
-    max-width: 420px !important;
-  }
-
-  .login-card {
-    padding: 22px 18px !important;
-    min-height: auto !important;
-    max-width: 100% !important;
-    border-radius: 18px !important;
-  }
-
-  .login-logo-img {
-    max-width: 270px !important;
-    width: 85% !important;
-    height: auto !important;
-    max-height: 52px !important;
-    object-fit: contain !important;
+    justify-content: center !important;
   }
 
   .oraculum-top-nav-btn {
@@ -2213,28 +2322,162 @@ body {
     top: auto !important;
     left: auto !important;
     align-self: flex-start !important;
-    margin-bottom: 12px !important;
-    padding: 6px 14px !important;
-    font-size: 10px !important;
+    margin-bottom: 6px !important;
+    padding: 4px 10px !important;
+    font-size: 9px !important;
+    letter-spacing: 0.5px !important;
   }
 
   .oraculum-top-brand {
     position: relative !important;
     top: auto !important;
     right: auto !important;
-    margin-bottom: 14px !important;
+    margin-bottom: 6px !important;
     align-self: center !important;
   }
 
   .oraculum-top-brand-img {
-    height: 24px !important;
+    height: 18px !important;
+  }
+
+  .login-card-perspective-wrapper {
+    perspective: none !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 350px !important;
+  }
+
+  .login-card {
+    padding: 14px 14px 12px !important;
+    min-height: auto !important;
+    max-width: 350px !important;
+    border-radius: 14px !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.95), 0 0 20px rgba(199, 165, 152, 0.08) !important;
+  }
+
+  .login-haja-luz-emblem {
+    margin-bottom: 4px !important;
+  }
+
+  .login-emblem-img {
+    height: 22px !important;
+  }
+
+  .oraculum-badge {
+    font-size: 8px !important;
+    padding: 2px 7px !important;
+    letter-spacing: 1px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .login-brand-header {
+    margin-bottom: 8px !important;
+  }
+
+  .login-logo-img {
+    max-width: 175px !important;
+    width: 75% !important;
+    height: auto !important;
+    max-height: 30px !important;
+    object-fit: contain !important;
+    margin-bottom: 2px !important;
+  }
+
+  .oraculum-subtitle {
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+    margin-top: 2px !important;
+  }
+
+  .login-form {
+    gap: 6px !important;
+    width: 100% !important;
+  }
+
+  .oraculum-field-group {
+    gap: 2px !important;
+  }
+
+  .oraculum-field-label {
+    font-size: 8.5px !important;
+    letter-spacing: 0.6px !important;
+  }
+
+  .oraculum-input {
+    padding: 6px 10px !important;
+    font-size: 13.5px !important;
+    height: 34px !important;
+    border-radius: 6px !important;
+    background-color: #111111 !important;
+  }
+
+  .oraculum-pass-wrapper input {
+    padding-right: 32px !important;
+  }
+
+  .oraculum-pass-toggle {
+    right: 6px !important;
+    padding: 2px !important;
+  }
+
+  .oraculum-pass-toggle svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  .oraculum-btn-submit {
+    height: 36px !important;
+    font-size: 11px !important;
+    letter-spacing: 0.8px !important;
+    border-radius: 6px !important;
+    margin-top: 2px !important;
+    box-shadow: 0 0 15px rgba(212, 184, 174, 0.25) !important;
+  }
+
+  .login-vip-divider {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin: 6px 0 !important;
+    opacity: 0.65 !important;
+  }
+
+  .login-vip-line {
+    flex: 1 !important;
+    height: 1px !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  .login-vip-label {
+    font-size: 8.5px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.6px !important;
+    color: var(--gold-accent) !important;
+  }
+
+  .btn-guest-vip {
+    width: 100% !important;
+    padding: 7px 10px !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.4px !important;
+    border-radius: 6px !important;
+    margin-top: 0 !important;
+  }
+
+  .btn-pwa-install-login {
+    display: none !important; /* Na tela de login não queremos poluição de app instalado */
+  }
+
+  .oraculum-card-footer {
+    margin-top: 6px !important;
+    font-size: 8px !important;
+    justify-content: center !important;
+    opacity: 0.6 !important;
   }
 
   .oraculum-live-widget {
-    bottom: 12px !important;
-    right: 12px !important;
-    padding: 5px 10px !important;
-    font-size: 11px !important;
+    display: none !important; /* Oculta widget flutuante no mobile para não cobrir botões */
   }
 
   /* Header Global no Smartphone */

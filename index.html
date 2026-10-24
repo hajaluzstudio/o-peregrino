@@ -87,17 +87,17 @@
           </button>
 
           <!-- Divisor e Acesso de Apresentação VIP (Passe 48h) -->
-          <div style="display: flex; align-items: center; gap: 8px; margin: 14px 0 12px; opacity: 0.65;">
-            <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.15);"></div>
-            <span style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--gold-accent);">Convidado / Apresentação</span>
-            <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.15);"></div>
+          <div class="login-vip-divider">
+            <div class="login-vip-line"></div>
+            <span class="login-vip-label">Convidado / Apresentação</span>
+            <div class="login-vip-line"></div>
           </div>
 
-          <button type="button" class="btn-guest-vip" onclick="App.enterAsVipGuest()" style="width: 100%; padding: 10px 14px; background: rgba(221, 196, 187, 0.08); border: 1px solid rgba(221, 196, 187, 0.35); border-radius: var(--radius-sm); color: var(--gold-accent); font-size: 11.5px; font-weight: 700; letter-spacing: 0.6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease;">
+          <button type="button" class="btn-guest-vip" onclick="App.enterAsVipGuest()">
             <span>CONHECER O PROJETO (PASSE VIP 48H) &rarr;</span>
           </button>
 
-          <!-- Botão PWA: Instalação do Aplicativo Oficial -->
+          <!-- Botão PWA: Instalação do Aplicativo Oficial (Oculto quando já instalado) -->
           <button type="button" class="btn-pwa-install-login" id="login-install-app-btn" onclick="App.promptInstallApp()">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 14V7"/><polyline points="9 11 12 14 15 11"/></svg>
             <span id="login-install-app-label">INSTALAR APLICATIVO OFICIAL</span>

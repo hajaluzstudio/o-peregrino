@@ -53,8 +53,8 @@ const App = {
       return;
     }
 
-    // SEMPRE EXECUTA O PRELOADER NA ABERTURA DO APP / SITE
-    this.startPreloader();
+    // Inicia direto na tela de login conforme fluxo solicitado (o preloader virá após a autenticação)
+    this.checkAuth();
   },
 
   // Controle de Autenticação e Exibição de Telas
@@ -254,7 +254,7 @@ const App = {
     video.playsInline = true;
     video.currentTime = 0;
     
-    // Finaliza automaticamente e com fade-out quando o vídeo conclui
+    // Finaliza automaticamente e com fade-out apenas quando o vídeo conclui 100% da sua duração total
     video.onended = () => {
       this.finishPreloader();
     };
@@ -263,15 +263,14 @@ const App = {
     const playPromise = video.play();
     if (playPromise !== undefined) {
       playPromise.catch(err => {
-        console.warn("Autoplay bloqueado pelo navegador mobile, transicionando suavemente...", err);
-        setTimeout(() => this.finishPreloader(), 1200);
+        console.warn("Autoplay bloqueado pelo navegador mobile, aguardando toque ou carregamento completo:", err);
       });
     }
 
-    // Timer de segurança de fallback (máximo 6 segundos)
+    // Timer de segurança amplo (60 segundos) caso o navegador trave o arquivo
     this._preloaderSafetyTimer = setTimeout(() => {
       this.finishPreloader();
-    }, 6000);
+    }, 60000);
   },
 
   finishPreloader() {
@@ -666,9 +665,9 @@ const App = {
         ${user.role === 'guest' ? `
           <div class="role-badge" style="border-color: rgba(245, 158, 11, 0.45); background: rgba(245, 158, 11, 0.08);" title="Passe VIP de Apresentação com validade de 48 horas">
             <span class="role-indicator" style="background: #fbbf24; box-shadow: 0 0 8px #fbbf24;"></span>
-            <span style="color: #fbbf24; font-weight: 700;">PASSE VIP • ${this.getVipRemainingTimeFormatted()}</span>
+            <span style="color: #fbbf24; font-weight: 700;">${isMobileScreen ? 'VIP' : 'PASSE VIP • ' + this.getVipRemainingTimeFormatted()}</span>
           </div>
-          <button class="btn-primary" style="padding: 5px 12px; font-size: 11px; font-weight: 700; cursor: pointer;" onclick="App.switchTab('termo')" title="Formalizar proposta de apoio">
+          <button class="btn-primary hide-on-mobile" style="padding: 5px 12px; font-size: 11px; font-weight: 700; cursor: pointer;" onclick="App.switchTab('termo')" title="Formalizar proposta de apoio">
             <span>Quero Apoiar</span>
           </button>
         ` : `
@@ -687,12 +686,12 @@ const App = {
           ${Icons.refresh(13)}
           <span>Trocar Modo</span>
         </button>` : ''}
-        <button class="btn-header-panel-toggle ${this.inspectorCollapsed ? 'active-collapsed' : ''}" onclick="App.toggleInspector()" title="${this.inspectorCollapsed ? 'Expandir Painel de Governança' : 'Minimizar Painel de Governança'}">
+        <button class="btn-header-panel-toggle hide-on-mobile ${this.inspectorCollapsed ? 'active-collapsed' : ''}" onclick="App.toggleInspector()" title="${this.inspectorCollapsed ? 'Expandir Painel de Governança' : 'Minimizar Painel de Governança'}">
           ${Icons.panelRight(15)}
         </button>
-        <button class="btn-toggle-role" onclick="App.handleLogout()" style="color: #cbd5e1;" title="Encerrar sessão segura">
-          ${Icons.logOut(13)}
-          <span>Sair</span>
+        <button class="btn-header-logout" onclick="App.handleLogout()" title="Sair do Aplicativo">
+          ${Icons.logOut(14)}
+          <span class="logout-text">Sair</span>
         </button>
       </div>
     `;
@@ -735,13 +734,19 @@ const App = {
     sidebarEl.innerHTML = `
       <div class="sidebar-top-bar">
         <span class="sidebar-top-title">Menu & Navegação</span>
-        <button class="btn-panel-minimize hide-on-mobile" onclick="App.toggleSidebar()" title="Minimizar Menu de Navegação">
-          ${Icons.chevronLeft(13)}
-          <span>Minimizar</span>
-        </button>
-        <button class="btn-sidebar-close-mobile show-on-mobile" onclick="App.closeMobilePanels()" title="Fechar Menu">
-          &times;
-        </button>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <button class="btn-drawer-quick-logout show-on-mobile" onclick="App.handleLogout()" title="Sair da Conta">
+            ${Icons.logOut(13)}
+            <span>Sair</span>
+          </button>
+          <button class="btn-panel-minimize hide-on-mobile" onclick="App.toggleSidebar()" title="Minimizar Menu de Navegação">
+            ${Icons.chevronLeft(13)}
+            <span>Minimizar</span>
+          </button>
+          <button class="btn-sidebar-close-mobile show-on-mobile" onclick="App.closeMobilePanels()" title="Fechar Menu">
+            &times;
+          </button>
+        </div>
       </div>
 
       <!-- Item PWA de Instalação do Aplicativo -->
@@ -858,6 +863,12 @@ const App = {
             <span>Criador: ${Store.config.creatorShare}%</span>
             <span style="color: var(--gold-accent);">Pool: ${Store.config.supportersPool}%</span>
           </div>
+        </div>
+        <div class="sidebar-logout-card">
+          <button type="button" class="btn-sidebar-logout" onclick="App.handleLogout()" title="Encerrar sessão e sair do aplicativo">
+            ${Icons.logOut(16)}
+            <span>Sair do Aplicativo</span>
+          </button>
         </div>
       </div>
     `;
@@ -6710,16 +6721,22 @@ const App = {
     const loginLabel = document.getElementById("login-install-app-label");
     const headerBtn = document.getElementById("header-install-app-btn");
     const sidebarLabel = document.getElementById("sidebar-install-label");
+    const sidebarPwaSection = document.querySelector(".sidebar-section-pwa");
 
     if (isInstalled) {
-      if (loginLabel) loginLabel.textContent = "APLICATIVO INSTALADO ✓";
-      if (loginBtn) loginBtn.classList.add("installed");
+      // Quando já instalado, remove completamente da tela de login para não poluir nem confundir
+      if (loginBtn) loginBtn.style.display = "none";
       if (headerBtn) headerBtn.style.display = "none";
+      if (sidebarPwaSection) sidebarPwaSection.style.display = "none";
       if (sidebarLabel) sidebarLabel.textContent = "Aplicativo Instalado ✓";
     } else {
-      if (loginLabel) loginLabel.textContent = "INSTALAR APLICATIVO OFICIAL";
+      if (loginBtn) {
+        loginBtn.style.display = "flex";
+        if (loginLabel) loginLabel.textContent = "INSTALAR APLICATIVO OFICIAL";
+      }
       if (sidebarLabel) sidebarLabel.textContent = "Instalar Aplicativo Oficial";
       if (headerBtn) headerBtn.style.display = "inline-flex";
+      if (sidebarPwaSection) sidebarPwaSection.style.display = "block";
     }
   },
 
