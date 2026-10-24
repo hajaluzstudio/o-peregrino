@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Peregrino — Sistema de Investidores & Governança | Haja Luz Studio</title>
   <meta name="description" content="Plataforma comercial e de governança societária do jogo Peregrino. Acompanhamento em tempo real, cotas com Fator Pioneiro e registro criptográfico com Hash SHA-256.">
   <meta name="theme-color" content="#0a0a0c">
@@ -19,27 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261024-pwa01">
-  <!-- Anti-Flicker & Persistência Instantânea de Sessão F5 -->
-  <script>
-    (function() {
-      try {
-        var uid = localStorage.getItem("peregrino_logged_user_id") || sessionStorage.getItem("peregrino_logged_user_id");
-        var isLogged = localStorage.getItem("peregrino_is_logged_in") === "true" || sessionStorage.getItem("peregrino_is_logged_in") === "true";
-        if (uid || isLogged) {
-          document.documentElement.classList.add("user-logged-in");
-        }
-      } catch (e) {}
-    })();
-  </script>
-  <style>
-    html.user-logged-in #login-screen {
-      display: none !important;
-    }
-    html.user-logged-in .viewport-wrapper {
-      display: flex !important;
-    }
-  </style>
+  <link rel="stylesheet" href="assets/css/style.css?v=20261024-pwa02">
 </head>
 <body>
 
@@ -141,11 +121,17 @@
   </div>
 
   <!-- TELA DE PRELOADER CINEMÁTICO FULLSCREEN (100% TELA INTEIRA) -->
-  <div id="preloader-screen" class="preloader-screen hidden">
-    <video id="preloader-video" class="preloader-fullscreen-video" playsinline muted preload="auto">
+  <div id="preloader-screen" class="preloader-screen hidden" onclick="App.finishPreloader()">
+    <video id="preloader-video" class="preloader-fullscreen-video" playsinline webkit-playsinline muted preload="auto">
       <source src="assets/video/preloader.mp4" type="video/mp4">
       <source src="Preloader.mp4" type="video/mp4">
     </video>
+    <div class="preloader-overlay-controls">
+      <button type="button" class="preloader-skip-btn" onclick="event.stopPropagation(); App.finishPreloader();">
+        <span>Pular Abertura</span>
+        <span>→</span>
+      </button>
+    </div>
   </div>
 
   <!-- ENVOLTÓRIO GLOBAL COM CONTROLE DE VIEWPORT (DESKTOP / TABLET / MOBILE) -->

@@ -23,6 +23,19 @@ const App = {
     // 0. Inicializa listeners de PWA para instalação do App Mobile
     this.initPwa();
 
+    // Detecção se o usuário está abrindo a versão App Instalado no smartphone (PWA standalone)
+    const isStandalone = (typeof window !== "undefined") && (
+      window.matchMedia('(display-mode: standalone)').matches || 
+      window.navigator.standalone === true || 
+      window.location.search.includes('source=pwa')
+    );
+
+    // Na primeira abertura do App instalado, desloga sessão herdada do navegador para exibir o fluxo de abertura nativo
+    if (isStandalone && !localStorage.getItem("peregrino_app_standalone_setup")) {
+      localStorage.setItem("peregrino_app_standalone_setup", "true");
+      Store.logout();
+    }
+
     // Restaura a aba ativa salva pelo usuário para manter no mesmo local após F5
     try {
       const savedTab = localStorage.getItem("peregrino_active_tab") || sessionStorage.getItem("peregrino_active_tab");
@@ -40,7 +53,8 @@ const App = {
       return;
     }
 
-    this.checkAuth();
+    // SEMPRE EXECUTA O PRELOADER NA ABERTURA DO APP / SITE
+    this.startPreloader();
   },
 
   // Controle de Autenticação e Exibição de Telas
@@ -222,8 +236,10 @@ const App = {
     const loginScreen = document.getElementById("login-screen");
     const preloaderScreen = document.getElementById("preloader-screen");
     const video = document.getElementById("preloader-video");
+    const viewportWrapper = document.querySelector(".viewport-wrapper");
 
     if (loginScreen) loginScreen.classList.add("hidden");
+    if (viewportWrapper) viewportWrapper.style.display = "none";
 
     if (!preloaderScreen || !video) {
       this.checkAuth();
@@ -233,6 +249,9 @@ const App = {
     preloaderScreen.classList.remove("hidden");
     preloaderScreen.classList.remove("fade-out");
 
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
     video.currentTime = 0;
     
     // Finaliza automaticamente e com fade-out quando o vídeo conclui
@@ -240,19 +259,19 @@ const App = {
       this.finishPreloader();
     };
 
-    // Reprodução silenciosa e imersiva
+    // Reprodução silenciosa e imersiva para garantir autoplay sem bloqueios de política mobile
     const playPromise = video.play();
     if (playPromise !== undefined) {
       playPromise.catch(err => {
-        console.warn("Autoplay bloqueado pelo navegador, transicionando suavemente...", err);
-        setTimeout(() => this.finishPreloader(), 1500);
+        console.warn("Autoplay bloqueado pelo navegador mobile, transicionando suavemente...", err);
+        setTimeout(() => this.finishPreloader(), 1200);
       });
     }
 
-    // Timer de segurança de fallback (máximo 10 segundos)
+    // Timer de segurança de fallback (máximo 6 segundos)
     this._preloaderSafetyTimer = setTimeout(() => {
       this.finishPreloader();
-    }, 10000);
+    }, 6000);
   },
 
   finishPreloader() {
@@ -265,7 +284,7 @@ const App = {
     const video = document.getElementById("preloader-video");
     if (video) {
       video.onended = null;
-      video.pause();
+      try { video.pause(); } catch(e) {}
     }
 
     if (preloaderScreen) {
@@ -273,11 +292,9 @@ const App = {
       setTimeout(() => {
         preloaderScreen.classList.add("hidden");
         preloaderScreen.classList.remove("fade-out");
-        this.activeTab = "boas-vindas";
         this.checkAuth();
-      }, 550);
+      }, 400);
     } else {
-      this.activeTab = "boas-vindas";
       this.checkAuth();
     }
   },
@@ -1705,140 +1722,205 @@ const App = {
     let postsHtml = Store.devlogPosts.map(post => {
       const initialMediaUrl = (post.gallery && post.gallery.length > 0) ? (post.mediaUrl || post.gallery[0]) : post.mediaUrl;
       const initialReaction = initialMediaUrl ? Store.getPhotoReaction(initialMediaUrl) : { likes: 0, isLiked: false, comments: [] };
+      const hasMultiple = post.gallery && post.gallery.length > 1;
 
       return `
-      <article class="devlog-post">
-        <div class="devlog-post-header">
-          <div class="devlog-meta">
+      <article class="devlog-post insta-feed-post" id="post-${post.id}">
+        <!-- HEADER ESTILO INSTAGRAM COM AVATAR, NOME E LOCALIZAÇÃO -->
+        <div class="insta-post-header">
+          <div class="insta-author-info">
+            <div class="insta-avatar-ring">
+              <img src="favicon_logo_PPrancheta-1.png" alt="Haja Luz Studio" class="insta-avatar-img" />
+            </div>
+            <div class="insta-user-details">
+              <div class="insta-user-name-row">
+                <span class="insta-username">hajaluzstudio</span>
+                <span class="insta-verified-badge" title="Estúdio Oficial Verificado">${Icons.check(11)}</span>
+              </div>
+              <span class="insta-post-location">${post.category} • Galileia 1º Século</span>
+            </div>
+          </div>
+          <div class="insta-header-right">
             <span class="devlog-badge ${post.badgeType || ''}">${post.category}</span>
-            <span class="devlog-date">${post.date}</span>
+            <span class="insta-post-time">${post.date}</span>
           </div>
-          <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">${post.id}</span>
         </div>
-        
-        ${post.gallery && post.gallery.length > 0 ? `
-          <div class="devlog-media-container" id="media-container-${post.id}">
-            <div style="position: relative; overflow: hidden; border-radius: 8px 8px 0 0; background: #0b0e14;">
-              <img id="img-display-${post.id}" src="${initialMediaUrl}" alt="${post.title}" class="devlog-media-img" loading="lazy" style="cursor: pointer; transition: transform 0.3s ease, opacity 0.2s ease; display: block; width: 100%; max-height: 480px; object-fit: cover;" onclick="App.openLightbox(this.src, null, '${post.id}')" title="Clique para expandir em tela cheia" />
-              <div style="position: absolute; top: 10px; right: 10px; background: rgba(11, 14, 20, 0.88); backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 600; color: #f1f5f9; display: flex; align-items: center; gap: 6px; pointer-events: none; z-index: 2;">
-                ${Icons.eye(12)} <span id="gallery-counter-${post.id}">1 / ${post.gallery.length} capturas</span>
+
+        <!-- MÍDIA CENTRAL ESTILO INSTAGRAM (ASPECT RATIO 1:1, FLUSH & DOUBLE TAP HEART) -->
+        ${initialMediaUrl ? `
+          <div class="insta-media-wrapper" id="media-container-${post.id}" ondblclick="App.handleInstagramDoubleTap('${post.id}')" ontouchend="App.handleTouchDoubleTap('${post.id}', event)">
+            <div class="insta-image-box">
+              <img id="img-display-${post.id}" src="${initialMediaUrl}" alt="${post.title}" class="insta-media-img" loading="lazy" onclick="App.openLightbox(this.src, null, '${post.id}')" title="Toque duas vezes para curtir ou clique para tela cheia" />
+              
+              <!-- Floating Heart no Duplo Toque -->
+              <div id="insta-doubletap-heart-${post.id}" class="insta-floating-heart">
+                <svg viewBox="0 0 24 24" width="75" height="75" fill="#ef4444" stroke="#ef4444"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
               </div>
-            </div>
-            
-            <div class="devlog-gallery-strip" style="display: flex; gap: 8px; padding: 10px 12px; background: rgba(15, 23, 42, 0.95); overflow-x: auto; border-bottom: 1px solid rgba(255,255,255,0.08);">
-              ${post.gallery.map((thumb, idx) => `
-                <img src="${thumb}" alt="Captura ${idx + 1}" class="devlog-gallery-thumb ${idx === 0 ? 'active' : ''}" data-post="${post.id}" data-idx="${idx}" onclick="App.selectDevlogThumb('${post.id}', '${thumb}', ${idx + 1}, ${post.gallery.length})" style="width: 76px; height: 50px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 2px solid ${idx === 0 ? 'var(--gold-accent)' : 'rgba(255,255,255,0.1)'}; opacity: ${idx === 0 ? '1' : '0.65'}; transition: all 0.2s ease; flex-shrink: 0;" onmouseover="this.style.opacity='1'" onmouseout="if(!this.classList.contains('active')) this.style.opacity='0.65'" />
-              `).join('')}
+
+              <!-- Pill de Contagem de Fotos (1/8) estilo Instagram -->
+              ${hasMultiple ? `
+                <div class="insta-carousel-pill" id="gallery-counter-${post.id}">
+                  1/${post.gallery.length}
+                </div>
+                <button type="button" class="insta-nav-arrow arrow-prev" onclick="event.stopPropagation(); App.navDevlogSlide('${post.id}', -1)" aria-label="Foto anterior">‹</button>
+                <button type="button" class="insta-nav-arrow arrow-next" onclick="event.stopPropagation(); App.navDevlogSlide('${post.id}', 1)" aria-label="Próxima foto">›</button>
+              ` : ''}
             </div>
 
-            <div class="devlog-media-caption">
-              <span id="caption-display-${post.id}">${post.caption || 'Registro de Desenvolvimento 3D'}</span>
-              <span style="font-family: var(--font-mono); color: var(--gold-accent); cursor: pointer;" onclick="App.openLightbox(document.getElementById('img-display-${post.id}').src, null, '${post.id}')">Ampliar Tela Cheia →</span>
-            </div>
+            <!-- Indicadores de Pontos (Dots) estilo Carrossel do Instagram -->
+            ${hasMultiple ? `
+              <div class="insta-dots-row" id="dots-${post.id}">
+                ${post.gallery.map((_, i) => `<span class="insta-dot ${i === 0 ? 'active' : ''}" onclick="App.goToDevlogSlide('${post.id}', ${i})"></span>`).join('')}
+              </div>
+            ` : ''}
+          </div>
 
-            <!-- BARRA DE REAÇÕES: CURTIR & COMENTAR -->
-            <div class="devlog-media-action-bar">
-              <div class="devlog-actions-left">
-                <button type="button" class="btn-reaction-like ${initialReaction.isLiked ? 'liked' : ''}" id="feed-like-btn-${post.id}" onclick="App.toggleFeedPhotoLike('${post.id}')" title="Curtir esta captura 3D">
-                  <span id="feed-like-icon-${post.id}">${Icons.heart(14, initialReaction.isLiked)}</span>
-                  <span id="feed-like-count-${post.id}">${initialReaction.likes}</span>
-                  <span>Curtir</span>
-                </button>
-                <button type="button" class="btn-reaction-comment" id="feed-comment-btn-${post.id}" onclick="App.toggleFeedComments('${post.id}')" title="Ver comentários desta foto">
-                  ${Icons.messageCircle(14)}
-                  <span id="feed-comment-count-${post.id}">${initialReaction.comments.length}</span>
-                  <span>Comentários</span>
-                </button>
-              </div>
-              <div class="devlog-actions-right">
-                <span class="btn-fullscreen-trigger" onclick="App.openLightbox(document.getElementById('img-display-${post.id}').src, null, '${post.id}')" title="Abrir imagem e comentários em tela cheia">
-                  ${Icons.maximize(13)} Tela Cheia
-                </span>
-              </div>
+          <!-- BARRA DE AÇÕES INSTAGRAM (CURTIR, COMENTAR, COMPARTILHAR, TELA CHEIA) -->
+          <div class="insta-action-bar">
+            <div class="insta-actions-left">
+              <button type="button" class="insta-btn-action ${initialReaction.isLiked ? 'liked' : ''}" id="feed-like-btn-${post.id}" onclick="App.toggleFeedPhotoLike('${post.id}')" title="Curtir foto">
+                <span id="feed-like-icon-${post.id}">${Icons.heart(22, initialReaction.isLiked)}</span>
+              </button>
+              <button type="button" class="insta-btn-action" id="feed-comment-btn-${post.id}" onclick="App.toggleFeedComments('${post.id}')" title="Ver e adicionar comentários">
+                ${Icons.messageCircle(22)}
+              </button>
+              <button type="button" class="insta-btn-action" onclick="App.shareDevlogPost('${post.id}')" title="Compartilhar">
+                ${Icons.send(20)}
+              </button>
             </div>
-
-            <!-- GAVETA EXPANSÍVEL DE COMENTÁRIOS DO FEED -->
-            <div class="devlog-comments-drawer" id="feed-comments-drawer-${post.id}" style="display: none;">
-              <div class="comments-header">
-                <h4>${Icons.messageCircle(14)} Comentários da Captura 3D</h4>
-                <span style="font-size: 11px; color: var(--text-muted);" id="feed-comments-sub-${post.id}">${initialReaction.comments.length} mensagens de investidores & criador</span>
-              </div>
-              <div class="comments-list" id="feed-comments-list-${post.id}">
-                ${this.renderCommentsListHtml(initialReaction.comments, initialMediaUrl, post.id)}
-              </div>
-              <form class="comment-form" onsubmit="App.submitFeedComment(event, '${post.id}')">
-                <input type="text" id="feed-comment-input-${post.id}" class="comment-input" placeholder="Escreva seu comentário ou sugestão sobre esta foto..." required autocomplete="off" />
-                <button type="submit" class="comment-submit-btn">
-                  ${Icons.send(13)}
-                  <span>Enviar</span>
-                </button>
-              </form>
+            <div class="insta-actions-right">
+              <button type="button" class="insta-btn-action" onclick="App.openLightbox(document.getElementById('img-display-${post.id}').src, null, '${post.id}')" title="Tela Cheia">
+                ${Icons.maximize(19)}
+              </button>
             </div>
           </div>
-        ` : post.mediaUrl ? `
-          <div class="devlog-media-container" id="media-container-${post.id}">
-            <img id="img-display-${post.id}" src="${post.mediaUrl}" alt="${post.title}" class="devlog-media-img" loading="lazy" style="cursor: pointer;" onclick="App.openLightbox(this.src, null, '${post.id}')" />
-            <div class="devlog-media-caption">
-              <span>${post.caption || 'Registro de Desenvolvimento 3D'}</span>
-              <span style="font-family: var(--font-mono); color: var(--gold-accent); cursor: pointer;" onclick="App.openLightbox(this.src, null, '${post.id}')">Ampliar Tela Cheia →</span>
-            </div>
 
-            <!-- BARRA DE REAÇÕES: CURTIR & COMENTAR -->
-            <div class="devlog-media-action-bar">
-              <div class="devlog-actions-left">
-                <button type="button" class="btn-reaction-like ${initialReaction.isLiked ? 'liked' : ''}" id="feed-like-btn-${post.id}" onclick="App.toggleFeedPhotoLike('${post.id}')" title="Curtir esta foto">
-                  <span id="feed-like-icon-${post.id}">${Icons.heart(14, initialReaction.isLiked)}</span>
-                  <span id="feed-like-count-${post.id}">${initialReaction.likes}</span>
-                  <span>Curtir</span>
-                </button>
-                <button type="button" class="btn-reaction-comment" id="feed-comment-btn-${post.id}" onclick="App.toggleFeedComments('${post.id}')" title="Ver comentários desta foto">
-                  ${Icons.messageCircle(14)}
-                  <span id="feed-comment-count-${post.id}">${initialReaction.comments.length}</span>
-                  <span>Comentários</span>
-                </button>
-              </div>
-              <div class="devlog-actions-right">
-                <span class="btn-fullscreen-trigger" onclick="App.openLightbox(this.src, null, '${post.id}')">
-                  ${Icons.maximize(13)} Tela Cheia
-                </span>
-              </div>
-            </div>
-
-            <!-- GAVETA EXPANSÍVEL DE COMENTÁRIOS DO FEED -->
-            <div class="devlog-comments-drawer" id="feed-comments-drawer-${post.id}" style="display: none;">
-              <div class="comments-header">
-                <h4>${Icons.messageCircle(14)} Comentários da Captura 3D</h4>
-                <span style="font-size: 11px; color: var(--text-muted);" id="feed-comments-sub-${post.id}">${initialReaction.comments.length} mensagens</span>
-              </div>
-              <div class="comments-list" id="feed-comments-list-${post.id}">
-                ${this.renderCommentsListHtml(initialReaction.comments, post.mediaUrl, post.id)}
-              </div>
-              <form class="comment-form" onsubmit="App.submitFeedComment(event, '${post.id}')">
-                <input type="text" id="feed-comment-input-${post.id}" class="comment-input" placeholder="Escreva seu comentário..." required autocomplete="off" />
-                <button type="submit" class="comment-submit-btn">
-                  ${Icons.send(13)}
-                  <span>Enviar</span>
-                </button>
-              </form>
-            </div>
+          <!-- TOTAL DE CURTIDAS ESTILO INSTAGRAM -->
+          <div class="insta-likes-summary">
+            <span class="insta-likes-text" id="feed-like-count-${post.id}">${initialReaction.likes} curtidas</span>
+            <span class="insta-likes-sub">• Comunidade Peregrino & Conselheiros</span>
           </div>
         ` : ''}
 
-        <div class="devlog-content">
-          <h3 class="devlog-title">${post.title}</h3>
-          <p style="margin-top: 6px;">${post.summary}</p>
-          <div class="devlog-tags">
-            ${(post.tags || []).map(tag => `<span class="devlog-tag">${tag}</span>`).join('')}
+        <!-- LEGENDA E CONTEÚDO DO POST ESTILO INSTAGRAM -->
+        <div class="insta-caption-block">
+          <p class="insta-caption-text">
+            <strong class="insta-author-tag">hajaluzstudio</strong>
+            <span class="insta-post-title">${post.title}</span> — 
+            <span class="insta-caption-body">${post.summary}</span>
+          </p>
+          <div class="insta-hashtags">
+            ${(post.tags || []).map(t => `<span class="insta-tag">#${t.replace(/\s+/g, '')}</span>`).join(' ')}
+          </div>
+        </div>
+
+        <!-- TOGGLE DE COMENTÁRIOS -->
+        <div class="insta-comments-toggle" onclick="App.toggleFeedComments('${post.id}')">
+          <span id="feed-comment-label-${post.id}">
+            ${initialReaction.comments.length > 0 ? `Ver todos os ${initialReaction.comments.length} comentários` : 'Adicionar um comentário oficial...'}
+          </span>
+        </div>
+
+        <!-- FORMULÁRIO RÁPIDO DE COMENTÁRIO INLINE ESTILO INSTAGRAM -->
+        <form class="insta-quick-comment-form" onsubmit="App.submitFeedComment(event, '${post.id}')">
+          <input type="text" id="feed-comment-input-${post.id}" class="insta-comment-input" placeholder="Adicione um comentário como apoiador..." required autocomplete="off" />
+          <button type="submit" class="insta-comment-post-btn">Publicar</button>
+        </form>
+
+        <!-- GAVETA EXPANSÍVEL DE COMENTÁRIOS -->
+        <div class="devlog-comments-drawer" id="feed-comments-drawer-${post.id}" style="display: none;">
+          <div class="comments-header">
+            <h4>${Icons.messageCircle(14)} Comentários da Comunidade</h4>
+            <span style="font-size: 11px; color: var(--text-muted);" id="feed-comments-sub-${post.id}">${initialReaction.comments.length} mensagens</span>
+          </div>
+          <div class="comments-list" id="feed-comments-list-${post.id}">
+            ${this.renderCommentsListHtml(initialReaction.comments, initialMediaUrl, post.id)}
           </div>
         </div>
       </article>
     `}).join('');
 
     bodyEl.innerHTML = `
-      <div class="devlog-feed">
+      <div class="devlog-feed insta-feed-container">
         ${postsHtml}
       </div>
     `;
+  },
+
+  // Navegação no Carrossel Instagram do Devlog
+  navDevlogSlide(postId, direction) {
+    const post = Store.devlogPosts.find(p => p.id === postId);
+    if (!post || !post.gallery || post.gallery.length <= 1) return;
+    
+    const imgEl = document.getElementById(`img-display-${postId}`);
+    const currentSrc = imgEl ? this.normalizeImagePath(imgEl.src) : "";
+    let currentIdx = post.gallery.findIndex(g => this.normalizeImagePath(g) === currentSrc);
+    if (currentIdx === -1) currentIdx = 0;
+    
+    let newIdx = currentIdx + direction;
+    if (newIdx < 0) newIdx = post.gallery.length - 1;
+    if (newIdx >= post.gallery.length) newIdx = 0;
+    
+    this.goToDevlogSlide(postId, newIdx);
+  },
+
+  goToDevlogSlide(postId, targetIdx) {
+    const post = Store.devlogPosts.find(p => p.id === postId);
+    if (!post || !post.gallery || !post.gallery[targetIdx]) return;
+    
+    const thumbUrl = post.gallery[targetIdx];
+    this.selectDevlogThumb(postId, thumbUrl, targetIdx + 1, post.gallery.length);
+  },
+
+  handleInstagramDoubleTap(postId) {
+    const heartEl = document.getElementById(`insta-doubletap-heart-${postId}`);
+    if (heartEl) {
+      heartEl.classList.remove("pop");
+      void heartEl.offsetWidth; // reflow
+      heartEl.classList.add("pop");
+      setTimeout(() => heartEl.classList.remove("pop"), 850);
+    }
+    
+    const post = Store.devlogPosts.find(p => p.id === postId);
+    const imgEl = document.getElementById(`img-display-${postId}`);
+    const photoUrl = (imgEl && imgEl.src) ? imgEl.src : (post ? (post.mediaUrl || (post.gallery && post.gallery[0])) : null);
+    
+    if (photoUrl) {
+      const reaction = Store.getPhotoReaction(photoUrl);
+      if (!reaction.isLiked) {
+        this.toggleFeedPhotoLike(postId);
+      }
+    }
+  },
+
+  handleTouchDoubleTap(postId, event) {
+    const now = Date.now();
+    if (!this._lastTouchTapTime) this._lastTouchTapTime = {};
+    const lastTap = this._lastTouchTapTime[postId] || 0;
+    
+    if (now - lastTap < 380 && now - lastTap > 40) {
+      if (event) event.preventDefault();
+      this.handleInstagramDoubleTap(postId);
+      this._lastTouchTapTime[postId] = 0;
+    } else {
+      this._lastTouchTapTime[postId] = now;
+    }
+  },
+
+  shareDevlogPost(postId) {
+    const post = Store.devlogPosts.find(p => p.id === postId);
+    const title = post ? post.title : "Devlog Peregrino";
+    const shareUrl = window.location.href.split("?")[0] + `?tab=devlog&post=${postId}`;
+    
+    if (typeof navigator !== "undefined" && navigator.share) {
+      navigator.share({
+        title: `Peregrino 3D: ${title}`,
+        text: `Confira o devlog oficial do jogo Peregrino (Haja Luz Studio): ${title}`,
+        url: shareUrl
+      }).catch(() => {});
+    } else {
+      this.copyPixKey(shareUrl, `✓ Link do post ${postId} copiado para a área de transferência!`);
+    }
   },
 
   // Seleção e Troca Interativa de Miniaturas no Feed do Devlog
@@ -1853,7 +1935,14 @@ const App = {
     }
     const counterEl = document.getElementById(`gallery-counter-${postId}`);
     if (counterEl) {
-      counterEl.innerText = `${currentIdx} / ${total} capturas`;
+      counterEl.innerText = `${currentIdx}/${total}`;
+    }
+    const dotsContainer = document.getElementById(`dots-${postId}`);
+    if (dotsContainer) {
+      const dots = dotsContainer.querySelectorAll(".insta-dot");
+      dots.forEach((d, i) => {
+        d.classList.toggle("active", i === (currentIdx - 1));
+      });
     }
     const container = document.getElementById(`media-container-${postId}`);
     if (container) {
@@ -1881,8 +1970,8 @@ const App = {
     const commentCount = document.getElementById(`feed-comment-count-${postId}`);
 
     if (likeBtn) likeBtn.classList.toggle("liked", res.isLiked);
-    if (likeIcon) likeIcon.innerHTML = Icons.heart(14, res.isLiked);
-    if (likeCount) likeCount.innerText = res.likes;
+    if (likeIcon) likeIcon.innerHTML = Icons.heart(20, res.isLiked);
+    if (likeCount) likeCount.innerText = `${res.likes} curtidas`;
     if (commentCount) commentCount.innerText = res.comments.length;
 
     const drawer = document.getElementById(`feed-comments-drawer-${postId}`);
