@@ -2,16 +2,24 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>Peregrino — Sistema de Investidores & Governança | Haja Luz Studio</title>
   <meta name="description" content="Plataforma comercial e de governança societária do jogo Peregrino. Acompanhamento em tempo real, cotas com Fator Pioneiro e registro criptográfico com Hash SHA-256.">
+  <meta name="theme-color" content="#0a0a0c">
+  <meta name="color-scheme" content="dark">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Peregrino">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/img/icon-192.png">
   <link rel="icon" type="image/png" href="favicon_logo_PPrancheta-1.png">
   <link rel="shortcut icon" type="image/png" href="assets/img/favicon.png">
-  <link rel="apple-touch-icon" href="assets/img/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261018-07">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261024-pwa01">
   <!-- Anti-Flicker & Persistência Instantânea de Sessão F5 -->
   <script>
     (function() {
@@ -109,6 +117,12 @@
             <span>CONHECER O PROJETO (PASSE VIP 48H) &rarr;</span>
           </button>
 
+          <!-- Botão PWA: Baixar Aplicativo no Celular -->
+          <button type="button" class="btn-pwa-install-login" id="login-install-app-btn" onclick="App.promptInstallApp()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><line x1="12" x2="12.01" y1="18" y2="18"/></svg>
+            <span id="login-install-app-label">📱 BAIXAR APLICATIVO NO CELULAR</span>
+          </button>
+
           <!-- Rodapé do Card -->
           <div class="oraculum-card-footer">
             <span>Painel Restrito & Confidencial de Governança</span>
@@ -167,6 +181,32 @@
       </div>
     </main>
 
+    <!-- BARRA DE NAVEGAÇÃO INFERIOR ESTILO APP NATIVO (SMARTPHONE) -->
+    <nav id="mobile-bottom-nav" class="mobile-bottom-nav"></nav>
+
+  </div>
+
+  <!-- MODAL DE INSTALAÇÃO DO APP PWA (ANDROID / IOS / DESKTOP) -->
+  <div id="pwa-install-modal" class="modal-overlay">
+    <div class="modal-box modal-box-pwa" style="max-width: 440px; width: 92%;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <img src="assets/img/icon-192.png" alt="App Peregrino" style="width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--gold-accent);" />
+          <div>
+            <h3 style="font-size: 15px; margin: 0; color: #ffffff;">Instalar Aplicativo Peregrino</h3>
+            <span style="font-size: 11px; color: var(--gold-accent);">Acesso Direto na Tela Inicial</span>
+          </div>
+        </div>
+        <button class="modal-close" onclick="App.closeInstallModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="pwa-install-body" style="padding: 20px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
+        <!-- Preenchido dinamicamente com passos do Android, iOS Safari ou Desktop -->
+      </div>
+      <div style="padding: 12px 18px; display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--border-subtle); background: var(--bg-surface-elevated);">
+        <button type="button" class="btn-secondary" onclick="App.closeInstallModal()">Agora Não</button>
+        <button type="button" class="btn-primary" id="pwa-modal-action-btn" onclick="App.executeInstallAction()">Instalar Aplicativo</button>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL DE NOVA ATUALIZAÇÃO NO DEVLOG (MODO CRIADOR) -->
@@ -1230,11 +1270,25 @@
   <!-- SDK Supabase Cloud & Resiliência Offline -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/qrcode.min.js"></script>
-  <script src="assets/js/icons.js?v=20261018-07"></script>
-  <script src="assets/js/config.js?v=20261018-07"></script>
-  <script src="assets/js/supabase.js?v=20261018-07"></script>
-  <script src="assets/js/store.js?v=20261018-07"></script>
-  <script src="assets/js/app.js?v=20261018-07"></script>
+  <script src="assets/js/icons.js?v=20261024-pwa01"></script>
+  <script src="assets/js/config.js?v=20261024-pwa01"></script>
+  <script src="assets/js/supabase.js?v=20261024-pwa01"></script>
+  <script src="assets/js/store.js?v=20261024-pwa01"></script>
+  <script src="assets/js/app.js?v=20261024-pwa01"></script>
 
+  <!-- Registro do Service Worker PWA -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function() {
+        navigator.serviceWorker.register("./service-worker.js")
+          .then(function(reg) {
+            console.log("[PWA] Service Worker registrado com sucesso:", reg.scope);
+          })
+          .catch(function(err) {
+            console.warn("[PWA] Falha ao registrar Service Worker:", err);
+          });
+      });
+    }
+  </script>
 </body>
 </html>

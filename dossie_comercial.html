@@ -2,11 +2,19 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>Dossiê Executivo Comercial Completo: Peregrino | Haja Luz Studio</title>
+  <meta name="theme-color" content="#0a0a0c">
+  <meta name="color-scheme" content="dark">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Peregrino">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/img/icon-192.png">
   <link rel="icon" type="image/png" href="favicon_logo_PPrancheta-1.png">
   <link rel="shortcut icon" type="image/png" href="assets/img/favicon.png">
-  <link rel="apple-touch-icon" href="assets/img/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -306,6 +314,19 @@
       .signatures { border-top-color: #cbd5e1; }
       .sig-line { border-top-color: #000; color: #000; }
       .sig-line strong, .sig-line span { color: #000 !important; }
+    }
+    @media (max-width: 768px) {
+      body { padding: 14px 10px; }
+      .container { padding: 20px 14px; border-radius: 6px; }
+      header { flex-direction: column; gap: 14px; align-items: flex-start; }
+      .badge-top { text-align: left; width: 100%; }
+      .brand-title { font-size: 22px; }
+      .grid-2 { grid-template-columns: 1fr !important; gap: 12px !important; }
+      .signatures { grid-template-columns: 1fr !important; gap: 28px !important; }
+      .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 16px; border: 1px solid var(--border); border-radius: 4px; }
+      .table { min-width: 580px; }
+      .table th, .table td { padding: 8px 10px; font-size: 12.5px; }
+      select, input, button { font-size: 15px !important; min-height: 42px; }
     }
   </style>
 </head>
@@ -905,6 +926,12 @@
     document.addEventListener("DOMContentLoaded", () => {
       DossieManager.init();
     });
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function() {
+        navigator.serviceWorker.register("./service-worker.js").catch(function() {});
+      });
+    }
   </script>
 </body>
 </html>

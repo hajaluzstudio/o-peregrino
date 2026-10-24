@@ -1,0 +1,71 @@
+{
+  "name": "Peregrino — Sistema de Investidores & Governança",
+  "short_name": "Peregrino",
+  "description": "Plataforma oficial de captação de cotas, governança societária e devlog 3D do jogo Peregrino (Haja Luz Studio).",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0a0c",
+  "theme_color": "#111116",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "assets/img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/img/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/img/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Painel de Investimento",
+      "short_name": "Painel",
+      "description": "Visão geral das cotas e governança",
+      "url": "./index.html?tab=boas-vindas",
+      "icons": [{ "src": "assets/img/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Apoiar & Cotas",
+      "short_name": "Cotas",
+      "description": "Simulação de cotas e Fator Pioneiro 1.25x",
+      "url": "./index.html?tab=apoiar",
+      "icons": [{ "src": "assets/img/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Devlog 3D",
+      "short_name": "Devlog",
+      "description": "Acompanhamento em tempo real no Godot",
+      "url": "./index.html?tab=devlog",
+      "icons": [{ "src": "assets/img/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Dossiê Comercial",
+      "short_name": "Dossiê",
+      "description": "Apresentação executiva e jurídica",
+      "url": "./dossie_comercial.html",
+      "icons": [{ "src": "assets/img/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "categories": ["finance", "business", "entertainment"]
+}

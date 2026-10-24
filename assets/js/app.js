@@ -17,8 +17,12 @@ const App = {
   inspectorCollapsed: localStorage.getItem("peregrino_inspector_collapsed") === "true",
   showNewContractForm: false,
   viewingContractId: null,
+  deferredInstallPrompt: null,
 
   async init() {
+    // 0. Inicializa listeners de PWA para instalação do App Mobile
+    this.initPwa();
+
     // Restaura a aba ativa salva pelo usuário para manter no mesmo local após F5
     try {
       const savedTab = localStorage.getItem("peregrino_active_tab") || sessionStorage.getItem("peregrino_active_tab");
@@ -70,6 +74,7 @@ const App = {
         document.documentElement.classList.remove("user-logged-in");
       }
       this.initLoginParallaxAndDust();
+      this.updateInstallUi();
     } else {
       if (loginScreen) loginScreen.classList.add("hidden");
       if (preloaderScreen) preloaderScreen.classList.add("hidden");
@@ -81,8 +86,11 @@ const App = {
       this.renderHeader();
       this.renderSidebar();
       this.renderInspector();
+      this.renderMobileTabsNav();
+      this.renderMobileBottomNav();
       this.switchTab(this.activeTab || "boas-vindas");
       this.setupEventListeners();
+      this.updateInstallUi();
     }
   },
 
@@ -602,6 +610,8 @@ const App = {
 
     const user = Store.auth.currentUser || Store.users[1];
     const isCreator = Store.currentRole === "creator";
+    const isMobileScreen = window.innerWidth <= 768;
+    const isAppInstalled = this.isAppInstalled();
 
     headerEl.innerHTML = `
       <div class="header-brand">
@@ -611,8 +621,8 @@ const App = {
         <img src="assets/img/logo_peregrino.png" alt="Peregrino" class="header-brand-logo" />
       </div>
 
-      ${isCreator ? `
-      <!-- SELETOR DE VIEWPORT EM TEMPO REAL (SOMENTE SUPERADMIN) -->
+      ${(isCreator && !isMobileScreen) ? `
+      <!-- SELETOR DE VIEWPORT EM TEMPO REAL (SOMENTE SUPERADMIN DESKTOP) -->
       <div class="viewport-switch" title="Alterne para testar a experiência visual em Desktop ou Mobile">
         <button class="viewport-btn ${this.currentViewport === 'desktop' ? 'active' : ''}" onclick="App.setViewport('desktop')">
           ${Icons.desktop(14)}
@@ -629,10 +639,17 @@ const App = {
       </div>` : `<div style="flex: 1;"></div>`}
 
       <div class="header-actions">
+        <!-- Botão PWA: Baixar/Instalar App -->
+        ${!isAppInstalled ? `
+        <button class="btn-header-pwa-install" id="header-install-app-btn" onclick="App.promptInstallApp()" title="Baixar e instalar o aplicativo no celular">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><line x1="12" x2="12.01" y1="18" y2="18"/></svg>
+          <span class="pwa-header-label">Baixar App</span>
+        </button>` : ''}
+
         ${user.role === 'guest' ? `
           <div class="role-badge" style="border-color: rgba(245, 158, 11, 0.45); background: rgba(245, 158, 11, 0.08);" title="Passe VIP de Apresentação com validade de 48 horas">
             <span class="role-indicator" style="background: #fbbf24; box-shadow: 0 0 8px #fbbf24;"></span>
-            <span style="color: #fbbf24; font-weight: 700;">PASSE VIP • EXPIRA EM: ${this.getVipRemainingTimeFormatted()}</span>
+            <span style="color: #fbbf24; font-weight: 700;">PASSE VIP • ${this.getVipRemainingTimeFormatted()}</span>
           </div>
           <button class="btn-primary" style="padding: 5px 12px; font-size: 11px; font-weight: 700; cursor: pointer;" onclick="App.switchTab('termo')" title="Formalizar proposta de apoio">
             <span>Quero Apoiar</span>
@@ -640,14 +657,14 @@ const App = {
         ` : `
           <div class="role-badge" title="Usuário Ativo: ${user.name} (${user.email})">
             <span class="role-indicator"></span>
-            <span>${user.name} • ${isCreator ? 'CRIADOR MASTER' : 'INVESTIDOR'}</span>
+            <span>${user.name.split(' ')[0]} • ${isCreator ? 'CRIADOR' : 'INVESTIDOR'}</span>
           </div>
         `}
 
-        ${isCreator ? `
+        ${(isCreator && !isMobileScreen) ? `
         <button class="btn-secondary" style="padding: 5px 10px; font-size: 11px; display: inline-flex; align-items: center; gap: 5px; color: var(--gold-accent); border-color: rgba(221,196,187,0.3); cursor: pointer;" onclick="App.copyVipInviteLink()" title="Gerar link de convite VIP (24 horas) na nuvem para enviar no WhatsApp">
           ${Icons.link ? Icons.link(12) : ''}
-          <span>Gerar Link VIP (24h)</span>
+          <span>Gerar Link VIP</span>
         </button>
         <button class="btn-toggle-role" onclick="App.toggleRole()" title="Alternar entre modo criador e modo investidor">
           ${Icons.refresh(13)}
@@ -674,6 +691,7 @@ const App = {
     this.closeMobilePanels();
     this.renderHeader();
     this.renderMobileTabsNav();
+    this.renderMobileBottomNav();
     this.updateWorkspaceHeaderToggles();
   },
 
@@ -699,11 +717,26 @@ const App = {
 
     sidebarEl.innerHTML = `
       <div class="sidebar-top-bar">
-        <span class="sidebar-top-title">Navegação</span>
-        <button class="btn-panel-minimize" onclick="App.toggleSidebar()" title="Minimizar Menu de Navegação">
+        <span class="sidebar-top-title">Menu & Navegação</span>
+        <button class="btn-panel-minimize hide-on-mobile" onclick="App.toggleSidebar()" title="Minimizar Menu de Navegação">
           ${Icons.chevronLeft(13)}
           <span>Minimizar</span>
         </button>
+        <button class="btn-sidebar-close-mobile show-on-mobile" onclick="App.closeMobilePanels()" title="Fechar Menu">
+          &times;
+        </button>
+      </div>
+
+      <!-- Item PWA de Instalação do Aplicativo -->
+      <div class="sidebar-section sidebar-section-pwa">
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a class="nav-link nav-link-pwa" onclick="App.promptInstallApp()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--gold-accent); flex-shrink: 0;"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><line x1="12" x2="12.01" y1="18" y2="18"/></svg>
+              <span id="sidebar-install-label" style="font-weight: 700; color: var(--gold-accent);">📱 Baixar App no Celular</span>
+            </a>
+          </li>
+        </ul>
       </div>
 
       <div class="sidebar-section">
@@ -824,6 +857,7 @@ const App = {
     this.renderSidebar();
     this.renderCurrentWorkspace();
     this.renderMobileTabsNav();
+    this.renderMobileBottomNav();
   },
 
   // Barra de Navegação Horizontal das Abas no Mobile & Tablet
@@ -869,6 +903,46 @@ const App = {
         activeChip.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
       }, 50);
     }
+  },
+
+  // Barra de Navegação Inferior Estilo App Nativo (Mobile Bottom Navigation)
+  renderMobileBottomNav() {
+    const bottomNavEl = document.getElementById("mobile-bottom-nav");
+    if (!bottomNavEl) return;
+
+    const devlogCount = Store.devlogPosts ? Store.devlogPosts.length : null;
+    const isTermoActive = this.activeTab === "termo" || this.activeTab === "simulador";
+    const isSidebarOpen = document.getElementById("app-container")?.classList.contains("sidebar-mobile-open");
+
+    bottomNavEl.innerHTML = `
+      <div class="bottom-nav-container">
+        <button type="button" class="bottom-nav-btn ${this.activeTab === 'boas-vindas' ? 'active' : ''}" onclick="App.switchTab('boas-vindas')" title="Visão Geral">
+          <span class="bottom-nav-icon">${Icons.compass(18)}</span>
+          <span class="bottom-nav-label">Visão</span>
+        </button>
+        <button type="button" class="bottom-nav-btn ${this.activeTab === 'apoiar' ? 'active' : ''}" onclick="App.switchTab('apoiar')" title="Cotas & Recompensas">
+          <span class="bottom-nav-icon">${Icons.award(18)}</span>
+          <span class="bottom-nav-label">Apoiar</span>
+        </button>
+        <button type="button" class="bottom-nav-btn ${this.activeTab === 'devlog' ? 'active' : ''}" onclick="App.switchTab('devlog')" title="Devlog 3D">
+          <span class="bottom-nav-icon" style="position: relative;">
+            ${Icons.camera(18)}
+            ${devlogCount ? `<span class="bottom-nav-badge">${devlogCount}</span>` : ''}
+          </span>
+          <span class="bottom-nav-label">Devlog</span>
+        </button>
+        <button type="button" class="bottom-nav-btn ${isTermoActive ? 'active' : ''}" onclick="App.switchTab('termo')" title="Simulador de Cotas">
+          <span class="bottom-nav-icon">${Icons.calculator(18)}</span>
+          <span class="bottom-nav-label">Simulador</span>
+        </button>
+        <button type="button" class="bottom-nav-btn ${isSidebarOpen ? 'active' : ''}" onclick="App.toggleMobileSidebar()" title="Menu Completo">
+          <span class="bottom-nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </span>
+          <span class="bottom-nav-label">Menu</span>
+        </button>
+      </div>
+    `;
   },
 
   // ==========================================================================
@@ -1000,9 +1074,12 @@ const App = {
     inspectorEl.innerHTML = `
       <div class="inspector-top-bar">
         <span class="inspector-top-title">Painel de Governança</span>
-        <button class="btn-panel-minimize" onclick="App.toggleInspector()" title="Minimizar Painel Lateral">
+        <button class="btn-panel-minimize hide-on-mobile" onclick="App.toggleInspector()" title="Minimizar Painel Lateral">
           <span>Minimizar</span>
           ${Icons.chevronRight(13)}
+        </button>
+        <button class="btn-sidebar-close-mobile show-on-mobile" onclick="App.closeMobilePanels()" title="Fechar Telemetria">
+          &times;
         </button>
       </div>
 
@@ -6513,6 +6590,143 @@ const App = {
     setTimeout(() => {
       toast.classList.remove("visible");
     }, 2800);
+  },
+
+  // ==========================================================================
+  // PROGRESSIVE WEB APP (PWA) & INSTALAÇÃO MOBILE
+  // ==========================================================================
+  initPwa() {
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      this.deferredInstallPrompt = e;
+      this.updateInstallUi();
+    });
+
+    window.addEventListener("appinstalled", () => {
+      this.deferredInstallPrompt = null;
+      this.updateInstallUi();
+      this.showToast("🎉 App Peregrino instalado com sucesso!");
+    });
+
+    this.updateInstallUi();
+  },
+
+  isAppInstalled() {
+    return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  },
+
+  updateInstallUi() {
+    const isInstalled = this.isAppInstalled();
+    const loginBtn = document.getElementById("login-install-app-btn");
+    const loginLabel = document.getElementById("login-install-app-label");
+    const headerBtn = document.getElementById("header-install-app-btn");
+    const sidebarLabel = document.getElementById("sidebar-install-label");
+
+    if (isInstalled) {
+      if (loginLabel) loginLabel.textContent = "APP INSTALADO ✓";
+      if (loginBtn) loginBtn.classList.add("installed");
+      if (headerBtn) headerBtn.style.display = "none";
+      if (sidebarLabel) sidebarLabel.textContent = "App Instalado ✓";
+    } else {
+      if (loginLabel) loginLabel.textContent = "📱 BAIXAR APLICATIVO NO CELULAR";
+      if (sidebarLabel) sidebarLabel.textContent = "📱 Baixar App no Celular";
+      if (headerBtn) headerBtn.style.display = "inline-flex";
+    }
+  },
+
+  promptInstallApp() {
+    if (this.isAppInstalled()) {
+      this.showToast("✓ O aplicativo Peregrino já está instalado neste dispositivo!");
+      return;
+    }
+
+    // Se o evento nativo foi capturado (Android Chrome / Edge / Desktop Chrome)
+    if (this.deferredInstallPrompt) {
+      this.deferredInstallPrompt.prompt();
+      this.deferredInstallPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult && choiceResult.outcome === "accepted") {
+          this.showToast("Instalando aplicativo Peregrino...");
+          this.deferredInstallPrompt = null;
+          this.updateInstallUi();
+        }
+      });
+      return;
+    }
+
+    // Modal com passo a passo para iOS Safari ou Android manual
+    this.openInstallModal();
+  },
+
+  openInstallModal() {
+    const modal = document.getElementById("pwa-install-modal");
+    const bodyEl = document.getElementById("pwa-install-body");
+    const actionBtn = document.getElementById("pwa-modal-action-btn");
+    if (!modal || !bodyEl) return;
+
+    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+    if (isIos) {
+      bodyEl.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div style="background: rgba(199, 165, 152, 0.1); border: 1px solid rgba(199, 165, 152, 0.3); padding: 12px; border-radius: 6px; font-size: 13px; color: var(--gold-accent);">
+            <strong>Instalação no iPhone / iPad (Apple Safari)</strong>
+          </div>
+          <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <div style="width: 26px; height: 26px; border-radius: 50%; background: var(--gold-accent); color: #000; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px;">1</div>
+            <div>Toque no botão <strong>Compartilhar</strong> (ícone de quadrado com seta para cima na barra inferior do Safari).</div>
+          </div>
+          <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <div style="width: 26px; height: 26px; border-radius: 50%; background: var(--gold-accent); color: #000; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px;">2</div>
+            <div>Role o menu para baixo e selecione <strong>"Adicionar à Tela de Início"</strong>.</div>
+          </div>
+          <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <div style="width: 26px; height: 26px; border-radius: 50%; background: var(--gold-accent); color: #000; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px;">3</div>
+            <div>Toque em <strong>"Adicionar"</strong> no canto superior direito. Pronto! O ícone oficial do Peregrino ficará na sua tela inicial como um app nativo.</div>
+          </div>
+        </div>
+      `;
+      if (actionBtn) {
+        actionBtn.textContent = "Concluir";
+        actionBtn.onclick = () => this.closeInstallModal();
+      }
+    } else {
+      bodyEl.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div style="background: rgba(199, 165, 152, 0.1); border: 1px solid rgba(199, 165, 152, 0.3); padding: 12px; border-radius: 6px; font-size: 13px; color: var(--gold-accent);">
+            <strong>Instalação no Smartphone Android ou Desktop</strong>
+          </div>
+          <p>O Peregrino roda com tecnologia <strong>Progressive Web App (PWA)</strong>, permitindo que você instale o app diretamente no celular sem precisar da loja e com inicialização em tela cheia.</p>
+          <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <div style="width: 26px; height: 26px; border-radius: 50%; background: var(--gold-accent); color: #000; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px;">1</div>
+            <div>Toque no menu do seu navegador (<strong>três pontinhos</strong> no canto superior direito).</div>
+          </div>
+          <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <div style="width: 26px; height: 26px; border-radius: 50%; background: var(--gold-accent); color: #000; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px;">2</div>
+            <div>Selecione <strong>"Instalar aplicativo"</strong> ou <strong>"Adicionar à tela inicial"</strong>.</div>
+          </div>
+        </div>
+      `;
+      if (actionBtn) {
+        actionBtn.textContent = "Entendi";
+        actionBtn.onclick = () => this.closeInstallModal();
+      }
+    }
+
+    modal.classList.add("active");
+  },
+
+  closeInstallModal() {
+    const modal = document.getElementById("pwa-install-modal");
+    if (modal) modal.classList.remove("active");
+  },
+
+  executeInstallAction() {
+    if (this.deferredInstallPrompt) {
+      this.promptInstallApp();
+      this.closeInstallModal();
+    } else {
+      this.closeInstallModal();
+    }
   }
 };
 

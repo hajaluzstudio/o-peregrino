@@ -1859,6 +1859,187 @@ body {
 }
 
 /* ==========================================================================
+   PWA & BOTÕES DE INSTALAÇÃO MOBILE (ANDROID, IOS, DESKTOP)
+   ========================================================================== */
+.btn-pwa-install-login {
+  width: 100%;
+  margin-top: 10px;
+  padding: 11px 16px;
+  background: rgba(199, 165, 152, 0.12);
+  border: 1px solid rgba(199, 165, 152, 0.45);
+  border-radius: var(--radius-sm);
+  color: var(--gold-accent);
+  font-family: var(--font-family);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.btn-pwa-install-login:hover {
+  background: rgba(199, 165, 152, 0.22);
+  border-color: var(--gold-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(199, 165, 152, 0.25);
+}
+
+.btn-pwa-install-login.installed {
+  background: rgba(56, 161, 105, 0.12);
+  border-color: rgba(56, 161, 105, 0.4);
+  color: #4ade80;
+  cursor: default;
+}
+
+.btn-header-pwa-install {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  background: rgba(199, 165, 152, 0.14);
+  border: 1px solid rgba(199, 165, 152, 0.4);
+  border-radius: var(--radius-sm);
+  color: var(--gold-accent);
+  font-family: var(--font-family);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+}
+
+.btn-header-pwa-install:hover {
+  background: rgba(199, 165, 152, 0.24);
+  border-color: var(--gold-accent);
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(199, 165, 152, 0.3);
+}
+
+.nav-link-pwa {
+  background: rgba(199, 165, 152, 0.08) !important;
+  border: 1px dashed rgba(199, 165, 152, 0.35) !important;
+  border-radius: var(--radius-sm) !important;
+  margin-top: 4px;
+}
+
+.nav-link-pwa:hover {
+  background: rgba(199, 165, 152, 0.18) !important;
+  border-color: var(--gold-accent) !important;
+}
+
+.show-on-mobile {
+  display: none;
+}
+
+.hide-on-mobile {
+  display: inline-flex;
+}
+
+.btn-sidebar-close-mobile {
+  display: none;
+}
+
+/* ==========================================================================
+   BARRA DE NAVEGAÇÃO INFERIOR ESTILO APP NATIVO (MOBILE BOTTOM BAR)
+   ========================================================================== */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: rgba(10, 10, 12, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(199, 165, 152, 0.22);
+  box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.85);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  user-select: none;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
+.bottom-nav-container {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  height: 56px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.bottom-nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: #8e8e93;
+  font-family: var(--font-family);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  gap: 3px;
+  padding: 4px 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.18s ease;
+}
+
+.bottom-nav-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.bottom-nav-btn:hover {
+  color: #ffffff;
+}
+
+.bottom-nav-btn:active {
+  transform: scale(0.92);
+}
+
+.bottom-nav-btn.active {
+  color: var(--gold-accent);
+  font-weight: 700;
+}
+
+.bottom-nav-btn.active .bottom-nav-icon {
+  transform: translateY(-2px);
+  filter: drop-shadow(0 0 8px rgba(199, 165, 152, 0.6));
+}
+
+.bottom-nav-badge {
+  position: absolute;
+  top: -4px;
+  right: -8px;
+  background: var(--gold-accent);
+  color: #050505;
+  font-size: 9px;
+  font-weight: 800;
+  border-radius: 9999px;
+  padding: 1px 4px;
+  line-height: 1.1;
+  font-family: var(--font-mono);
+  box-shadow: 0 0 6px rgba(199, 165, 152, 0.5);
+}
+
+/* ==========================================================================
    TABLET LANDSCAPE & PORTRAIT (<= 1080px) E MODO SIMULADOR TABLET/MOBILE
    ========================================================================== */
 @media (max-width: 1080px), (max-width: 1366px) and (orientation: portrait) {
@@ -1942,6 +2123,104 @@ body {
     --header-height: 52px;
   }
 
+  /* Exibição e ocultação de controles específicos mobile */
+  .show-on-mobile {
+    display: flex !important;
+  }
+
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .btn-sidebar-close-mobile {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .btn-sidebar-close-mobile:hover,
+  .btn-sidebar-close-mobile:active {
+    background: rgba(199, 165, 152, 0.25);
+    color: var(--gold-accent);
+  }
+
+  /* Barra de Navegação Inferior Nativa */
+  .mobile-bottom-nav {
+    display: block !important;
+  }
+
+  /* Prevenção de Zoom Involuntário no iOS Safari */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  /* Tela de Login adaptada com rolagem suave no Mobile */
+  .login-screen {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 16px 14px 40px !important;
+    min-height: 100vh !important;
+    height: 100dvh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+  }
+
+  .login-card-perspective-wrapper {
+    perspective: none !important;
+    margin: auto 0 !important;
+    width: 100% !important;
+    max-width: 420px !important;
+  }
+
+  .login-card {
+    padding: 22px 18px !important;
+    min-height: auto !important;
+    max-width: 100% !important;
+    border-radius: 18px !important;
+  }
+
+  .oraculum-top-nav-btn {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    align-self: flex-start !important;
+    margin-bottom: 12px !important;
+    padding: 6px 14px !important;
+    font-size: 10px !important;
+  }
+
+  .oraculum-top-brand {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    margin-bottom: 14px !important;
+    align-self: center !important;
+  }
+
+  .oraculum-top-brand-img {
+    height: 24px !important;
+  }
+
+  .oraculum-live-widget {
+    bottom: 12px !important;
+    right: 12px !important;
+    padding: 5px 10px !important;
+    font-size: 11px !important;
+  }
+
+  /* Header Global no Smartphone */
   .global-header {
     padding: 0 10px;
     height: var(--header-height);
@@ -1967,16 +2246,18 @@ body {
   }
 
   .btn-toggle-role span,
-  .btn-secondary span {
+  .btn-secondary span,
+  .btn-header-pwa-install .pwa-header-label {
     display: none;
   }
 
   .btn-toggle-role,
-  .btn-secondary {
+  .btn-secondary,
+  .btn-header-pwa-install {
     padding: 6px 8px;
   }
 
-  /* Workspace Header & Body */
+  /* Workspace Header & Body com Safe Area para a Bottom Nav */
   .workspace-header {
     padding: 12px 14px;
     flex-wrap: wrap;
@@ -2001,6 +2282,7 @@ body {
   .workspace-body {
     padding: 12px;
     gap: 14px;
+    padding-bottom: calc(76px + env(safe-area-inset-bottom, 10px)) !important;
   }
 
   /* Grids em 1 Coluna no Smartphone */
@@ -2150,6 +2432,45 @@ body {
 .preview-mobile .mobile-tabs-nav,
 .preview-tablet .mobile-tabs-nav {
   display: flex !important;
+}
+
+.preview-mobile .mobile-bottom-nav {
+  display: block !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  border-radius: 0 0 22px 22px !important;
+}
+
+.preview-mobile .workspace-body {
+  padding-bottom: 74px !important;
+}
+
+.preview-mobile .show-on-mobile,
+.preview-tablet .show-on-mobile {
+  display: flex !important;
+}
+
+.preview-mobile .hide-on-mobile,
+.preview-tablet .hide-on-mobile {
+  display: none !important;
+}
+
+.preview-mobile .btn-sidebar-close-mobile,
+.preview-tablet .btn-sidebar-close-mobile {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
 }
 
 .preview-mobile .sidebar,
