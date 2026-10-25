@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261025-mobile07">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261025-mobile08">
 </head>
 <body>
 
@@ -625,7 +625,7 @@
   </div>
 
   <!-- MODAL EDITÁVEL DO CARD KANBAN & CHECKLIST -->
-  <div id="kanban-edit-modal" class="modal-overlay">
+  <div id="kanban-edit-modal" class="modal-overlay" onclick="if(event.target === this) App.closeKanbanModal()">
     <div class="modal-box" style="max-width: 620px;">
       <div class="modal-header">
         <div>
@@ -646,7 +646,7 @@
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="kanban-modal-grid form-row-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="form-group">
             <label class="form-label">Coluna no Quadro Kanban</label>
             <select id="modal-card-column" class="form-select" onchange="App.onModalColumnChange()">
@@ -688,7 +688,7 @@
           </div>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-subtle);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 10px;">
           <div id="modal-footer-notice" style="font-size: 11px; color: var(--text-muted);">Sincronização persistida em tempo real.</div>
           <div style="display: flex; gap: 8px; align-items: center;">
             <button type="button" class="btn-secondary" onclick="App.closeKanbanModal()">Fechar</button>
@@ -701,7 +701,7 @@
   </div>
 
   <!-- MODAL DE SINCRONIZAÇÃO AUTOMÁTICA COM O JOGO LOCAL (GODOT) -->
-  <div id="sync-checklist-modal" class="modal-overlay">
+  <div id="sync-checklist-modal" class="modal-overlay" onclick="if(event.target === this) App.closeSyncModal()">
     <div class="modal-box" style="max-width: 640px;">
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -777,7 +777,7 @@
   </div>
 
   <!-- MODAL DE CONFIGURAÇÃO DO BANCO DE DADOS SUPABASE CLOUD -->
-  <div id="supabase-config-modal" class="modal-overlay">
+  <div id="supabase-config-modal" class="modal-overlay" onclick="if(event.target === this) App.closeSupabaseModal()">
     <div class="modal-box" style="max-width: 600px;">
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -1275,7 +1275,7 @@
   <script src="assets/js/config.js?v=20261024-pwa01"></script>
   <script src="assets/js/supabase.js?v=20261024-pwa01"></script>
   <script src="assets/js/store.js?v=20261024-pwa01"></script>
-  <script src="assets/js/app.js?v=20261025-mobile07"></script>
+  <script src="assets/js/app.js?v=20261025-mobile08"></script>
 
   <!-- Registro do Service Worker PWA -->
   <script>

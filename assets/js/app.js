@@ -2834,8 +2834,10 @@ const App = {
 
   // Verifica se o usuário atual tem permissão para editar/mover o Kanban (Exclusivo Superadmin)
   isKanbanEditable() {
-    const user = Store.auth.currentUser || (Store.currentRole === "creator" ? Store.users[0] : Store.users[1]);
-    return Boolean(user && user.canEditKanban === true && user.role === "creator");
+    if (Store.currentRole === "creator") return true;
+    const user = Store.auth.currentUser || (Store.users ? Store.users[0] : null);
+    if (!user) return false;
+    return Boolean(user.role === "creator" || user.canEditKanban === true);
   },
 
   // 3. MÓDULO AS 7 BASES DA COMUNIDADE (QUADRO KANBAN)
@@ -7059,12 +7061,14 @@ const App = {
         this.closeCharacterModal();
         this.closeContractModal();
         this.closeKanbanModal();
+        this.closeSyncModal();
+        this.closeSupabaseModal();
         this.closeGameGuideModal();
         this.closeLightbox();
       }
     });
 
-    // Clique no backdrop escuro fecha o modal de contrato
+    // Clique no backdrop escuro fecha modais
     const contractModal = document.getElementById("contract-audit-modal");
     if (contractModal) {
       contractModal.addEventListener("click", (e) => {
@@ -7074,7 +7078,24 @@ const App = {
       });
     }
 
-    // Clique no backdrop escuro fecha o modal do guia
+    const kanbanModal = document.getElementById("kanban-edit-modal");
+    if (kanbanModal) {
+      kanbanModal.addEventListener("click", (e) => {
+        if (e.target === kanbanModal) {
+          this.closeKanbanModal();
+        }
+      });
+    }
+
+    const syncModal = document.getElementById("sync-checklist-modal");
+    if (syncModal) {
+      syncModal.addEventListener("click", (e) => {
+        if (e.target === syncModal) {
+          this.closeSyncModal();
+        }
+      });
+    }
+
     const guideModal = document.getElementById("game-guide-modal");
     if (guideModal) {
       guideModal.addEventListener("click", (e) => {

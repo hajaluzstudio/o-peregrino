@@ -1069,27 +1069,29 @@ main, .page-content, .body-wrapper, .workspace, .workspace-body, #workspace-body
   color: var(--text-muted);
 }
 
-/* Modal de Nova Postagem (Painel do Criador) */
+/* Modal Global (Modais de Edição, Kanban, Checklist e Sistema) */
 .modal-overlay {
-  position: fixed;
+  position: fixed !important;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(7, 9, 13, 0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-  padding: 20px;
+  background-color: rgba(5, 6, 8, 0.9) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 100000 !important; /* CRÍTICO: Acima de qualquer bottom-nav, sidebar ou header */
+  padding: 16px !important;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
 .modal-overlay.active {
-  opacity: 1;
-  pointer-events: auto;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
 }
 
 .modal-box {
@@ -1097,11 +1099,11 @@ main, .page-content, .body-wrapper, .workspace, .workspace-body, #workspace-body
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
   width: 100%;
-  max-width: 560px;
+  max-width: 580px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95), 0 0 1px 1px rgba(255, 255, 255, 0.08);
   overflow: hidden;
 }
 
@@ -1112,24 +1114,35 @@ main, .page-content, .body-wrapper, .workspace, .workspace-body, #workspace-body
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
+  background-color: var(--bg-surface-elevated);
 }
 
 .modal-header h3 {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 14.5px;
+  font-weight: 700;
   color: var(--text-primary);
 }
 
 .modal-close {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  color: #ffffff;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  line-height: 1;
   cursor: pointer;
-  padding: 4px;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
-.modal-close:hover {
-  color: var(--text-primary);
+.modal-close:hover,
+.modal-close:active {
+  background: rgba(199, 165, 152, 0.25);
+  color: var(--gold-accent);
 }
 
 .modal-body {
@@ -1800,10 +1813,12 @@ main, .page-content, .body-wrapper, .workspace, .workspace-body, #workspace-body
   font-size: 12px;
   color: var(--text-secondary);
   line-height: 1.45;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  display: block;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: normal;
+  hyphens: auto;
+  margin-bottom: 6px;
 }
 
 .kanban-card-progress {
@@ -2459,6 +2474,99 @@ main, .page-content, .body-wrapper, .workspace, .workspace-body, #workspace-body
   div[style*="grid-template-columns: 1fr 1fr"],
   div[style*="grid-template-columns: 1fr 1fr 1fr"] {
     grid-template-columns: 1fr !important;
+  }
+
+  /* 7 Bases e 7 Distritos: Prevenção de corte de texto e quebra do banner */
+  .kanban-summary-banner {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding: 12px 14px !important;
+  }
+
+  .kanban-summary-text h3 {
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .kanban-summary-text p {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .kanban-progress-global {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .kanban-board {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  .kanban-column {
+    width: 100% !important;
+  }
+
+  .kanban-cards-list {
+    min-height: auto !important;
+    padding: 10px !important;
+    gap: 10px !important;
+  }
+
+  .kanban-card {
+    padding: 12px !important;
+  }
+
+  .kanban-card-title {
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+  }
+
+  .kanban-card-desc {
+    display: block !important;
+    -webkit-line-clamp: unset !important;
+    max-height: none !important;
+    overflow: visible !important;
+    overflow-wrap: break-word !important;
+  }
+
+  /* Modais de Bases e Distritos no Mobile: Totalmente funcionais e acessíveis */
+  .modal-box {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    max-height: 88vh !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .modal-body {
+    max-height: calc(88vh - 75px) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 14px 16px 24px 16px !important;
+  }
+
+  #modal-add-task-container {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  #modal-add-task-container input {
+    width: 100% !important;
+  }
+
+  #modal-add-task-container button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .checklist-item-row {
+    padding: 8px 10px !important;
+    font-size: 12.5px !important;
   }
 
   /* Tabelas sempre roláveis horizontalmente com respiro */
