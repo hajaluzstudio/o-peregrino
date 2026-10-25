@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261025-mobile04">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261025-mobile05">
 </head>
 <body>
 
@@ -1245,9 +1245,24 @@
         </div>
       </div>
 
-      <!-- Barra Inferior com Legenda e Faixa de Miniaturas -->
+      <!-- Barra Inferior com Título, Legenda, Ações e Miniaturas -->
       <div class="lightbox-footer">
+        <h3 id="lightbox-footer-title" class="lightbox-footer-title">Visualização em Alta Resolução</h3>
         <div id="lightbox-caption" class="lightbox-caption">Captura de Desenvolvimento Godot 4.7.2</div>
+        <div class="lightbox-footer-actions">
+          <button type="button" class="lightbox-btn" id="lightbox-footer-like-btn" onclick="App.toggleLightboxLike()" title="Curtir esta captura 3D">
+            <span id="lightbox-footer-like-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </span>
+            <span id="lightbox-footer-like-count">0</span>
+            <span class="lightbox-btn-text">Curtir</span>
+          </button>
+          <button type="button" class="lightbox-btn" id="lightbox-footer-comments-btn" onclick="App.toggleLightboxComments()" title="Comentários">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+            <span id="lightbox-footer-comment-count">0</span>
+            <span class="lightbox-btn-text">Comentários</span>
+          </button>
+        </div>
         <div id="lightbox-thumbnails" class="lightbox-thumbnails"></div>
       </div>
     </div>
@@ -1260,7 +1275,7 @@
   <script src="assets/js/config.js?v=20261024-pwa01"></script>
   <script src="assets/js/supabase.js?v=20261024-pwa01"></script>
   <script src="assets/js/store.js?v=20261024-pwa01"></script>
-  <script src="assets/js/app.js?v=20261025-mobile04"></script>
+  <script src="assets/js/app.js?v=20261025-mobile05"></script>
 
   <!-- Registro do Service Worker PWA -->
   <script>

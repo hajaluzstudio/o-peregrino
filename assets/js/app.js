@@ -2397,6 +2397,8 @@ const App = {
     }
 
     if (titleEl) titleEl.innerText = this.lightboxTitle || "Visualização em Tela Cheia";
+    const footerTitleEl = document.getElementById("lightbox-footer-title");
+    if (footerTitleEl) footerTitleEl.innerText = this.lightboxTitle || "Visualização em Tela Cheia";
     if (captionEl) captionEl.innerText = this.lightboxCaption || `Captura ${currentNum} de ${total}`;
     if (counterEl) {
       if (total > 1) {
@@ -2410,7 +2412,7 @@ const App = {
     if (prevBtn) prevBtn.style.display = total > 1 ? "flex" : "none";
     if (nextBtn) nextBtn.style.display = total > 1 ? "flex" : "none";
 
-    // Reações (Curtidas e Comentários) no Lightbox
+    // Reações (Curtidas e Comentários) no Lightbox (Header e Rodapé)
     const photoReaction = Store.getPhotoReaction(currentImg);
     const lbLikeBtn = document.getElementById("lightbox-like-btn");
     const lbLikeIcon = document.getElementById("lightbox-like-icon");
@@ -2421,6 +2423,16 @@ const App = {
     if (lbLikeIcon) lbLikeIcon.innerHTML = Icons.heart(14, photoReaction.isLiked);
     if (lbLikeCount) lbLikeCount.innerText = photoReaction.likes;
     if (lbCommentCount) lbCommentCount.innerText = photoReaction.comments.length;
+
+    const lbFooterLikeBtn = document.getElementById("lightbox-footer-like-btn");
+    const lbFooterLikeIcon = document.getElementById("lightbox-footer-like-icon");
+    const lbFooterLikeCount = document.getElementById("lightbox-footer-like-count");
+    const lbFooterCommentCount = document.getElementById("lightbox-footer-comment-count");
+
+    if (lbFooterLikeBtn) lbFooterLikeBtn.classList.toggle("liked", photoReaction.isLiked);
+    if (lbFooterLikeIcon) lbFooterLikeIcon.innerHTML = Icons.heart(14, photoReaction.isLiked);
+    if (lbFooterLikeCount) lbFooterLikeCount.innerText = photoReaction.likes;
+    if (lbFooterCommentCount) lbFooterCommentCount.innerText = photoReaction.comments.length;
 
     const lbCommentsList = document.getElementById("lightbox-comments-list");
     if (lbCommentsList) {
@@ -2462,6 +2474,14 @@ const App = {
     if (lbLikeIcon) lbLikeIcon.innerHTML = Icons.heart(14, res.isLiked);
     if (lbLikeCount) lbLikeCount.innerText = res.likes;
 
+    const lbFooterLikeBtn = document.getElementById("lightbox-footer-like-btn");
+    const lbFooterLikeIcon = document.getElementById("lightbox-footer-like-icon");
+    const lbFooterLikeCount = document.getElementById("lightbox-footer-like-count");
+
+    if (lbFooterLikeBtn) lbFooterLikeBtn.classList.toggle("liked", res.isLiked);
+    if (lbFooterLikeIcon) lbFooterLikeIcon.innerHTML = Icons.heart(14, res.isLiked);
+    if (lbFooterLikeCount) lbFooterLikeCount.innerText = res.likes;
+
     // Sincroniza com o Feed do Devlog
     if (this.lightboxPost && this.lightboxPost.id) {
       const postId = this.lightboxPost.id;
@@ -2469,8 +2489,8 @@ const App = {
       const feedLikeIcon = document.getElementById(`feed-like-icon-${postId}`);
       const feedLikeCount = document.getElementById(`feed-like-count-${postId}`);
       if (feedLikeBtn) feedLikeBtn.classList.toggle("liked", res.isLiked);
-      if (feedLikeIcon) feedLikeIcon.innerHTML = Icons.heart(14, res.isLiked);
-      if (feedLikeCount) feedLikeCount.innerText = res.likes;
+      if (feedLikeIcon) feedLikeIcon.innerHTML = Icons.heart(22, res.isLiked);
+      if (feedLikeCount) feedLikeCount.innerText = `${res.likes} curtidas`;
     }
   },
 
@@ -2501,6 +2521,9 @@ const App = {
     const reaction = Store.getPhotoReaction(currentImg);
     const lbCommentCount = document.getElementById("lightbox-comment-count");
     if (lbCommentCount) lbCommentCount.innerText = reaction.comments.length;
+
+    const lbFooterCommentCount = document.getElementById("lightbox-footer-comment-count");
+    if (lbFooterCommentCount) lbFooterCommentCount.innerText = reaction.comments.length;
 
     const lbCommentsList = document.getElementById("lightbox-comments-list");
     if (lbCommentsList) {
