@@ -2304,11 +2304,11 @@ body {
     font-size: 16px !important;
   }
 
-  /* Tela de Login Compacta & Otimizada no Mobile */
+  /* Tela de Login Retangular & Proporcional ao Smartphone */
   .login-screen {
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
-    padding: 8px 12px 16px !important;
+    padding: 18px 14px 22px !important;
     min-height: 100vh !important;
     height: 100dvh !important;
     display: flex !important;
@@ -2317,128 +2317,139 @@ body {
     justify-content: center !important;
   }
 
-  .oraculum-top-nav-btn {
-    position: relative !important;
-    top: auto !important;
-    left: auto !important;
-    align-self: flex-start !important;
-    margin-bottom: 6px !important;
-    padding: 4px 10px !important;
-    font-size: 9px !important;
-    letter-spacing: 0.5px !important;
-  }
-
+  /* Oculta botão 'Ir para o Dossiê' e logo externo superior no mobile conforme solicitado */
+  .oraculum-top-nav-btn,
   .oraculum-top-brand {
-    position: relative !important;
-    top: auto !important;
-    right: auto !important;
-    margin-bottom: 6px !important;
-    align-self: center !important;
-  }
-
-  .oraculum-top-brand-img {
-    height: 18px !important;
+    display: none !important;
   }
 
   .login-card-perspective-wrapper {
     perspective: none !important;
     margin: 0 auto !important;
     width: 100% !important;
-    max-width: 350px !important;
+    max-width: 360px !important;
   }
 
+  /* Card Retangular Proporcional à Tela do Celular com Respiro Elegante */
   .login-card {
-    padding: 14px 14px 12px !important;
-    min-height: auto !important;
-    max-width: 350px !important;
-    border-radius: 14px !important;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.95), 0 0 20px rgba(199, 165, 152, 0.08) !important;
+    padding: 24px 20px 20px !important;
+    min-height: 520px !important;
+    width: 100% !important;
+    max-width: 360px !important;
+    border-radius: 20px !important;
+    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.95), 0 0 25px rgba(199, 165, 152, 0.1) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
   }
 
+  /* Emblema Oficial Haja Luz com Espaçamento e Respiro */
   .login-haja-luz-emblem {
-    margin-bottom: 4px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin-bottom: 12px !important;
   }
 
   .login-emblem-img {
-    height: 22px !important;
-  }
-
-  .oraculum-badge {
-    font-size: 8px !important;
-    padding: 2px 7px !important;
-    letter-spacing: 1px !important;
-    margin-bottom: 4px !important;
-  }
-
-  .login-brand-header {
-    margin-bottom: 8px !important;
-  }
-
-  .login-logo-img {
-    max-width: 175px !important;
-    width: 75% !important;
-    height: auto !important;
-    max-height: 30px !important;
+    height: 36px !important;
+    width: auto !important;
     object-fit: contain !important;
-    margin-bottom: 2px !important;
   }
 
-  .oraculum-subtitle {
+  /* Badge Seja Bem-Vindo */
+  .oraculum-badge {
     font-size: 9px !important;
-    line-height: 1.2 !important;
-    margin-top: 2px !important;
+    padding: 4px 12px !important;
+    letter-spacing: 1.5px !important;
+    margin-bottom: 14px !important;
+    border-radius: 9999px !important;
   }
 
-  .login-form {
-    gap: 6px !important;
+  /* Cabeçalho do Card com Logo Peregrino e Subtítulo */
+  .login-brand-header {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    margin-bottom: 18px !important;
     width: 100% !important;
   }
 
+  .login-logo-img {
+    max-width: 220px !important;
+    width: 82% !important;
+    height: auto !important;
+    max-height: 44px !important;
+    object-fit: contain !important;
+    margin-bottom: 6px !important;
+  }
+
+  .oraculum-subtitle {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    color: #ddc4bb !important;
+    margin-top: 2px !important;
+  }
+
+  /* Formulário com espaçamento confortável */
+  .login-form {
+    gap: 11px !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
   .oraculum-field-group {
-    gap: 2px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+    width: 100% !important;
   }
 
   .oraculum-field-label {
-    font-size: 8.5px !important;
-    letter-spacing: 0.6px !important;
+    font-size: 9.5px !important;
+    letter-spacing: 0.8px !important;
+    color: var(--text-secondary) !important;
+    font-weight: 700 !important;
   }
 
   .oraculum-input {
-    padding: 6px 10px !important;
-    font-size: 13.5px !important;
-    height: 34px !important;
-    border-radius: 6px !important;
+    padding: 9px 12px !important;
+    font-size: 14px !important;
+    height: 40px !important;
+    border-radius: 8px !important;
     background-color: #111111 !important;
   }
 
   .oraculum-pass-wrapper input {
-    padding-right: 32px !important;
+    padding-right: 36px !important;
   }
 
   .oraculum-pass-toggle {
-    right: 6px !important;
-    padding: 2px !important;
+    right: 8px !important;
+    padding: 3px !important;
   }
 
   .oraculum-pass-toggle svg {
-    width: 14px !important;
-    height: 14px !important;
+    width: 15px !important;
+    height: 15px !important;
   }
 
   .oraculum-btn-submit {
-    height: 36px !important;
-    font-size: 11px !important;
-    letter-spacing: 0.8px !important;
-    border-radius: 6px !important;
-    margin-top: 2px !important;
-    box-shadow: 0 0 15px rgba(212, 184, 174, 0.25) !important;
+    height: 42px !important;
+    font-size: 11.5px !important;
+    letter-spacing: 1px !important;
+    border-radius: 8px !important;
+    margin-top: 3px !important;
+    box-shadow: 0 0 20px rgba(212, 184, 174, 0.3) !important;
   }
 
   .login-vip-divider {
     display: flex !important;
     align-items: center !important;
-    gap: 6px !important;
-    margin: 6px 0 !important;
+    gap: 8px !important;
+    margin: 10px 0 8px !important;
     opacity: 0.65 !important;
   }
 
@@ -2449,35 +2460,35 @@ body {
   }
 
   .login-vip-label {
-    font-size: 8.5px !important;
+    font-size: 9px !important;
     text-transform: uppercase !important;
-    letter-spacing: 0.6px !important;
+    letter-spacing: 0.8px !important;
     color: var(--gold-accent) !important;
   }
 
   .btn-guest-vip {
     width: 100% !important;
-    padding: 7px 10px !important;
-    font-size: 10px !important;
+    padding: 9px 12px !important;
+    font-size: 10.5px !important;
     font-weight: 700 !important;
-    letter-spacing: 0.4px !important;
-    border-radius: 6px !important;
+    letter-spacing: 0.5px !important;
+    border-radius: 8px !important;
     margin-top: 0 !important;
   }
 
   .btn-pwa-install-login {
-    display: none !important; /* Na tela de login não queremos poluição de app instalado */
+    display: none !important;
   }
 
   .oraculum-card-footer {
-    margin-top: 6px !important;
-    font-size: 8px !important;
+    margin-top: 10px !important;
+    font-size: 9px !important;
     justify-content: center !important;
     opacity: 0.6 !important;
   }
 
   .oraculum-live-widget {
-    display: none !important; /* Oculta widget flutuante no mobile para não cobrir botões */
+    display: none !important;
   }
 
   /* Header Global no Smartphone */
@@ -5047,6 +5058,116 @@ body {
   transform: translateY(0);
 }
 
+
+/* ==========================================================================
+   TABELA DE HONRA & RECONHECIMENTO + REFINAMENTO PIX
+   ========================================================================== */
+.honor-table-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.honor-tier-card {
+  background-color: var(--bg-canvas);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+.honor-tier-card.featured {
+  border: 1px solid var(--gold-accent);
+  background: linear-gradient(180deg, rgba(199, 165, 152, 0.08) 0%, var(--bg-canvas) 100%);
+  padding-top: 20px;
+}
+
+.honor-tier-badge-top {
+  position: absolute;
+  top: -10px;
+  right: 14px;
+  background: var(--gold-accent);
+  color: #000000;
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  z-index: 2;
+}
+
+.honor-tier-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.honor-tier-title {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.honor-tier-card.featured .honor-tier-title {
+  color: var(--gold-accent-hover);
+}
+
+.honor-tier-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gold-accent);
+  background: rgba(199, 165, 152, 0.12);
+  border: 1px solid rgba(199, 165, 152, 0.25);
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.honor-tier-tag.green {
+  color: #86efac;
+  background: rgba(134, 239, 172, 0.12);
+  border-color: rgba(134, 239, 172, 0.3);
+}
+
+.honor-tier-list {
+  padding-left: 18px;
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.honor-tier-list li {
+  margin: 0;
+}
+
+.pix-key-mono {
+  font-size: 11px !important;
+  font-family: var(--font-mono), monospace !important;
+}
+
+.pix-payload-meta {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
 /* Responsividade do Suporte */
 @media (max-width: 1024px) {
   .supporters-3d-showcase {
@@ -5060,19 +5181,297 @@ body {
   }
 }
 
-@media (max-width: 640px) {
-  .perk-steps-grid {
-    grid-template-columns: 1fr;
+@media (max-width: 768px) {
+  .support-container {
+    padding: 0 4px;
   }
-  .pix-qr-wrapper {
+
+  .pix-card {
+    padding: 20px 16px;
+  }
+
+  .pix-key-input-row {
     flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .pix-key-input {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    font-size: 13px !important;
+    padding: 11px 12px;
     text-align: center;
   }
+
+  .btn-copy-pix {
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+    font-size: 13px;
+    padding: 10px 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .support-container {
+    gap: 16px;
+    padding: 0 2px;
+  }
+
   .missionary-statement-card {
     flex-direction: column;
     text-align: center;
+    padding: 20px 16px;
+    gap: 14px;
+  }
+
+  .missionary-statement-text h3 {
+    font-size: 16px;
+  }
+
+  .missionary-statement-text p {
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .perk-hero-section {
+    padding: 20px 16px;
+    gap: 18px;
+  }
+
+  .perk-hero-title-group h2 {
+    font-size: 18px;
+  }
+
+  .perk-hero-title-group p {
+    font-size: 12.5px;
+  }
+
+  .perk-requirement-pill {
+    width: 100%;
+    justify-content: center;
+    font-size: 11px;
+    padding: 7px 12px;
+  }
+
+  .perk-steps-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  /* Seção de Oferta Voluntária & PIX Mobile (Sem cortes) */
+  .pix-donation-section {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .pix-card {
+    padding: 18px 14px;
+    gap: 16px;
+  }
+
+  .pix-card-header h3 {
+    font-size: 16.5px;
+  }
+
+  .pix-card-header p {
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+
+  .pix-qr-wrapper {
+    flex-direction: column;
+    text-align: center;
+    padding: 14px 10px;
+    gap: 14px;
+  }
+
+  .pix-qr-box {
+    width: 160px;
+    height: 160px;
+    margin: 0 auto;
+  }
+
+  .pix-qr-box canvas,
+  .pix-qr-box img {
+    width: 144px !important;
+    height: 144px !important;
+  }
+
+  .pix-instructions {
+    align-items: center;
+    width: 100%;
+    text-align: center;
+  }
+
+  .pix-account-summary {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 11px;
+    word-break: break-word;
+    text-align: center;
+    padding: 8px 10px;
+    line-height: 1.45;
+  }
+
+  /* Chave PIX e Código Copia e Cola 100% responsivos */
+  .pix-key-input-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .pix-key-input {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    font-size: 13px !important;
+    padding: 11px 12px;
+    text-align: center;
+  }
+
+  .btn-copy-pix {
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+    font-size: 12.5px;
+    padding: 10px 14px;
+  }
+
+  .pix-payload-meta {
+    text-align: center;
+    font-size: 11px;
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+
+  /* Tabela de Honra & Reconhecimento Mobile */
+  .honor-tier-card {
+    padding: 14px 12px;
+  }
+
+  .honor-tier-card.featured {
+    padding-top: 24px;
+  }
+
+  .honor-tier-badge-top {
+    top: -9px;
+    right: 12px;
+    font-size: 9px;
+    padding: 2px 8px;
+  }
+
+  .honor-tier-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .honor-tier-title {
+    font-size: 13.5px;
+    line-height: 1.35;
+  }
+
+  .honor-tier-tag {
+    align-self: flex-start;
+    font-size: 10.5px;
+  }
+
+  .honor-tier-list {
+    padding-left: 16px;
+    font-size: 11.5px;
+    line-height: 1.55;
+    gap: 6px;
   }
 }
+
+/* Regras espelho para preview-mobile */
+.preview-mobile .pix-donation-section {
+  grid-template-columns: 1fr !important;
+  gap: 16px !important;
+}
+
+.preview-mobile .pix-card {
+  padding: 18px 14px !important;
+}
+
+.preview-mobile .pix-qr-wrapper {
+  flex-direction: column !important;
+  text-align: center !important;
+  padding: 14px 10px !important;
+}
+
+.preview-mobile .pix-qr-box {
+  width: 160px !important;
+  height: 160px !important;
+  margin: 0 auto !important;
+}
+
+.preview-mobile .pix-qr-box canvas,
+.preview-mobile .pix-qr-box img {
+  width: 144px !important;
+  height: 144px !important;
+}
+
+.preview-mobile .pix-instructions {
+  align-items: center !important;
+  text-align: center !important;
+}
+
+.preview-mobile .pix-account-summary {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  text-align: center !important;
+}
+
+.preview-mobile .pix-key-input-row {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+.preview-mobile .pix-key-input {
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  text-align: center !important;
+}
+
+.preview-mobile .btn-copy-pix {
+  width: 100% !important;
+  min-height: 42px !important;
+  justify-content: center !important;
+}
+
+.preview-mobile .honor-tier-card {
+  padding: 14px 12px !important;
+}
+
+.preview-mobile .honor-tier-card.featured {
+  padding-top: 24px !important;
+}
+
+.preview-mobile .honor-tier-header {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 5px !important;
+}
+
+.preview-mobile .honor-tier-tag {
+  align-self: flex-start !important;
+}
+
+.preview-mobile .honor-tier-list {
+  padding-left: 16px !important;
+  font-size: 11.5px !important;
+  line-height: 1.55 !important;
+}
+
 
 /* Aviso de Modo Visualização no Modal Kanban */
 .modal-readonly-notice {

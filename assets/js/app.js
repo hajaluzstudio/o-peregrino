@@ -1633,13 +1633,13 @@ const App = {
             <div class="pix-key-group">
               <span class="pix-key-label">Código Pix Copia e Cola (Payload Oficial)</span>
               <div class="pix-key-input-row">
-                <input type="text" readonly value="${Store.pix.payload}" id="pix-payload-field" class="pix-key-input" style="font-size: 11px; font-family: monospace;" />
+                <input type="text" readonly value="${Store.pix.payload}" id="pix-payload-field" class="pix-key-input pix-key-mono" />
                 <button type="button" class="btn-copy-pix" onclick="App.copyPixKey('${Store.pix.payload}', '✓ Código Pix Copia e Cola copiado com sucesso!')">
                   ${Icons.copy(13)}
                   <span>Copiar Código</span>
                 </button>
               </div>
-              <span style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+              <span class="pix-payload-meta">
                 Beneficiário Oficial: <strong>Haja Luz Studio</strong> • CNPJ: <strong>61.511.844/0001-91</strong> • Passo Fundo/RS
               </span>
             </div>
@@ -1655,15 +1655,15 @@ const App = {
               </p>
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div class="honor-table-wrapper">
               
               <!-- Nível 1: Oferta Voluntária -->
-              <div style="background-color: var(--bg-canvas); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 14px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                  <strong style="color: var(--text-primary); font-size: 13.5px;">Semeador Voluntário</strong>
-                  <span style="font-size: 11px; color: var(--gold-accent); font-weight: 600;">Oferta Livre / PIX</span>
+              <div class="honor-tier-card">
+                <div class="honor-tier-header">
+                  <strong class="honor-tier-title">Semeador Voluntário</strong>
+                  <span class="honor-tier-tag">Oferta Livre / PIX</span>
                 </div>
-                <ul style="padding-left: 18px; font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+                <ul class="honor-tier-list">
                   <li>Nome gravado nos Créditos Finais do Jogo (Mural dos Semeadores).</li>
                   <li>Acesso contínuo ao Devlog em Tempo Real e telemetria da engine.</li>
                   <li>Boletim ministerial trimestral com relatórios e pedidos de oração.</li>
@@ -1671,15 +1671,15 @@ const App = {
               </div>
 
               <!-- Nível 2: Investidor Pioneiro 12 Meses -->
-              <div style="background-color: var(--bg-canvas); border: 1px solid var(--gold-accent); border-radius: var(--radius-sm); padding: 14px; position: relative;">
-                <div style="position: absolute; top: -9px; right: 12px; background: var(--gold-accent); color: #000; font-size: 9.5px; font-weight: 700; padding: 1px 8px; border-radius: 9999px; letter-spacing: 0.5px;">
+              <div class="honor-tier-card featured">
+                <div class="honor-tier-badge-top">
                   MÁXIMA DISTINÇÃO
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                  <strong style="color: var(--gold-accent-hover); font-size: 14px;">Patrono & Investidor Pioneiro</strong>
-                  <span style="font-size: 11px; color: #86efac; font-weight: 600;">12 Meses Mínimo</span>
+                <div class="honor-tier-header">
+                  <strong class="honor-tier-title">Patrono & Investidor Pioneiro</strong>
+                  <span class="honor-tier-tag green">12 Meses Mínimo</span>
                 </div>
-                <ul style="padding-left: 18px; font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+                <ul class="honor-tier-list">
                   <li><strong>Seu Personagem 3D Personalizado dentro do jogo</strong> (feições reais escaneadas).</li>
                   <li>Lote exclusivo e tenda demarcada com seu totem na Base Comunitária.</li>
                   <li>Termo contratual formal registrado com <strong>Hash Criptográfico SHA-256</strong>.</li>
@@ -1703,6 +1703,7 @@ const App = {
     `;
 
     setTimeout(() => {
+setTimeout(() => {
       this.renderPixQrCode();
     }, 40);
   },
