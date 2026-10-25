@@ -1757,12 +1757,25 @@ const App = {
           </div>
         </div>
 
-        <!-- MÍDIA CENTRAL ESTILO INSTAGRAM (ASPECT RATIO 1:1, FLUSH & DOUBLE TAP HEART & SWIPE) -->
+        <!-- MÍDIA CENTRAL ESTILO INSTAGRAM (CARROSSEL NATIVO MULTI-SLIDE ESTILO INSTAGRAM) -->
         ${initialMediaUrl ? `
           <div class="insta-media-wrapper" id="media-container-${post.id}" data-post-id="${post.id}" ondblclick="App.handleInstagramDoubleTap('${post.id}')" ontouchend="App.handleTouchDoubleTap('${post.id}', event)">
-            <div class="insta-image-box">
-              <img id="img-display-${post.id}" src="${initialMediaUrl}" alt="${post.title}" class="insta-media-img" loading="lazy" onclick="App.handleDevlogImageClick(event, this.src, '${post.id}')" title="Toque duas vezes para curtir, deslize para o lado ou clique para tela cheia" />
-              
+            <div class="insta-carousel-slider">
+              <div class="insta-carousel-track" id="carousel-track-${post.id}" onscroll="App.handleCarouselScroll('${post.id}')">
+                ${(post.gallery && post.gallery.length > 0 ? post.gallery : [initialMediaUrl]).map((photoUrl, idx) => `
+                  <div class="insta-carousel-slide" data-slide-idx="${idx}">
+                    <img 
+                      src="${photoUrl}" 
+                      alt="${post.title} - Foto ${idx + 1}" 
+                      class="insta-media-img" 
+                      loading="${idx === 0 ? 'eager' : 'lazy'}" 
+                      onclick="App.handleDevlogSlideClick(event, '${photoUrl}', '${post.id}', ${idx})" 
+                      title="Toque para ampliar ou arraste para os lados como no Instagram" 
+                    />
+                  </div>
+                `).join('')}
+              </div>
+
               <!-- Floating Heart no Duplo Toque -->
               <div id="insta-doubletap-heart-${post.id}" class="insta-floating-heart">
                 <svg viewBox="0 0 24 24" width="75" height="75" fill="#ef4444" stroke="#ef4444"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
@@ -1800,7 +1813,7 @@ const App = {
               </button>
             </div>
             <div class="insta-actions-right">
-              <button type="button" class="insta-btn-action" onclick="App.openLightbox(document.getElementById('img-display-${post.id}').src, null, '${post.id}')" title="Tela Cheia">
+              <button type="button" class="insta-btn-action" onclick="App.openLightbox(App.getCurrentDevlogPhoto('${post.id}'), null, '${post.id}')" title="Tela Cheia">
                 ${Icons.maximize(19)}
               </button>
             </div>
@@ -1862,29 +1875,94 @@ const App = {
     }, 30);
   },
 
-  // Navegação no Carrossel Instagram do Devlog com Suporte a Direção e Animação Fluida
+  // Navegação no Carrossel Nativo Instagram com Scroll Suave
   navDevlogSlide(postId, direction) {
+    const track = document.getElementById(`carousel-track-${postId}`);
+    if (!track) return;
     const post = Store.devlogPosts.find(p => p.id === postId);
-    if (!post || !post.gallery || post.gallery.length <= 1) return;
-    
-    const imgEl = document.getElementById(`img-display-${postId}`);
-    const currentSrc = imgEl ? this.normalizeImagePath(imgEl.src) : "";
-    let currentIdx = post.gallery.findIndex(g => this.normalizeImagePath(g) === currentSrc);
-    if (currentIdx === -1) currentIdx = 0;
-    
-    let newIdx = currentIdx + direction;
-    if (newIdx < 0) newIdx = post.gallery.length - 1;
-    if (newIdx >= post.gallery.length) newIdx = 0;
-    
-    this.goToDevlogSlide(postId, newIdx, direction);
+    const total = (post && post.gallery) ? post.gallery.length : 1;
+    if (total <= 1) return;
+
+    const slideWidth = track.clientWidth || track.offsetWidth || 300;
+    const currentIdx = Math.round(track.scrollLeft / slideWidth);
+
+    let nextIdx = currentIdx + direction;
+    if (nextIdx < 0) nextIdx = total - 1;
+    if (nextIdx >= total) nextIdx = 0;
+
+    track.scrollTo({
+      left: nextIdx * slideWidth,
+      behavior: 'smooth'
+    });
   },
 
-  goToDevlogSlide(postId, targetIdx, direction = 0) {
+  goToDevlogSlide(postId, targetIdx) {
+    const track = document.getElementById(`carousel-track-${postId}`);
+    if (!track) return;
+    const slideWidth = track.clientWidth || track.offsetWidth || 300;
+    track.scrollTo({
+      left: targetIdx * slideWidth,
+      behavior: 'smooth'
+    });
+  },
+
+  // Monitora o Scroll Nativo do Carrossel e Sincroniza Contador, Dots e Foto Ativa
+  handleCarouselScroll(postId) {
+    const track = document.getElementById(`carousel-track-${postId}`);
+    if (!track) return;
+    const slideWidth = track.clientWidth || track.offsetWidth || 1;
     const post = Store.devlogPosts.find(p => p.id === postId);
-    if (!post || !post.gallery || !post.gallery[targetIdx]) return;
-    
-    const thumbUrl = post.gallery[targetIdx];
-    this.selectDevlogThumb(postId, thumbUrl, targetIdx + 1, post.gallery.length, direction);
+    if (!post || !post.gallery || post.gallery.length <= 1) return;
+
+    const currentIdx = Math.min(Math.max(0, Math.round(track.scrollLeft / slideWidth)), post.gallery.length - 1);
+    if (post._activeCarouselIdx === currentIdx) return;
+    post._activeCarouselIdx = currentIdx;
+
+    // Atualiza o pill de contagem (ex: 2/8)
+    const counterEl = document.getElementById(`gallery-counter-${postId}`);
+    if (counterEl) {
+      counterEl.innerText = `${currentIdx + 1}/${post.gallery.length}`;
+    }
+
+    // Atualiza os dots indicadores
+    const dotsContainer = document.getElementById(`dots-${postId}`);
+    if (dotsContainer) {
+      const dots = dotsContainer.querySelectorAll(".insta-dot");
+      dots.forEach((d, i) => d.classList.toggle("active", i === currentIdx));
+    }
+
+    // Atualiza reações (likes & comments) da foto atualmente visível
+    const activeUrl = post.gallery[currentIdx];
+    if (activeUrl) {
+      const res = Store.getPhotoReaction(activeUrl);
+      const likeBtn = document.getElementById(`feed-like-btn-${postId}`);
+      const likeIcon = document.getElementById(`feed-like-icon-${postId}`);
+      const likeCount = document.getElementById(`feed-like-count-${postId}`);
+      const commentCount = document.getElementById(`feed-comment-count-${postId}`);
+
+      if (likeBtn) likeBtn.classList.toggle("liked", res.isLiked);
+      if (likeIcon) likeIcon.innerHTML = Icons.heart(22, res.isLiked);
+      if (likeCount) likeCount.innerText = `${res.likes} curtidas`;
+      if (commentCount) commentCount.innerText = res.comments.length;
+
+      const drawer = document.getElementById(`feed-comments-drawer-${postId}`);
+      if (drawer && drawer.style.display !== "none") {
+        this.refreshFeedComments(postId);
+      }
+    }
+  },
+
+  // Retorna a URL da Foto Ativa no Post (ou a inicial)
+  getCurrentDevlogPhoto(postId) {
+    const post = Store.devlogPosts.find(p => p.id === postId);
+    if (!post) return "";
+    const track = document.getElementById(`carousel-track-${postId}`);
+    if (!track || !post.gallery || post.gallery.length <= 1) {
+      return post.mediaUrl || (post.gallery ? post.gallery[0] : "");
+    }
+    const slideWidth = track.clientWidth || track.offsetWidth || 1;
+    const idx = Math.min(Math.max(0, Math.round(track.scrollLeft / slideWidth)), post.gallery.length - 1);
+    return post.gallery[idx] || post.mediaUrl || "";
   },
 
   handleInstagramDoubleTap(postId) {
@@ -1896,10 +1974,7 @@ const App = {
       setTimeout(() => heartEl.classList.remove("pop"), 850);
     }
     
-    const post = Store.devlogPosts.find(p => p.id === postId);
-    const imgEl = document.getElementById(`img-display-${postId}`);
-    const photoUrl = (imgEl && imgEl.src) ? imgEl.src : (post ? (post.mediaUrl || (post.gallery && post.gallery[0])) : null);
-    
+    const photoUrl = this.getCurrentDevlogPhoto(postId);
     if (photoUrl) {
       const reaction = Store.getPhotoReaction(photoUrl);
       if (!reaction.isLiked) {
@@ -1909,8 +1984,8 @@ const App = {
   },
 
   handleTouchDoubleTap(postId, event) {
-    const wrapper = document.getElementById(`media-container-${postId}`);
-    if (wrapper && wrapper._preventNextClick) return;
+    const track = document.getElementById(`carousel-track-${postId}`);
+    if (track && track._hasDragged) return;
 
     const now = Date.now();
     if (!this._lastTouchTapTime) this._lastTouchTapTime = {};
@@ -1925,16 +2000,22 @@ const App = {
     }
   },
 
-  handleDevlogImageClick(event, src, postId) {
-    const wrapper = document.getElementById(`media-container-${postId}`);
-    if (wrapper && wrapper._preventNextClick) {
+  handleDevlogSlideClick(event, src, postId, slideIdx) {
+    const track = document.getElementById(`carousel-track-${postId}`);
+    if (track && track._hasDragged) {
       if (event) {
         event.preventDefault();
         event.stopPropagation();
       }
       return;
     }
-    this.openLightbox(src, null, postId);
+    const post = Store.devlogPosts.find(p => p.id === postId);
+    const title = post ? post.title : null;
+    this.openLightbox(src, title, postId);
+  },
+
+  handleDevlogImageClick(event, src, postId) {
+    this.handleDevlogSlideClick(event, src, postId, 0);
   },
 
   shareDevlogPost(postId) {
@@ -1950,76 +2031,6 @@ const App = {
       }).catch(() => {});
     } else {
       this.copyPixKey(shareUrl, `✓ Link do post ${postId} copiado para a área de transferência!`);
-    }
-  },
-
-  // Seleção e Troca Interativa de Miniaturas no Feed do Devlog com Animação de Slide
-  selectDevlogThumb(postId, thumbUrl, currentIdx, total, direction = 0) {
-    const imgEl = document.getElementById(`img-display-${postId}`);
-    if (imgEl) {
-      if (direction !== 0) {
-        const offset = direction > 0 ? "18px" : "-18px";
-        imgEl.style.transition = "none";
-        imgEl.style.transform = `translateX(${offset}) scale(0.985)`;
-        imgEl.style.opacity = "0.5";
-        imgEl.src = thumbUrl;
-        requestAnimationFrame(() => {
-          imgEl.style.transition = "transform 0.26s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease";
-          imgEl.style.transform = "translateX(0) scale(1)";
-          imgEl.style.opacity = "1";
-        });
-      } else {
-        imgEl.style.opacity = "0.4";
-        imgEl.src = thumbUrl;
-        setTimeout(() => {
-          imgEl.style.opacity = "1";
-        }, 50);
-      }
-    }
-    const counterEl = document.getElementById(`gallery-counter-${postId}`);
-    if (counterEl) {
-      counterEl.innerText = `${currentIdx}/${total}`;
-    }
-    const dotsContainer = document.getElementById(`dots-${postId}`);
-    if (dotsContainer) {
-      const dots = dotsContainer.querySelectorAll(".insta-dot");
-      dots.forEach((d, i) => {
-        d.classList.toggle("active", i === (currentIdx - 1));
-      });
-    }
-    const container = document.getElementById(`media-container-${postId}`);
-    if (container) {
-      const thumbs = container.querySelectorAll(".devlog-gallery-thumb");
-      thumbs.forEach(t => {
-        const idx = parseInt(t.getAttribute("data-idx"), 10);
-        if (idx === currentIdx - 1) {
-          t.classList.add("active");
-          t.style.border = "2px solid var(--gold-accent)";
-          t.style.opacity = "1";
-          t.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-        } else {
-          t.classList.remove("active");
-          t.style.border = "2px solid rgba(255,255,255,0.1)";
-          t.style.opacity = "0.65";
-        }
-      });
-    }
-
-    // Sincroniza estado de curtidas e comentários da foto selecionada
-    const res = Store.getPhotoReaction(thumbUrl);
-    const likeBtn = document.getElementById(`feed-like-btn-${postId}`);
-    const likeIcon = document.getElementById(`feed-like-icon-${postId}`);
-    const likeCount = document.getElementById(`feed-like-count-${postId}`);
-    const commentCount = document.getElementById(`feed-comment-count-${postId}`);
-
-    if (likeBtn) likeBtn.classList.toggle("liked", res.isLiked);
-    if (likeIcon) likeIcon.innerHTML = Icons.heart(20, res.isLiked);
-    if (likeCount) likeCount.innerText = `${res.likes} curtidas`;
-    if (commentCount) commentCount.innerText = res.comments.length;
-
-    const drawer = document.getElementById(`feed-comments-drawer-${postId}`);
-    if (drawer && drawer.style.display !== "none") {
-      this.refreshFeedComments(postId);
     }
   },
 
@@ -2053,9 +2064,8 @@ const App = {
 
   // Alternar Curtida no Feed Principal
   toggleFeedPhotoLike(postId) {
-    const imgEl = document.getElementById(`img-display-${postId}`);
-    if (!imgEl) return;
-    const photoUrl = imgEl.src;
+    const photoUrl = this.getCurrentDevlogPhoto(postId);
+    if (!photoUrl) return;
     const res = Store.togglePhotoLike(photoUrl);
 
     const btn = document.getElementById(`feed-like-btn-${postId}`);
@@ -2063,8 +2073,8 @@ const App = {
     const count = document.getElementById(`feed-like-count-${postId}`);
 
     if (btn) btn.classList.toggle("liked", res.isLiked);
-    if (icon) icon.innerHTML = Icons.heart(14, res.isLiked);
-    if (count) count.innerText = res.likes;
+    if (icon) icon.innerHTML = Icons.heart(22, res.isLiked);
+    if (count) count.innerText = `${res.likes} curtidas`;
   },
 
   // Alternar Gaveta de Comentários no Feed
@@ -2087,9 +2097,8 @@ const App = {
 
   // Atualizar Comentários no Feed
   refreshFeedComments(postId) {
-    const imgEl = document.getElementById(`img-display-${postId}`);
-    if (!imgEl) return;
-    const photoUrl = imgEl.src;
+    const photoUrl = this.getCurrentDevlogPhoto(postId);
+    if (!photoUrl) return;
     const res = Store.getPhotoReaction(photoUrl);
 
     const list = document.getElementById(`feed-comments-list-${postId}`);
@@ -2104,11 +2113,10 @@ const App = {
   // Enviar Comentário no Feed
   submitFeedComment(e, postId) {
     if (e) e.preventDefault();
-    const imgEl = document.getElementById(`img-display-${postId}`);
+    const photoUrl = this.getCurrentDevlogPhoto(postId);
     const input = document.getElementById(`feed-comment-input-${postId}`);
-    if (!imgEl || !input || !input.value.trim()) return;
+    if (!photoUrl || !input || !input.value.trim()) return;
 
-    const photoUrl = imgEl.src;
     Store.addPhotoComment(photoUrl, input.value);
     input.value = "";
 
@@ -2131,128 +2139,58 @@ const App = {
   },
 
   // ==========================================================================
-  // SISTEMA DE ARRASTAR / SWIPE ESTILO INSTAGRAM (FEED DEVLOG & LIGHTBOX)
-  // Gestos touch e drag ultra-fluidos com resistência elástica e direção bloqueada
+  // ARRASTAR COM MOUSE NO DESKTOP (NO TOUCH É NATIVO VIA CSS SCROLL-SNAP)
   // ==========================================================================
   setupDevlogFeedSwipeGestures() {
-    const wrappers = document.querySelectorAll(".insta-media-wrapper[data-post-id]");
-    wrappers.forEach(wrapper => {
-      if (wrapper._swipeAttached) return;
-      wrapper._swipeAttached = true;
+    const tracks = document.querySelectorAll(".insta-carousel-track");
+    tracks.forEach(track => {
+      if (track._mouseDragAttached) return;
+      track._mouseDragAttached = true;
 
-      const postId = wrapper.getAttribute("data-post-id");
+      let isDown = false;
       let startX = 0;
-      let startY = 0;
-      let startTime = 0;
-      let isTracking = false;
-      let isHorizontal = null;
-      let diffX = 0;
-      let hasSwiped = false;
+      let scrollLeft = 0;
+      let hasDragged = false;
 
-      const getImg = () => document.getElementById(`img-display-${postId}`);
+      track.addEventListener("mousedown", (e) => {
+        if (e.target.closest(".insta-nav-arrow") || e.target.closest(".insta-dot")) return;
+        isDown = true;
+        startX = e.pageX - track.offsetLeft;
+        scrollLeft = track.scrollLeft;
+        hasDragged = false;
+        track.style.cursor = "grabbing";
+      });
 
-      const onStart = (clientX, clientY) => {
-        const post = Store.devlogPosts.find(p => p.id === postId);
-        if (!post || !post.gallery || post.gallery.length <= 1) return;
-        startX = clientX;
-        startY = clientY;
-        startTime = Date.now();
-        isTracking = true;
-        isHorizontal = null;
-        diffX = 0;
-        hasSwiped = false;
+      const onMouseMove = (e) => {
+        if (!isDown) return;
+        const x = e.pageX - track.offsetLeft;
+        const walk = (x - startX) * 1.3;
+        if (Math.abs(walk) > 6) {
+          hasDragged = true;
+          track._hasDragged = true;
+        }
+        track.scrollLeft = scrollLeft - walk;
       };
 
-      const onMove = (clientX, clientY, e) => {
-        if (!isTracking) return;
-        const dX = clientX - startX;
-        const dY = clientY - startY;
-
-        // Determina se o gesto é primariamente horizontal (carrossel) ou vertical (scroll da página)
-        if (isHorizontal === null) {
-          if (Math.abs(dX) > 7 || Math.abs(dY) > 7) {
-            isHorizontal = Math.abs(dX) > Math.abs(dY);
-          }
-        }
-
-        if (isHorizontal === true) {
-          if (e && e.cancelable) e.preventDefault();
-          diffX = dX;
-          if (Math.abs(dX) > 8) {
-            hasSwiped = true;
-            wrapper._preventNextClick = true;
-          }
-
-          const imgEl = getImg();
-          if (imgEl) {
-            imgEl.style.transition = "none";
-            // Efeito elástico idêntico ao Instagram com resistência suave
-            imgEl.style.transform = `translateX(${dX * 0.55}px) scale(${1 - Math.min(Math.abs(dX) / 1200, 0.05)})`;
-          }
-        }
-      };
-
-      const onEnd = () => {
-        if (!isTracking) return;
-        isTracking = false;
-
-        const imgEl = getImg();
-        if (imgEl) {
-          imgEl.style.transition = "transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)";
-          imgEl.style.transform = "translateX(0) scale(1)";
-        }
-
-        if (isHorizontal === true && hasSwiped) {
-          const timeTaken = Date.now() - startTime;
-          const isFast = Math.abs(diffX) > 22 && timeTaken < 320;
-          if (diffX < -32 || (isFast && diffX < 0)) {
-            // Deslizou para a esquerda -> Próxima foto
-            App.navDevlogSlide(postId, 1);
-          } else if (diffX > 32 || (isFast && diffX > 0)) {
-            // Deslizou para a direita -> Foto anterior
-            App.navDevlogSlide(postId, -1);
-          }
-        }
-
-        if (hasSwiped) {
+      const onMouseUp = () => {
+        if (!isDown) return;
+        isDown = false;
+        track.style.cursor = "";
+        if (hasDragged) {
+          const slideWidth = track.clientWidth || 300;
+          const targetIdx = Math.round(track.scrollLeft / slideWidth);
+          track.scrollTo({
+            left: targetIdx * slideWidth,
+            behavior: 'smooth'
+          });
           setTimeout(() => {
-            wrapper._preventNextClick = false;
-          }, 250);
+            track._hasDragged = false;
+          }, 200);
         }
       };
 
-      wrapper.addEventListener("touchstart", (e) => {
-        if (e.touches && e.touches[0]) {
-          onStart(e.touches[0].clientX, e.touches[0].clientY);
-        }
-      }, { passive: true });
-
-      wrapper.addEventListener("touchmove", (e) => {
-        if (e.touches && e.touches[0]) {
-          onMove(e.touches[0].clientX, e.touches[0].clientY, e);
-        }
-      }, { passive: false });
-
-      wrapper.addEventListener("touchend", onEnd, { passive: true });
-      wrapper.addEventListener("touchcancel", onEnd, { passive: true });
-
-      wrapper.addEventListener("mousedown", (e) => {
-        if (e.button === 0 && !e.target.closest(".insta-nav-arrow") && !e.target.closest(".insta-dot")) {
-          onStart(e.clientX, e.clientY);
-        }
-      });
-
-      wrapper.addEventListener("mousemove", (e) => {
-        if (isTracking) onMove(e.clientX, e.clientY, e);
-      });
-
-      wrapper.addEventListener("mouseup", () => {
-        if (isTracking) onEnd();
-      });
-
-      wrapper.addEventListener("mouseleave", () => {
-        if (isTracking) onEnd();
-      });
+      window.addEventListener("mousemove", onMouseMove);
+      window.addEventListener("mouseup", onMouseUp);
     });
   },
 

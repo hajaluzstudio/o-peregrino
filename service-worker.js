@@ -3,7 +3,7 @@
    Cache inteligente, instalação de app mobile e resiliência offline
    ========================================================================== */
 
-const CACHE_NAME = "peregrino-pwa-v3";
+const CACHE_NAME = "peregrino-pwa-v5";
 const OFFLINE_URL = "index.html";
 
 const PRECACHE_ASSETS = [

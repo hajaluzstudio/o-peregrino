@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261025-mobile02">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261025-mobile04">
 </head>
 <body>
 
@@ -155,9 +155,9 @@
 
         <!-- COLUNA 2: WORKSPACE CENTRAL -->
         <section id="workspace" class="workspace">
-          <header id="workspace-header" class="workspace-header"></header>
           <!-- BARRA DE ABAS MOBILE & TABLET (TODAS AS ABAS SEMPRE VISÍVEIS) -->
           <nav id="mobile-tabs-nav" class="mobile-tabs-nav"></nav>
+          <header id="workspace-header" class="workspace-header"></header>
           <div id="workspace-body" class="workspace-body"></div>
         </section>
 
@@ -1198,11 +1198,11 @@
             <span id="lightbox-comment-count">0</span>
             <span class="lightbox-btn-label">Comentários</span>
           </button>
-          <button type="button" class="lightbox-btn" onclick="App.toggleLightboxFullscreen()" title="Alternar Modo Tela Cheia (F)">
+          <button type="button" class="lightbox-btn lightbox-desktop-only" onclick="App.toggleLightboxFullscreen()" title="Alternar Modo Tela Cheia (F)">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></svg>
             <span class="lightbox-btn-label">Tela Cheia</span>
           </button>
-          <button type="button" class="lightbox-btn" onclick="App.openLightboxOriginal()" title="Abrir arquivo original em alta definição">
+          <button type="button" class="lightbox-btn lightbox-desktop-only" onclick="App.openLightboxOriginal()" title="Abrir arquivo original em alta definição">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
             <span class="lightbox-btn-label">Original</span>
           </button>
@@ -1260,7 +1260,7 @@
   <script src="assets/js/config.js?v=20261024-pwa01"></script>
   <script src="assets/js/supabase.js?v=20261024-pwa01"></script>
   <script src="assets/js/store.js?v=20261024-pwa01"></script>
-  <script src="assets/js/app.js?v=20261025-mobile03"></script>
+  <script src="assets/js/app.js?v=20261025-mobile04"></script>
 
   <!-- Registro do Service Worker PWA -->
   <script>
