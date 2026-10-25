@@ -2801,11 +2801,51 @@ body {
 }
 
 .preview-mobile .workspace-header {
-  padding: 10px 14px;
+  position: relative !important;
+  top: auto !important;
+  z-index: 10 !important;
+  padding: 14px 16px 12px 16px !important;
+  background: #08090d !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
+
+.preview-mobile .char-header-title-row {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 6px !important;
+  width: 100% !important;
+}
+
+.preview-mobile .char-header-badges {
+  width: 100% !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+}
+
+.preview-mobile .char-search-wrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.preview-mobile .char-search-input {
+  width: 100% !important;
+  min-width: 0 !important;
+  font-size: 13px !important;
+}
+
 .preview-mobile .workspace-body {
-  padding: 12px;
-  gap: 12px;
+  padding: 14px 12px 80px 12px !important;
+  gap: 12px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 .preview-mobile .kanban-board {
   grid-template-columns: 1fr !important;
@@ -2815,6 +2855,150 @@ body {
 .preview-mobile .simulador-grid,
 .preview-mobile .dividendos-cenarios {
   grid-template-columns: 1fr !important;
+}
+
+/* 3D Tab Roster HUD no preview-mobile */
+.preview-mobile .game-roster-layout {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  min-height: auto !important;
+  height: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+}
+
+.preview-mobile .hero-stage-panel {
+  order: 1 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
+}
+
+.preview-mobile .roster-sidebar-panel {
+  order: 2 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.preview-mobile .hero-stats-panel {
+  order: 3 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+  overflow-y: visible !important;
+  padding: 14px !important;
+}
+
+.preview-mobile .roster-list-scroll {
+  max-height: none !important;
+  height: auto !important;
+  overflow-y: visible !important;
+  overflow-x: auto !important;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 10px !important;
+  padding: 10px 12px 14px 12px !important;
+  scroll-snap-type: x mandatory !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: thin;
+}
+
+.preview-mobile .roster-item-card {
+  flex: 0 0 250px !important;
+  width: 250px !important;
+  max-width: 82vw !important;
+  scroll-snap-align: start !important;
+  box-sizing: border-box !important;
+  padding: 9px 11px !important;
+}
+
+.preview-mobile .roster-swipe-indicator {
+  display: inline-block !important;
+}
+
+.preview-mobile .roster-desktop-spec {
+  display: none !important;
+}
+
+.preview-mobile .hero-pedestal-container {
+  min-height: 290px !important;
+  max-height: 380px !important;
+  padding: 16px 12px 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+.preview-mobile .pedestal-ambient-glow {
+  width: 280px !important;
+  height: 280px !important;
+  max-width: 90vw !important;
+}
+
+.preview-mobile .hero-render-img {
+  max-height: 270px !important;
+  max-width: 85% !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+.preview-mobile .pedestal-base-plate {
+  width: 210px !important;
+  max-width: 75% !important;
+  margin-top: -10px !important;
+}
+
+.preview-mobile .stage-skins-dock {
+  padding: 12px 14px !important;
+  gap: 8px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.preview-mobile .skin-pills-row {
+  gap: 6px !important;
+  padding-bottom: 4px !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.preview-mobile .skin-pill-btn {
+  min-width: 120px !important;
+  flex: 0 0 auto !important;
+  padding: 7px 10px !important;
+}
+
+.preview-mobile .char-filter-bar {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 6px 4px 10px 4px !important;
+  margin-top: 6px !important;
+  margin-bottom: 14px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  gap: 8px !important;
+  scrollbar-width: none !important;
+}
+
+.preview-mobile .char-filter-btn {
+  padding: 6px 12px !important;
+  font-size: 11.5px !important;
+  border-radius: 18px !important;
+  flex-shrink: 0 !important;
 }
 
 .preview-tablet .kanban-board {
@@ -3444,6 +3628,39 @@ body {
    Design System Mineral: Obsidian Black #000000 & Stone Bronze #C7A598
    ========================================================================== */
 
+/* Cabeçalho do Workspace 3D */
+.char-header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.char-header-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.roster-panel-spec-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.roster-swipe-indicator {
+  display: none;
+  color: var(--gold-accent);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.roster-desktop-spec {
+  display: inline;
+}
+
 /* Barra de Busca de Personagem no Topo */
 .char-search-wrapper {
   display: flex;
@@ -3498,7 +3715,10 @@ body {
   gap: 8px;
   margin-bottom: 16px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  overflow-y: hidden;
+  padding-top: 2px;
+  padding-bottom: 6px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .char-filter-btn {
@@ -4303,18 +4523,214 @@ body {
 }
 
 @media (max-width: 960px) {
+  /* Layout do Game Roster em coluna fluida com ordem otimizada: Palco 3D em 1º, Roster em 2º, Stats em 3º */
   .game-roster-layout {
-    grid-template-columns: 1fr;
-    gap: 20px;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    min-height: auto !important;
+    height: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
   }
-  .character-modal-body {
-    grid-template-columns: 1fr;
+
+  .hero-stage-panel {
+    order: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
   }
-  .roster-list-scroll {
-    max-height: 280px;
+
+  .roster-sidebar-panel {
+    order: 2 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
   }
+
   .hero-stats-panel {
-    max-height: none;
+    order: 3 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    overflow-y: visible !important;
+    padding: 14px !important;
+  }
+
+  /* ELIMINAÇÃO TOTAL DE SCROLL DENTRO DE SCROLL NA LISTA DE PERSONAGENS */
+  .roster-list-scroll {
+    max-height: none !important;
+    height: auto !important;
+    overflow-y: visible !important;
+    overflow-x: auto !important;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 10px !important;
+    padding: 10px 12px 14px 12px !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(199, 165, 152, 0.4) transparent;
+  }
+
+  .roster-list-scroll::-webkit-scrollbar {
+    height: 5px;
+  }
+
+  .roster-list-scroll::-webkit-scrollbar-thumb {
+    background: rgba(199, 165, 152, 0.35);
+    border-radius: 4px;
+  }
+
+  .roster-item-card {
+    flex: 0 0 250px !important;
+    width: 250px !important;
+    max-width: 82vw !important;
+    scroll-snap-align: start !important;
+    box-sizing: border-box !important;
+    padding: 9px 11px !important;
+  }
+
+  .roster-swipe-indicator {
+    display: inline-block !important;
+  }
+
+  .roster-desktop-spec {
+    display: none !important;
+  }
+
+  /* Palco do Herói e Pedestal adaptados para telas móveis */
+  .hero-pedestal-container {
+    min-height: 290px !important;
+    max-height: 380px !important;
+    padding: 16px 12px 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  .pedestal-ambient-glow {
+    width: 280px !important;
+    height: 280px !important;
+    max-width: 90vw !important;
+  }
+
+  .hero-render-img {
+    max-height: 270px !important;
+    max-width: 85% !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+  }
+
+  .pedestal-base-plate {
+    width: 210px !important;
+    max-width: 75% !important;
+    margin-top: -10px !important;
+  }
+
+  /* Dock de Skins no Mobile */
+  .stage-skins-dock {
+    padding: 12px 14px !important;
+    gap: 8px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .skin-pills-row {
+    gap: 6px !important;
+    padding-bottom: 4px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .skin-pill-btn {
+    min-width: 120px !important;
+    flex: 0 0 auto !important;
+    padding: 7px 10px !important;
+  }
+
+  .active-skin-details-box {
+    padding: 9px 11px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .active-skin-title-row {
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+
+  .active-skin-description {
+    font-size: 11.5px !important;
+    line-height: 1.45 !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .active-skin-buff-row {
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  /* Barra de Filtros de Categorias 100% visível e sem corte */
+  .char-filter-bar {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 2px 0 8px 0 !important;
+    margin-bottom: 12px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 6px !important;
+    scrollbar-width: none !important;
+  }
+
+  .char-filter-bar::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .char-filter-btn {
+    padding: 6px 12px !important;
+    font-size: 11.5px !important;
+    border-radius: 18px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Modal de Inspeção 3D Tela Cheia no Mobile */
+  .modal-box-character {
+    width: 95% !important;
+    max-width: 95% !important;
+    max-height: 92vh !important;
+    overflow-y: auto !important;
+  }
+
+  .character-modal-body {
+    grid-template-columns: 1fr !important;
+    padding: 12px !important;
+    gap: 14px !important;
+  }
+
+  .char-modal-preview {
+    min-height: 240px !important;
+    padding: 12px !important;
+  }
+
+  .char-modal-preview img {
+    max-height: 270px !important;
+    max-width: 90% !important;
   }
 }
 
@@ -7120,6 +7536,262 @@ html, body {
   /* Tabelas com scroll interno sem quebrar a largura da página */
   table {
     max-width: 100% !important;
+  }
+
+  /* OTIMIZAÇÃO TOTAL DA ABA 3D (PERSONAGENS) NO SMARTPHONE */
+  .char-header-title-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+
+  .char-header-badges {
+    width: 100% !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  .char-search-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .char-search-input {
+    width: 100% !important;
+    min-width: 0 !important;
+    font-size: 13px !important;
+  }
+
+  .game-roster-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    min-height: auto !important;
+    height: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+  }
+
+  .hero-stage-panel {
+    order: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+  }
+
+  .roster-sidebar-panel {
+    order: 2 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .hero-stats-panel {
+    order: 3 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    overflow-y: visible !important;
+    padding: 14px !important;
+  }
+
+  /* ZERO SCROLL DENTRO DE SCROLL: Galeria horizontal fluida sem travar o scroll vertical */
+  .roster-list-scroll {
+    max-height: none !important;
+    height: auto !important;
+    overflow-y: visible !important;
+    overflow-x: auto !important;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 10px !important;
+    padding: 10px 12px 14px 12px !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(199, 165, 152, 0.4) transparent;
+  }
+
+  .roster-list-scroll::-webkit-scrollbar {
+    height: 5px;
+  }
+
+  .roster-list-scroll::-webkit-scrollbar-thumb {
+    background: rgba(199, 165, 152, 0.35);
+    border-radius: 4px;
+  }
+
+  .roster-item-card {
+    flex: 0 0 240px !important;
+    width: 240px !important;
+    max-width: 80vw !important;
+    scroll-snap-align: start !important;
+    box-sizing: border-box !important;
+    padding: 9px 11px !important;
+  }
+
+  .roster-swipe-indicator {
+    display: inline-block !important;
+  }
+
+  .roster-desktop-spec {
+    display: none !important;
+  }
+
+  /* Palco 3D do Herói no Smartphone */
+  .hero-pedestal-container {
+    min-height: 280px !important;
+    max-height: 360px !important;
+    padding: 16px 10px 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  .pedestal-ambient-glow {
+    width: 260px !important;
+    height: 260px !important;
+    max-width: 88vw !important;
+  }
+
+  .hero-render-img {
+    max-height: 260px !important;
+    max-width: 85% !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+  }
+
+  .pedestal-base-plate {
+    width: 200px !important;
+    max-width: 75% !important;
+    margin-top: -10px !important;
+  }
+
+  /* Dock de Trajes / Skins */
+  .stage-skins-dock {
+    padding: 12px 14px !important;
+    gap: 8px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .skin-pills-row {
+    gap: 6px !important;
+    padding-bottom: 4px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .skin-pill-btn {
+    min-width: 120px !important;
+    flex: 0 0 auto !important;
+    padding: 7px 10px !important;
+  }
+
+  .active-skin-details-box {
+    padding: 9px 11px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .active-skin-title-row {
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+
+  .active-skin-description,
+  .active-skin-buff-row {
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  /* Filtros de Categoria 100% Visíveis e Fluídos */
+  .char-filter-bar {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 6px 4px 10px 4px !important;
+    margin-top: 6px !important;
+    margin-bottom: 14px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 8px !important;
+    scrollbar-width: none !important;
+  }
+
+  .char-filter-bar::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .char-filter-btn {
+    padding: 6px 12px !important;
+    font-size: 11.5px !important;
+    border-radius: 18px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Ficha de Atributos sem cortes de texto */
+  .hero-profile-card,
+  .hero-lore-box,
+  .hero-stats-section,
+  .hero-passive-box,
+  .hero-godot-specs-card {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .hero-full-name {
+    font-size: 17px !important;
+    line-height: 1.3 !important;
+    word-break: break-word !important;
+  }
+
+  .hero-subtitle {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    word-break: break-word !important;
+  }
+
+  .hero-bio-text,
+  .passive-desc {
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .passive-header {
+    flex-wrap: wrap !important;
+  }
+
+  .specs-mini-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  .spec-cell {
+    min-width: 0 !important;
+    padding: 6px 8px !important;
+  }
+
+  .engine-ready-badge {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    word-break: break-word !important;
   }
 }
 

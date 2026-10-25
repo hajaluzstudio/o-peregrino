@@ -30,6 +30,21 @@ const App = {
       window.location.search.includes('source=pwa')
     );
 
+    // Detecção automática de smartphone / tela mobile para adaptação universal
+    if (typeof window !== "undefined") {
+      const isMobileScreen = window.innerWidth <= 768 || window.matchMedia("(max-width: 768px)").matches || isStandalone;
+      if (isMobileScreen) {
+        this.currentViewport = "mobile";
+      }
+
+      window.addEventListener("resize", () => {
+        const isNowMobile = window.innerWidth <= 768 || window.matchMedia("(max-width: 768px)").matches;
+        if (isNowMobile && this.currentViewport !== "mobile") {
+          this.setViewport("mobile");
+        }
+      });
+    }
+
     // Na primeira abertura do App instalado, desloga sessão herdada do navegador para exibir o fluxo de abertura nativo
     if (isStandalone && !localStorage.getItem("peregrino_app_standalone_setup")) {
       localStorage.setItem("peregrino_app_standalone_setup", "true");
@@ -93,6 +108,10 @@ const App = {
       if (loginScreen) loginScreen.classList.add("hidden");
       if (preloaderScreen) preloaderScreen.classList.add("hidden");
       if (viewportWrapper) viewportWrapper.style.display = "flex";
+      const stageEl = document.getElementById("viewport-stage");
+      if (stageEl && (this.currentViewport === "mobile" || (typeof window !== "undefined" && window.innerWidth <= 768))) {
+        stageEl.className = "viewport-stage preview-mobile";
+      }
       if (typeof document !== "undefined" && document.documentElement) {
         document.documentElement.classList.add("user-logged-in");
       }
@@ -3313,14 +3332,16 @@ const App = {
     // 1. Cabeçalho do Workspace
     headerEl.innerHTML = `
       <div class="workspace-title-group">
-        <div style="display: flex; align-items: center; gap: 10px;">
+        <div class="char-header-title-row">
           <h2>Personagens 3D em Desenvolvimento</h2>
-          <span class="spec-badge" style="color: var(--gold-accent); border-color: rgba(199,165,152,0.4);">
-            ${allChars.length} Modelos Integrados
-          </span>
-          <span class="spec-badge" style="color: #38a169; border-color: rgba(56,161,105,0.4);">
-            Godot 4.3 Cel-Shading
-          </span>
+          <div class="char-header-badges">
+            <span class="spec-badge" style="color: var(--gold-accent); border-color: rgba(199,165,152,0.4);">
+              ${allChars.length} Modelos Integrados
+            </span>
+            <span class="spec-badge" style="color: #38a169; border-color: rgba(56,161,105,0.4);">
+              Godot 4.3 Cel-Shading
+            </span>
+          </div>
         </div>
         <p>Roster Oficial do Jogo • Visualizador de Renders 3D em Alta Fidelidade, Troca de Skins Bíblicas e Ficha de Atributos</p>
       </div>
@@ -3379,8 +3400,9 @@ const App = {
               ${Icons.box3d(14)}
               <span>Galeria de Roster (${filteredChars.length})</span>
             </div>
-            <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
-              Render PBR 4K
+            <span class="roster-panel-spec-hint">
+              <span class="roster-swipe-indicator">← Deslize para explorar →</span>
+              <span class="roster-desktop-spec">Render PBR 4K</span>
             </span>
           </div>
 
@@ -3628,22 +3650,50 @@ const App = {
 
   selectCharacter(id) {
     this.selectedCharacterId = id;
+    const workspaceEl = document.getElementById("workspace");
+    const rosterScroll = document.querySelector(".roster-list-scroll");
+    const prevScrollTop = workspaceEl ? workspaceEl.scrollTop : 0;
+    const prevRosterLeft = rosterScroll ? rosterScroll.scrollLeft : 0;
+
     this.renderPersonagens(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
+
+    if (workspaceEl && prevScrollTop > 0) workspaceEl.scrollTop = prevScrollTop;
+    const newRosterScroll = document.querySelector(".roster-list-scroll");
+    if (newRosterScroll && prevRosterLeft > 0) newRosterScroll.scrollLeft = prevRosterLeft;
   },
 
   filterCharacters(category) {
     this.characterCategoryFilter = category;
+    const workspaceEl = document.getElementById("workspace");
+    const prevScrollTop = workspaceEl ? workspaceEl.scrollTop : 0;
+
     this.renderPersonagens(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
+
+    if (workspaceEl && prevScrollTop > 0) workspaceEl.scrollTop = prevScrollTop;
   },
 
   onCharacterSearch(query) {
     this.characterSearchQuery = query;
+    const workspaceEl = document.getElementById("workspace");
+    const prevScrollTop = workspaceEl ? workspaceEl.scrollTop : 0;
+
     this.renderPersonagens(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
+
+    if (workspaceEl && prevScrollTop > 0) workspaceEl.scrollTop = prevScrollTop;
   },
 
   selectSkin(charId, skinIdx) {
     Store.selectCharacterSkin(charId, skinIdx);
+    const workspaceEl = document.getElementById("workspace");
+    const rosterScroll = document.querySelector(".roster-list-scroll");
+    const prevScrollTop = workspaceEl ? workspaceEl.scrollTop : 0;
+    const prevRosterLeft = rosterScroll ? rosterScroll.scrollLeft : 0;
+
     this.renderPersonagens(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
+
+    if (workspaceEl && prevScrollTop > 0) workspaceEl.scrollTop = prevScrollTop;
+    const newRosterScroll = document.querySelector(".roster-list-scroll");
+    if (newRosterScroll && prevRosterLeft > 0) newRosterScroll.scrollLeft = prevRosterLeft;
   },
 
   openCharacterModal(charId) {
