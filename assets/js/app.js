@@ -1703,7 +1703,6 @@ const App = {
     `;
 
     setTimeout(() => {
-setTimeout(() => {
       this.renderPixQrCode();
     }, 40);
   },
