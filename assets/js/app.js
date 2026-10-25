@@ -32,13 +32,13 @@ const App = {
 
     // Detecção automática de smartphone / tela mobile para adaptação universal
     if (typeof window !== "undefined") {
-      const isMobileScreen = window.innerWidth <= 768 || window.matchMedia("(max-width: 768px)").matches || isStandalone;
+      const isMobileScreen = window.innerWidth <= 850 || window.matchMedia("(max-width: 850px)").matches || isStandalone;
       if (isMobileScreen) {
         this.currentViewport = "mobile";
       }
 
       window.addEventListener("resize", () => {
-        const isNowMobile = window.innerWidth <= 768 || window.matchMedia("(max-width: 768px)").matches;
+        const isNowMobile = window.innerWidth <= 850 || window.matchMedia("(max-width: 850px)").matches;
         if (isNowMobile && this.currentViewport !== "mobile") {
           this.setViewport("mobile");
         }
@@ -109,9 +109,10 @@ const App = {
       if (preloaderScreen) preloaderScreen.classList.add("hidden");
       if (viewportWrapper) viewportWrapper.style.display = "flex";
       const stageEl = document.getElementById("viewport-stage");
-      if (stageEl && (this.currentViewport === "mobile" || (typeof window !== "undefined" && window.innerWidth <= 768))) {
+      if (stageEl && (this.currentViewport === "mobile" || (typeof window !== "undefined" && window.innerWidth <= 850))) {
         stageEl.className = "viewport-stage preview-mobile";
       }
+      this.closeMobilePanels();
       if (typeof document !== "undefined" && document.documentElement) {
         document.documentElement.classList.add("user-logged-in");
       }
@@ -842,9 +843,15 @@ const App = {
         <div class="sidebar-label">Governança & Contrato</div>
         <ul class="nav-list">
           <li class="nav-item">
-            <a class="nav-link ${this.activeTab === 'termo' || this.activeTab === 'simulador' ? 'active' : ''}" onclick="App.switchTab('termo')">
+            <a class="nav-link ${this.activeTab === 'simulador' ? 'active' : ''}" onclick="App.switchTab('simulador')">
               ${Icons.calculator(16)}
-              <span>Simulador & Termo Oficial</span>
+              <span>Simulador de Cotas</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link ${this.activeTab === 'termo' ? 'active' : ''}" onclick="App.switchTab('termo')">
+              ${Icons.fileText(16)}
+              <span>Termo de Adesão Oficial</span>
             </a>
           </li>
           <li class="nav-item">
@@ -920,7 +927,8 @@ const App = {
       { id: "personagens", label: "3D", icon: Icons.box3d(13), counter: 23 },
       { id: "bases", label: "7 Bases", icon: Icons.bases(13), counter: 7 },
       { id: "distritos", label: "7 Distritos", icon: Icons.map(13), counter: 7 },
-      { id: "termo", label: "Simulador", icon: Icons.calculator(13) },
+      { id: "simulador", label: "Simulador", icon: Icons.calculator(13) },
+      { id: "termo", label: "Termo", icon: Icons.fileText(13) },
       { id: "dossie", label: "Dossiê", icon: Icons.fileText(13) },
     ];
 
@@ -932,7 +940,7 @@ const App = {
     navEl.innerHTML = `
       <div class="mobile-tabs-scroll">
         ${tabs.map(t => {
-          const isActive = this.activeTab === t.id || (t.id === 'termo' && this.activeTab === 'simulador');
+          const isActive = this.activeTab === t.id;
           return `
             <button type="button" class="mobile-tab-chip ${isActive ? 'active' : ''}" onclick="App.switchTab('${t.id}')">
               ${t.icon}
@@ -958,7 +966,6 @@ const App = {
     if (!bottomNavEl) return;
 
     const devlogCount = Store.devlogPosts ? Store.devlogPosts.length : null;
-    const isTermoActive = this.activeTab === "termo" || this.activeTab === "simulador";
     const isSidebarOpen = document.getElementById("app-container")?.classList.contains("sidebar-mobile-open");
 
     bottomNavEl.innerHTML = `
@@ -978,7 +985,7 @@ const App = {
           </span>
           <span class="bottom-nav-label">Devlog</span>
         </button>
-        <button type="button" class="bottom-nav-btn ${isTermoActive ? 'active' : ''}" onclick="App.switchTab('termo')" title="Simulador de Cotas">
+        <button type="button" class="bottom-nav-btn ${this.activeTab === 'simulador' ? 'active' : ''}" onclick="App.switchTab('simulador')" title="Simulador de Cotas">
           <span class="bottom-nav-icon">${Icons.calculator(18)}</span>
           <span class="bottom-nav-label">Simulador</span>
         </button>
@@ -1205,8 +1212,7 @@ const App = {
         this.renderDevlog(workspaceHeaderEl, workspaceBodyEl);
         break;
       case "simulador":
-        this.activeTab = "termo";
-        this.renderTermo(workspaceHeaderEl, workspaceBodyEl);
+        this.renderSimulador(workspaceHeaderEl, workspaceBodyEl);
         break;
       case "bases":
         this.renderBases(workspaceHeaderEl, workspaceBodyEl);
@@ -2655,10 +2661,153 @@ const App = {
     }
   },
 
-  // 2. MÓDULO SIMULADOR DE COTAS & TERMO UNIFICADO
+  // 2. MÓDULO SIMULADOR INTERATIVO DE COTAS & FATOR PIONEIRO (1,25X)
   renderSimulador(headerEl, bodyEl) {
-    this.activeTab = "termo";
-    this.renderTermo(headerEl, bodyEl);
+    this.activeTab = "simulador";
+    const isCreator = Store.currentRole === "creator";
+
+    headerEl.innerHTML = `
+      <div class="workspace-title-group">
+        <h2>Simulador de Cotas & Fator Pioneiro (1,25x)</h2>
+        <p>Ajuste o aporte mensal e o período de apoio para calcular em tempo real sua cota percentual no pool de 49% e retornos recorrentes.</p>
+      </div>
+      <div class="workspace-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <span class="spec-badge">Soberania do Criador: 51%</span>
+        <span class="spec-badge" style="color: var(--gold-accent); border-color: rgba(221,196,187,0.3);">Pool Aberto: 49%</span>
+        ${isCreator ? `
+          <button class="btn-secondary" onclick="App.switchTab('gestao')" style="display: inline-flex; align-items: center; gap: 6px;">
+            ${Icons.coins(14)}
+            <span>Painel de Caixa & Aportes</span>
+          </button>
+        ` : ''}
+        <button class="btn-primary" onclick="App.formalizarSimulacao()" style="display: inline-flex; align-items: center; gap: 6px;">
+          ${Icons.fileText(14)}
+          <span>Emitir Termo Oficial</span>
+        </button>
+      </div>
+    `;
+
+    bodyEl.innerHTML = `
+      <div class="card" style="margin-bottom: 20px;">
+        <div style="background: rgba(199, 165, 152, 0.08); border: 1px solid rgba(199, 165, 152, 0.25); padding: 14px 18px; border-radius: var(--radius-sm); margin-bottom: 22px;">
+          <div style="display: flex; gap: 10px; align-items: flex-start;">
+            <span style="color: var(--gold-accent); display: flex; align-items: center; margin-top: 2px;">${Icons.calculator(20)}</span>
+            <div>
+              <strong style="color: var(--gold-accent); font-size: 13.5px;">Simulador Financeiro de Participação Societária (Fase Pioneira)</strong>
+              <p style="margin: 4px 0 0 0; font-size: 12.5px; color: var(--text-secondary); line-height: 1.5;">
+                O Sistema Peregrino adota o <strong>Fator Pioneiro (1,25x)</strong>: cada real aportado durante o desenvolvimento recebe acréscimo de 25% no valor ponderado para cálculo de cota definitiva no faturamento global.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SIMULADOR INTERATIVO DE COTAS & CENÁRIOS DE RETORNO -->
+        <div class="simulador-grid" style="margin-bottom: 24px;">
+          <!-- Controles do Investimento com Sliders -->
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="sim-slider-group">
+              <div class="sim-slider-header">
+                <span class="sim-slider-title">Aporte Mensal do Apoiador</span>
+                <span class="sim-slider-val" id="sim-display-amount">R$ 500,00</span>
+              </div>
+              <input type="range" min="100" max="5000" step="50" value="500" class="sim-range" id="sim-slider-amount" oninput="App.onSimUpdate()" />
+              <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); font-family: var(--font-mono);">
+                <span>R$ 100/mês</span>
+                <span>R$ 2.500/mês</span>
+                <span>R$ 5.000/mês</span>
+              </div>
+            </div>
+
+            <div class="sim-slider-group">
+              <div class="sim-slider-header">
+                <span class="sim-slider-title">Período de Apoio no Desenvolvimento</span>
+                <span class="sim-slider-val" id="sim-display-months">12 meses</span>
+              </div>
+              <input type="range" min="3" max="36" step="1" value="12" class="sim-range" id="sim-slider-months" oninput="App.onSimUpdate()" />
+              <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); font-family: var(--font-mono);">
+                <span>3 meses</span>
+                <span>12 meses</span>
+                <span>36 meses</span>
+              </div>
+            </div>
+
+            <div class="card" style="font-size: 12px; line-height: 1.5; color: var(--text-secondary); background: var(--bg-canvas); border: 1px solid var(--border-subtle);">
+              <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">Fórmula Ponderada do Risco Pioneiro:</div>
+              Valor Ponderado = Aporte Acumulado × 1,25 (Bônus da Fase de MVP). Cada R$ 1.000 aportados na fase inicial garantem retorno maximizado no rateio final dos 49%.
+            </div>
+          </div>
+
+          <!-- Resultados e Retornos Projetados -->
+          <div class="sim-results-card">
+            <div style="font-size: 13.5px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">Consolidação da Participação</div>
+            
+            <div class="sim-calc-row">
+              <span class="sim-calc-label">Total Investido no Período:</span>
+              <span class="sim-calc-val" id="sim-res-total">R$ 6.000,00</span>
+            </div>
+
+            <div class="sim-calc-row">
+              <span class="sim-calc-label">Valor Ponderado (Fator 1,25x):</span>
+              <span class="sim-calc-val" id="sim-res-weighted">R$ 7.500,00</span>
+            </div>
+
+            <div class="sim-calc-row" style="background-color: var(--bg-canvas); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin: 6px 0;">
+              <span class="sim-calc-label" style="color: var(--text-primary); font-weight: 600; font-size: 13px;">Cota Definitiva no Faturamento:</span>
+              <span class="sim-calc-val highlight" id="sim-res-equity" style="font-size: 18px; color: var(--gold-accent);">2,500%</span>
+            </div>
+
+            <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-secondary); margin-top: 10px; margin-bottom: 8px;">
+              Projeção de Dividendos Mensais (Retorno Recorrente)
+            </div>
+
+            <div class="dividendos-cenarios">
+              <div class="cenario-box">
+                <div class="cenario-faturamento">Faturamento R$ 50k</div>
+                <div class="cenario-retorno" id="sim-ret-50k">R$ 1.250/mês</div>
+              </div>
+              <div class="cenario-box" style="border-color: var(--gold-accent);">
+                <div class="cenario-faturamento">Faturamento R$ 100k</div>
+                <div class="cenario-retorno" id="sim-ret-100k">R$ 2.500/mês</div>
+              </div>
+              <div class="cenario-box">
+                <div class="cenario-faturamento">Faturamento R$ 250k</div>
+                <div class="cenario-retorno" id="sim-ret-250k">R$ 6.250/mês</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTÃO DE AÇÃO PARA FORMALIZAR TERMO -->
+        <div style="display: flex; justify-content: center; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-subtle);">
+          <button class="btn-primary" style="padding: 14px 28px; font-size: 14px; font-weight: 600; border-radius: 8px; width: 100%; max-width: 480px; display: inline-flex; align-items: center; justify-content: center; gap: 10px;" onclick="App.formalizarSimulacao()">
+            ${Icons.shieldCheck ? Icons.shieldCheck(18) : Icons.fileText(18)}
+            <span>Formalizar Adesão & Emitir Termo SHA-256</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    this.onSimUpdate();
+  },
+
+  formalizarSimulacao() {
+    const amountInput = document.getElementById("sim-slider-amount");
+    const monthsInput = document.getElementById("sim-slider-months");
+    const amount = amountInput ? Number(amountInput.value) : 500;
+    const months = monthsInput ? Number(monthsInput.value) : 12;
+
+    this.showNewTermoForm();
+    this.switchTab('termo');
+
+    setTimeout(() => {
+      const termoAmount = document.getElementById("sim-slider-amount");
+      const termoMonths = document.getElementById("sim-slider-months");
+      if (termoAmount && termoMonths) {
+        termoAmount.value = amount;
+        termoMonths.value = months;
+        this.onSimUpdate();
+      }
+    }, 60);
   },
 
   onSimUpdate() {
@@ -3856,8 +4005,8 @@ const App = {
             </div>
           `}
 
-          <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;">
+          <div class="table-responsive-wrapper">
+            <table class="responsive-table" style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;">
               <thead>
                 <tr style="border-bottom: 1px solid var(--border-strong); color: var(--text-muted);">
                   <th style="padding: 10px 8px;">Protocolo</th>
@@ -5424,28 +5573,30 @@ const App = {
 
       <div class="doc-section">
         <div class="section-title">2. QUADRO-RESUMO DA PARTICIPAÇÃO E COTAS</div>
-        <table class="doc-table">
-          <thead>
-            <tr>
-              <th>Aporte Mensal</th>
-              <th>Prazo de Apoio</th>
-              <th>Total Previsto</th>
-              <th>Cota de Revenue Share</th>
-              <th>Fator Pioneiro</th>
-              <th>Contrapartida In-Game</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>R$ ${Number(contract.monthlyContribution).toFixed(2)}</strong></td>
-              <td>${contract.monthsCommitted} meses</td>
-              <td><strong>R$ ${Number(contract.totalInvested).toFixed(2)}</strong></td>
-              <td class="highlight-cell">${Number(contract.equitySharePercent).toFixed(2)}% do Faturamento Líquido</td>
-              <td>1.5x (Lote Pioneiro)</td>
-              <td>Personagem 3D Esculpido In-Game</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-responsive-wrapper">
+          <table class="doc-table responsive-table">
+            <thead>
+              <tr>
+                <th>Aporte Mensal</th>
+                <th>Prazo de Apoio</th>
+                <th>Total Previsto</th>
+                <th>Cota de Revenue Share</th>
+                <th>Fator Pioneiro</th>
+                <th>Contrapartida In-Game</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>R$ ${Number(contract.monthlyContribution).toFixed(2)}</strong></td>
+                <td>${contract.monthsCommitted} meses</td>
+                <td><strong>R$ ${Number(contract.totalInvested).toFixed(2)}</strong></td>
+                <td class="highlight-cell">${Number(contract.equitySharePercent).toFixed(2)}% do Faturamento Líquido</td>
+                <td>1.5x (Lote Pioneiro)</td>
+                <td>Personagem 3D Esculpido In-Game</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div class="doc-section">
@@ -5710,36 +5861,38 @@ const App = {
             </div>
           </div>
 
-          <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px;">
-            <thead>
-              <tr style="border-bottom: 1px solid var(--border-strong); color: var(--text-muted); text-align: left;">
-                <th style="padding: 8px;">Faturamento Líquido Mensal</th>
-                <th style="padding: 8px;">Pool de Apoiadores (49%)</th>
-                <th style="padding: 8px;">Retorno do Investidor (${invCotaStr})</th>
-                <th style="padding: 8px;">Retorno Anual</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style="border-bottom: 1px solid var(--border-subtle);">
-                <td style="padding: 10px 8px; font-weight: 600;">R$ 50.000,00 / mês</td>
-                <td style="padding: 10px 8px;">R$ 24.500,00</td>
-                <td style="padding: 10px 8px; color: var(--gold-accent); font-weight: 700;">R$ ${ret50kM.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} / mês</td>
-                <td style="padding: 10px 8px; font-family: var(--font-mono);">R$ ${ret50kA.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--border-subtle);">
-                <td style="padding: 10px 8px; font-weight: 600;">R$ 100.000,00 / mês (Meta)</td>
-                <td style="padding: 10px 8px;">R$ 49.000,00</td>
-                <td style="padding: 10px 8px; color: var(--gold-accent); font-weight: 700;">R$ ${ret100kM.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} / mês</td>
-                <td style="padding: 10px 8px; font-family: var(--font-mono);">R$ ${ret100kA.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-              </tr>
-              <tr>
-                <td style="padding: 10px 8px; font-weight: 600;">R$ 250.000,00 / mês (Expansão)</td>
-                <td style="padding: 10px 8px;">R$ 122.500,00</td>
-                <td style="padding: 10px 8px; color: var(--gold-accent); font-weight: 700;">R$ ${ret250kM.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} / mês</td>
-                <td style="padding: 10px 8px; font-family: var(--font-mono);">R$ ${ret250kA.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-responsive-wrapper">
+            <table class="responsive-table" style="width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border-strong); color: var(--text-muted); text-align: left;">
+                  <th style="padding: 8px;">Faturamento Líquido Mensal</th>
+                  <th style="padding: 8px;">Pool de Apoiadores (49%)</th>
+                  <th style="padding: 8px;">Retorno do Investidor (${invCotaStr})</th>
+                  <th style="padding: 8px;">Retorno Anual</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--border-subtle);">
+                  <td style="padding: 10px 8px; font-weight: 600;">R$ 50.000,00 / mês</td>
+                  <td style="padding: 10px 8px;">R$ 24.500,00</td>
+                  <td style="padding: 10px 8px; color: var(--gold-accent); font-weight: 700;">R$ ${ret50kM.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} / mês</td>
+                  <td style="padding: 10px 8px; font-family: var(--font-mono);">R$ ${ret50kA.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-subtle);">
+                  <td style="padding: 10px 8px; font-weight: 600;">R$ 100.000,00 / mês (Meta)</td>
+                  <td style="padding: 10px 8px;">R$ 49.000,00</td>
+                  <td style="padding: 10px 8px; color: var(--gold-accent); font-weight: 700;">R$ ${ret100kM.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} / mês</td>
+                  <td style="padding: 10px 8px; font-family: var(--font-mono);">R$ ${ret100kA.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 8px; font-weight: 600;">R$ 250.000,00 / mês (Expansão)</td>
+                  <td style="padding: 10px 8px;">R$ 122.500,00</td>
+                  <td style="padding: 10px 8px; color: var(--gold-accent); font-weight: 700;">R$ ${ret250kM.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} / mês</td>
+                  <td style="padding: 10px 8px; font-family: var(--font-mono);">R$ ${ret250kA.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
@@ -5858,8 +6011,8 @@ const App = {
           </button>
         </div>
 
-        <div style="overflow-x: auto;">
-          <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;">
+        <div class="table-responsive-wrapper">
+          <table class="responsive-table" style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;">
             <thead>
               <tr style="border-bottom: 1px solid var(--border-strong); color: var(--text-muted);">
                 <th style="padding: 10px 8px;">Protocolo / Data</th>
@@ -6779,48 +6932,50 @@ const App = {
           <div class="card-box"><strong>COMUNHÃO:</strong> Eleva a harmonia dos habitantes e multiplica a eficiência dos celeiros.</div>
         </div>
 
-        <table class="doc-table">
-          <thead>
-            <tr>
-              <th style="width: 50px;">Nível</th>
-              <th style="width: 90px;">Título</th>
-              <th>Foco de Gameplay</th>
-              <th>Desbloqueio Principal</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>1</strong></td>
-              <td><strong>Firme</strong></td>
-              <td>Aprendizado dos caminhos, primeiros socorros nas rotas e acolhimento em Nazaré.</td>
-              <td>Uso de ervas curativas e montagem de pequenas tendas.</td>
-            </tr>
-            <tr>
-              <td><strong>2</strong></td>
-              <td><strong>Elevado</strong></td>
-              <td>Mediação em vilarejos, transporte de suprimentos e suporte a pescadores.</td>
-              <td>Dom de Curar Enfermidades Leves por intercessão.</td>
-            </tr>
-            <tr>
-              <td><strong>3</strong></td>
-              <td><strong>Consagrado</strong></td>
-              <td>Administração avançada das 7 bases e proteção de órfãos e viúvas.</td>
-              <td>Discernimento de Espíritos em conversas com opositores.</td>
-            </tr>
-            <tr>
-              <td><strong>4</strong></td>
-              <td><strong>Eminente</strong></td>
-              <td>Comando de caravanas entre distritos e resolução de crises doutrinárias.</td>
-              <td>Liderança inspiradora e multiplicação de mantimentos.</td>
-            </tr>
-            <tr>
-              <td><strong>5</strong></td>
-              <td><strong class="highlight-cell" style="padding: 2px 4px;">Pleno</strong></td>
-              <td>Embaixador da reconciliação, testemunha madura dos milagres e consolidação do legado.</td>
-              <td>Operação de Fé Inabalável em tempestades e crises extremas.</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-responsive-wrapper">
+          <table class="doc-table responsive-table">
+            <thead>
+              <tr>
+                <th style="width: 50px;">Nível</th>
+                <th style="width: 90px;">Título</th>
+                <th>Foco de Gameplay</th>
+                <th>Desbloqueio Principal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1</strong></td>
+                <td><strong>Firme</strong></td>
+                <td>Aprendizado dos caminhos, primeiros socorros nas rotas e acolhimento em Nazaré.</td>
+                <td>Uso de ervas curativas e montagem de pequenas tendas.</td>
+              </tr>
+              <tr>
+                <td><strong>2</strong></td>
+                <td><strong>Elevado</strong></td>
+                <td>Mediação em vilarejos, transporte de suprimentos e suporte a pescadores.</td>
+                <td>Dom de Curar Enfermidades Leves por intercessão.</td>
+              </tr>
+              <tr>
+                <td><strong>3</strong></td>
+                <td><strong>Consagrado</strong></td>
+                <td>Administração avançada das 7 bases e proteção de órfãos e viúvas.</td>
+                <td>Discernimento de Espíritos em conversas com opositores.</td>
+              </tr>
+              <tr>
+                <td><strong>4</strong></td>
+                <td><strong>Eminente</strong></td>
+                <td>Comando de caravanas entre distritos e resolução de crises doutrinárias.</td>
+                <td>Liderança inspiradora e multiplicação de mantimentos.</td>
+              </tr>
+              <tr>
+                <td><strong>5</strong></td>
+                <td><strong class="highlight-cell" style="padding: 2px 4px;">Pleno</strong></td>
+                <td>Embaixador da reconciliação, testemunha madura dos milagres e consolidação do legado.</td>
+                <td>Operação de Fé Inabalável em tempestades e crises extremas.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- CAPÍTULO 5 -->

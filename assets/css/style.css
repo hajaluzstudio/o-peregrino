@@ -46,10 +46,24 @@
   --radius-lg: 8px;
 }
 
-* {
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+html, body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden !important; /* Elimina vazamento lateral horizontal */
+  -webkit-text-size-adjust: 100%;
+}
+
+h1, h2, h3, h4, h5, h6, p, span, label {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: normal;
+  hyphens: auto;
 }
 
 /* ==========================================================================
@@ -150,6 +164,50 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
   height: 100vh;
+}
+
+/* ==========================================================================
+   DIRETIVA GLOBAL DE RESPONSIVIDADE & TABELAS RESPONSIVAS
+   ========================================================================== */
+.table-responsive-wrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  margin-bottom: 16px;
+  border: 1px solid #222;
+  border-radius: 6px;
+}
+
+.table-responsive-wrapper table,
+table.responsive-table {
+  width: 100%;
+  min-width: 580px; /* Garante que os dados mantenham espaçamento legível */
+  border-collapse: collapse;
+}
+
+.media-viewer-container {
+  width: 100%;
+  height: auto;
+  max-height: 50vh;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #000000;
+  border-radius: 8px;
+}
+
+.media-viewer-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+main, .page-content, .body-wrapper, .workspace, .workspace-body, #workspace-body {
+  padding-bottom: calc(75px + env(safe-area-inset-bottom)) !important;
 }
 
 /* ==========================================================================
@@ -2185,6 +2243,7 @@ body {
 
   /* Sidebar como Drawer Deslizante Suave (Fixed e Oculta quando Fechada para Zero Scroll Horizontal) */
   .sidebar {
+    display: none !important;
     position: fixed !important;
     top: 0;
     left: 0;
@@ -2202,6 +2261,7 @@ body {
   }
 
   .sidebar-mobile-open .sidebar {
+    display: flex !important;
     transform: translateX(0) !important;
     box-shadow: 10px 0 50px rgba(0, 0, 0, 0.95) !important;
     visibility: visible !important;
@@ -2211,6 +2271,7 @@ body {
 
   /* Inspector como Drawer Deslizante Suave (Fixed e Oculta quando Fechada para Zero Scroll Horizontal) */
   .inspector {
+    display: none !important;
     position: fixed !important;
     top: 0;
     right: 0;
@@ -2228,6 +2289,7 @@ body {
   }
 
   .inspector-mobile-open .inspector {
+    display: flex !important;
     transform: translateX(0) !important;
     box-shadow: -10px 0 50px rgba(0, 0, 0, 0.95) !important;
     visibility: visible !important;
@@ -2252,6 +2314,158 @@ body {
   .devlog-feed-grid,
   .user-cards-grid {
     grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ==========================================================================
+   DIRETIVA DE CORREÇÃO EMERGENCIAL: RESPONSIVIDADE MOBILE GLOBAL (<= 850px)
+   ========================================================================== */
+@media (max-width: 850px) {
+  .container, .dashboard-grid, .split-view, .layout-3-colunas, .main-content-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    gap: 16px !important;
+  }
+  .sidebar, .telemetria-panel, .coluna-lateral, .aside-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+    order: 2; /* Joga os dados auxiliares para baixo do conteúdo principal */
+  }
+  .main-panel, .tabela-area, .coluna-central {
+    width: 100% !important;
+    max-width: 100% !important;
+    order: 1;
+  }
+
+  .modal-content, .dialog-box, .modal-box, .modal-box-character, .modal-box-guide, .modal-box-pwa {
+    width: 94vw !important;
+    max-width: 94vw !important;
+    max-height: 88vh !important;
+    margin: 6vh auto !important;
+    padding: 16px !important;
+    overflow-y: auto !important;
+  }
+
+  /* Prevenção de overflow da moldura em smartphones */
+  .viewport-stage,
+  .viewport-stage.preview-mobile,
+  .viewport-stage.preview-tablet,
+  .viewport-stage.preview-desktop {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  .app-container,
+  .viewport-stage.preview-mobile .app-container,
+  .viewport-stage.preview-tablet .app-container,
+  .viewport-stage.preview-desktop .app-container {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  .workspace,
+  .workspace-body {
+    width: 100% !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
+    order: 1 !important;
+  }
+
+  /* Gavetas Móveis Estritas (Zero Vazamento Lateral) */
+  .inspector,
+  .preview-mobile .inspector,
+  .preview-tablet .inspector {
+    display: none !important;
+    position: fixed !important;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 320px !important;
+    max-width: 88vw !important;
+    z-index: 9999 !important;
+    transform: translateX(100%) !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .inspector-mobile-open .inspector,
+  .inspector-mobile-open.preview-mobile .inspector,
+  .inspector-mobile-open.preview-tablet .inspector,
+  .preview-mobile.inspector-mobile-open .inspector,
+  .preview-tablet.inspector-mobile-open .inspector,
+  .preview-mobile .app-container.inspector-mobile-open .inspector,
+  .preview-tablet .app-container.inspector-mobile-open .inspector {
+    display: flex !important;
+    transform: translateX(0) !important;
+    box-shadow: -10px 0 50px rgba(0, 0, 0, 0.95) !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  .sidebar,
+  .preview-mobile .sidebar,
+  .preview-tablet .sidebar {
+    display: none !important;
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 290px !important;
+    max-width: 85vw !important;
+    z-index: 9999 !important;
+    transform: translateX(-100%) !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .sidebar-mobile-open .sidebar,
+  .sidebar-mobile-open.preview-mobile .sidebar,
+  .sidebar-mobile-open.preview-tablet .sidebar,
+  .preview-mobile.sidebar-mobile-open .sidebar,
+  .preview-tablet.sidebar-mobile-open .sidebar,
+  .preview-mobile .app-container.sidebar-mobile-open .sidebar,
+  .preview-tablet .app-container.sidebar-mobile-open .sidebar {
+    display: flex !important;
+    transform: translateX(0) !important;
+    box-shadow: 10px 0 50px rgba(0, 0, 0, 0.95) !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  /* Quebra de grids internas para coluna única */
+  .simulador-grid,
+  .dividendos-cenarios,
+  div[style*="grid-template-columns: 1fr 1fr"],
+  div[style*="grid-template-columns: 1fr 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Tabelas sempre roláveis horizontalmente com respiro */
+  .table-responsive-wrapper {
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 }
 
@@ -2746,6 +2960,7 @@ body {
 
 .preview-mobile .sidebar,
 .preview-tablet .sidebar {
+  display: none !important;
   position: absolute !important;
   top: 0;
   left: 0;
@@ -2757,9 +2972,9 @@ body {
   border-right: 1px solid var(--border-strong) !important;
   transform: translateX(-100%);
   transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .sidebar-mobile-open.preview-mobile .sidebar,
@@ -2768,12 +2983,17 @@ body {
 .preview-tablet.sidebar-mobile-open .sidebar,
 .preview-mobile .app-container.sidebar-mobile-open .sidebar,
 .preview-tablet .app-container.sidebar-mobile-open .sidebar {
+  display: flex !important;
   transform: translateX(0) !important;
   box-shadow: 10px 0 50px rgba(0, 0, 0, 0.95) !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
 .preview-mobile .inspector,
 .preview-tablet .inspector {
+  display: none !important;
   position: absolute !important;
   top: 0;
   right: 0;
@@ -2785,9 +3005,9 @@ body {
   border-left: 1px solid var(--border-strong) !important;
   transform: translateX(100%);
   transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .inspector-mobile-open.preview-mobile .inspector,
@@ -2796,8 +3016,12 @@ body {
 .preview-tablet.inspector-mobile-open .inspector,
 .preview-mobile .app-container.inspector-mobile-open .inspector,
 .preview-tablet .app-container.inspector-mobile-open .inspector {
+  display: flex !important;
   transform: translateX(0) !important;
   box-shadow: -10px 0 50px rgba(0, 0, 0, 0.95) !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
 .preview-mobile .workspace-header {
