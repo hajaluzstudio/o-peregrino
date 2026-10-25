@@ -1757,11 +1757,11 @@ const App = {
           </div>
         </div>
 
-        <!-- MÍDIA CENTRAL ESTILO INSTAGRAM (ASPECT RATIO 1:1, FLUSH & DOUBLE TAP HEART) -->
+        <!-- MÍDIA CENTRAL ESTILO INSTAGRAM (ASPECT RATIO 1:1, FLUSH & DOUBLE TAP HEART & SWIPE) -->
         ${initialMediaUrl ? `
-          <div class="insta-media-wrapper" id="media-container-${post.id}" ondblclick="App.handleInstagramDoubleTap('${post.id}')" ontouchend="App.handleTouchDoubleTap('${post.id}', event)">
+          <div class="insta-media-wrapper" id="media-container-${post.id}" data-post-id="${post.id}" ondblclick="App.handleInstagramDoubleTap('${post.id}')" ontouchend="App.handleTouchDoubleTap('${post.id}', event)">
             <div class="insta-image-box">
-              <img id="img-display-${post.id}" src="${initialMediaUrl}" alt="${post.title}" class="insta-media-img" loading="lazy" onclick="App.openLightbox(this.src, null, '${post.id}')" title="Toque duas vezes para curtir ou clique para tela cheia" />
+              <img id="img-display-${post.id}" src="${initialMediaUrl}" alt="${post.title}" class="insta-media-img" loading="lazy" onclick="App.handleDevlogImageClick(event, this.src, '${post.id}')" title="Toque duas vezes para curtir, deslize para o lado ou clique para tela cheia" />
               
               <!-- Floating Heart no Duplo Toque -->
               <div id="insta-doubletap-heart-${post.id}" class="insta-floating-heart">
@@ -1856,9 +1856,13 @@ const App = {
         ${postsHtml}
       </div>
     `;
+
+    setTimeout(() => {
+      this.setupDevlogFeedSwipeGestures();
+    }, 30);
   },
 
-  // Navegação no Carrossel Instagram do Devlog
+  // Navegação no Carrossel Instagram do Devlog com Suporte a Direção e Animação Fluida
   navDevlogSlide(postId, direction) {
     const post = Store.devlogPosts.find(p => p.id === postId);
     if (!post || !post.gallery || post.gallery.length <= 1) return;
@@ -1872,15 +1876,15 @@ const App = {
     if (newIdx < 0) newIdx = post.gallery.length - 1;
     if (newIdx >= post.gallery.length) newIdx = 0;
     
-    this.goToDevlogSlide(postId, newIdx);
+    this.goToDevlogSlide(postId, newIdx, direction);
   },
 
-  goToDevlogSlide(postId, targetIdx) {
+  goToDevlogSlide(postId, targetIdx, direction = 0) {
     const post = Store.devlogPosts.find(p => p.id === postId);
     if (!post || !post.gallery || !post.gallery[targetIdx]) return;
     
     const thumbUrl = post.gallery[targetIdx];
-    this.selectDevlogThumb(postId, thumbUrl, targetIdx + 1, post.gallery.length);
+    this.selectDevlogThumb(postId, thumbUrl, targetIdx + 1, post.gallery.length, direction);
   },
 
   handleInstagramDoubleTap(postId) {
@@ -1905,6 +1909,9 @@ const App = {
   },
 
   handleTouchDoubleTap(postId, event) {
+    const wrapper = document.getElementById(`media-container-${postId}`);
+    if (wrapper && wrapper._preventNextClick) return;
+
     const now = Date.now();
     if (!this._lastTouchTapTime) this._lastTouchTapTime = {};
     const lastTap = this._lastTouchTapTime[postId] || 0;
@@ -1916,6 +1923,18 @@ const App = {
     } else {
       this._lastTouchTapTime[postId] = now;
     }
+  },
+
+  handleDevlogImageClick(event, src, postId) {
+    const wrapper = document.getElementById(`media-container-${postId}`);
+    if (wrapper && wrapper._preventNextClick) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      return;
+    }
+    this.openLightbox(src, null, postId);
   },
 
   shareDevlogPost(postId) {
@@ -1934,15 +1953,28 @@ const App = {
     }
   },
 
-  // Seleção e Troca Interativa de Miniaturas no Feed do Devlog
-  selectDevlogThumb(postId, thumbUrl, currentIdx, total) {
+  // Seleção e Troca Interativa de Miniaturas no Feed do Devlog com Animação de Slide
+  selectDevlogThumb(postId, thumbUrl, currentIdx, total, direction = 0) {
     const imgEl = document.getElementById(`img-display-${postId}`);
     if (imgEl) {
-      imgEl.style.opacity = "0.3";
-      imgEl.src = thumbUrl;
-      setTimeout(() => {
-        imgEl.style.opacity = "1";
-      }, 50);
+      if (direction !== 0) {
+        const offset = direction > 0 ? "18px" : "-18px";
+        imgEl.style.transition = "none";
+        imgEl.style.transform = `translateX(${offset}) scale(0.985)`;
+        imgEl.style.opacity = "0.5";
+        imgEl.src = thumbUrl;
+        requestAnimationFrame(() => {
+          imgEl.style.transition = "transform 0.26s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease";
+          imgEl.style.transform = "translateX(0) scale(1)";
+          imgEl.style.opacity = "1";
+        });
+      } else {
+        imgEl.style.opacity = "0.4";
+        imgEl.src = thumbUrl;
+        setTimeout(() => {
+          imgEl.style.opacity = "1";
+        }, 50);
+      }
     }
     const counterEl = document.getElementById(`gallery-counter-${postId}`);
     if (counterEl) {
@@ -2099,6 +2131,240 @@ const App = {
   },
 
   // ==========================================================================
+  // SISTEMA DE ARRASTAR / SWIPE ESTILO INSTAGRAM (FEED DEVLOG & LIGHTBOX)
+  // Gestos touch e drag ultra-fluidos com resistência elástica e direção bloqueada
+  // ==========================================================================
+  setupDevlogFeedSwipeGestures() {
+    const wrappers = document.querySelectorAll(".insta-media-wrapper[data-post-id]");
+    wrappers.forEach(wrapper => {
+      if (wrapper._swipeAttached) return;
+      wrapper._swipeAttached = true;
+
+      const postId = wrapper.getAttribute("data-post-id");
+      let startX = 0;
+      let startY = 0;
+      let startTime = 0;
+      let isTracking = false;
+      let isHorizontal = null;
+      let diffX = 0;
+      let hasSwiped = false;
+
+      const getImg = () => document.getElementById(`img-display-${postId}`);
+
+      const onStart = (clientX, clientY) => {
+        const post = Store.devlogPosts.find(p => p.id === postId);
+        if (!post || !post.gallery || post.gallery.length <= 1) return;
+        startX = clientX;
+        startY = clientY;
+        startTime = Date.now();
+        isTracking = true;
+        isHorizontal = null;
+        diffX = 0;
+        hasSwiped = false;
+      };
+
+      const onMove = (clientX, clientY, e) => {
+        if (!isTracking) return;
+        const dX = clientX - startX;
+        const dY = clientY - startY;
+
+        // Determina se o gesto é primariamente horizontal (carrossel) ou vertical (scroll da página)
+        if (isHorizontal === null) {
+          if (Math.abs(dX) > 7 || Math.abs(dY) > 7) {
+            isHorizontal = Math.abs(dX) > Math.abs(dY);
+          }
+        }
+
+        if (isHorizontal === true) {
+          if (e && e.cancelable) e.preventDefault();
+          diffX = dX;
+          if (Math.abs(dX) > 8) {
+            hasSwiped = true;
+            wrapper._preventNextClick = true;
+          }
+
+          const imgEl = getImg();
+          if (imgEl) {
+            imgEl.style.transition = "none";
+            // Efeito elástico idêntico ao Instagram com resistência suave
+            imgEl.style.transform = `translateX(${dX * 0.55}px) scale(${1 - Math.min(Math.abs(dX) / 1200, 0.05)})`;
+          }
+        }
+      };
+
+      const onEnd = () => {
+        if (!isTracking) return;
+        isTracking = false;
+
+        const imgEl = getImg();
+        if (imgEl) {
+          imgEl.style.transition = "transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)";
+          imgEl.style.transform = "translateX(0) scale(1)";
+        }
+
+        if (isHorizontal === true && hasSwiped) {
+          const timeTaken = Date.now() - startTime;
+          const isFast = Math.abs(diffX) > 22 && timeTaken < 320;
+          if (diffX < -32 || (isFast && diffX < 0)) {
+            // Deslizou para a esquerda -> Próxima foto
+            App.navDevlogSlide(postId, 1);
+          } else if (diffX > 32 || (isFast && diffX > 0)) {
+            // Deslizou para a direita -> Foto anterior
+            App.navDevlogSlide(postId, -1);
+          }
+        }
+
+        if (hasSwiped) {
+          setTimeout(() => {
+            wrapper._preventNextClick = false;
+          }, 250);
+        }
+      };
+
+      wrapper.addEventListener("touchstart", (e) => {
+        if (e.touches && e.touches[0]) {
+          onStart(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      }, { passive: true });
+
+      wrapper.addEventListener("touchmove", (e) => {
+        if (e.touches && e.touches[0]) {
+          onMove(e.touches[0].clientX, e.touches[0].clientY, e);
+        }
+      }, { passive: false });
+
+      wrapper.addEventListener("touchend", onEnd, { passive: true });
+      wrapper.addEventListener("touchcancel", onEnd, { passive: true });
+
+      wrapper.addEventListener("mousedown", (e) => {
+        if (e.button === 0 && !e.target.closest(".insta-nav-arrow") && !e.target.closest(".insta-dot")) {
+          onStart(e.clientX, e.clientY);
+        }
+      });
+
+      wrapper.addEventListener("mousemove", (e) => {
+        if (isTracking) onMove(e.clientX, e.clientY, e);
+      });
+
+      wrapper.addEventListener("mouseup", () => {
+        if (isTracking) onEnd();
+      });
+
+      wrapper.addEventListener("mouseleave", () => {
+        if (isTracking) onEnd();
+      });
+    });
+  },
+
+  setupLightboxGestures() {
+    const stage = document.querySelector(".lightbox-stage");
+    if (!stage || stage._swipeAttached) return;
+    stage._swipeAttached = true;
+
+    let startX = 0;
+    let startY = 0;
+    let startTime = 0;
+    let isTracking = false;
+    let isHorizontal = null;
+    let diffX = 0;
+
+    const getImg = () => document.getElementById("lightbox-img");
+
+    const onStart = (clientX, clientY) => {
+      if (!this.lightboxGallery || this.lightboxGallery.length <= 1) return;
+      startX = clientX;
+      startY = clientY;
+      startTime = Date.now();
+      isTracking = true;
+      isHorizontal = null;
+      diffX = 0;
+      this._lightboxDragged = false;
+    };
+
+    const onMove = (clientX, clientY, e) => {
+      if (!isTracking || !this.lightboxGallery || this.lightboxGallery.length <= 1) return;
+      const dX = clientX - startX;
+      const dY = clientY - startY;
+
+      if (isHorizontal === null) {
+        if (Math.abs(dX) > 7 || Math.abs(dY) > 7) {
+          isHorizontal = Math.abs(dX) > Math.abs(dY);
+        }
+      }
+
+      if (isHorizontal === true) {
+        if (e && e.cancelable) e.preventDefault();
+        diffX = dX;
+        if (Math.abs(dX) > 8) {
+          this._lightboxDragged = true;
+        }
+
+        const imgEl = getImg();
+        if (imgEl) {
+          imgEl.style.transition = "none";
+          imgEl.style.transform = `translateX(${dX * 0.55}px) scale(${1 - Math.min(Math.abs(dX) / 1200, 0.05)})`;
+        }
+      }
+    };
+
+    const onEnd = () => {
+      if (!isTracking) return;
+      isTracking = false;
+
+      const imgEl = getImg();
+      if (imgEl) {
+        imgEl.style.transition = "transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)";
+        imgEl.style.transform = "translateX(0) scale(1)";
+      }
+
+      if (isHorizontal === true && Math.abs(diffX) > 32) {
+        const timeTaken = Date.now() - startTime;
+        const isFast = Math.abs(diffX) > 22 && timeTaken < 320;
+        if (diffX < -32 || (isFast && diffX < 0)) {
+          this.lightboxNext();
+        } else if (diffX > 32 || (isFast && diffX > 0)) {
+          this.lightboxPrev();
+        }
+      }
+
+      if (this._lightboxDragged) {
+        setTimeout(() => {
+          this._lightboxDragged = false;
+        }, 200);
+      }
+    };
+
+    stage.addEventListener("touchstart", (e) => {
+      if (e.touches && e.touches[0]) {
+        onStart(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+
+    stage.addEventListener("touchmove", (e) => {
+      if (e.touches && e.touches[0]) {
+        onMove(e.touches[0].clientX, e.touches[0].clientY, e);
+      }
+    }, { passive: false });
+
+    stage.addEventListener("touchend", onEnd, { passive: true });
+    stage.addEventListener("touchcancel", onEnd, { passive: true });
+
+    stage.addEventListener("mousedown", (e) => {
+      if (e.button === 0 && !e.target.closest("button") && !e.target.closest(".lightbox-comments-drawer")) {
+        onStart(e.clientX, e.clientY);
+      }
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (isTracking) onMove(e.clientX, e.clientY, e);
+    });
+
+    window.addEventListener("mouseup", () => {
+      if (isTracking) onEnd();
+    });
+  },
+
+  // ==========================================================================
   // CONTROLES DE VISUALIZAÇÃO EM TELA CHEIA (LIGHTBOX / GALERIA 4K)
   // ==========================================================================
   openLightbox(src, title = null, postId = null, customGallery = null) {
@@ -2144,10 +2410,13 @@ const App = {
     if (modalEl) {
       modalEl.classList.add("active");
       document.body.style.overflow = "hidden";
+      setTimeout(() => {
+        this.setupLightboxGestures();
+      }, 50);
     }
   },
 
-  renderLightboxContent() {
+  renderLightboxContent(direction = 0) {
     if (!this.lightboxGallery || this.lightboxGallery.length === 0) return;
     const currentImg = this.lightboxGallery[this.lightboxIndex];
     const total = this.lightboxGallery.length;
@@ -2162,17 +2431,31 @@ const App = {
     const thumbsContainer = document.getElementById("lightbox-thumbnails");
 
     if (imgEl) {
-      imgEl.style.opacity = "0.3";
-      imgEl.style.transform = "scale(0.98)";
-      imgEl.src = currentImg;
-      imgEl.onload = () => {
-        imgEl.style.opacity = "1";
-        imgEl.style.transform = "scale(1)";
-      };
-      setTimeout(() => {
-        imgEl.style.opacity = "1";
-        imgEl.style.transform = "scale(1)";
-      }, 50);
+      if (direction !== 0) {
+        const offset = direction > 0 ? "35px" : "-35px";
+        imgEl.style.transition = "none";
+        imgEl.style.transform = `translateX(${offset}) scale(0.97)`;
+        imgEl.style.opacity = "0.4";
+        imgEl.src = currentImg;
+        requestAnimationFrame(() => {
+          imgEl.style.transition = "transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease";
+          imgEl.style.transform = "translateX(0) scale(1)";
+          imgEl.style.opacity = "1";
+        });
+      } else {
+        imgEl.style.opacity = "0.3";
+        imgEl.style.transform = "scale(0.98)";
+        imgEl.src = currentImg;
+        imgEl.onload = () => {
+          imgEl.style.transition = "transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease";
+          imgEl.style.opacity = "1";
+          imgEl.style.transform = "scale(1)";
+        };
+        setTimeout(() => {
+          imgEl.style.opacity = "1";
+          imgEl.style.transform = "scale(1)";
+        }, 50);
+      }
     }
 
     if (titleEl) titleEl.innerText = this.lightboxTitle || "Visualização em Tela Cheia";
@@ -2318,7 +2601,7 @@ const App = {
     if (e) e.stopPropagation();
     if (!this.lightboxGallery || this.lightboxGallery.length <= 1) return;
     this.lightboxIndex = (this.lightboxIndex - 1 + this.lightboxGallery.length) % this.lightboxGallery.length;
-    this.renderLightboxContent();
+    this.renderLightboxContent(-1);
     this.syncFeedSelection();
   },
 
@@ -2326,14 +2609,15 @@ const App = {
     if (e) e.stopPropagation();
     if (!this.lightboxGallery || this.lightboxGallery.length <= 1) return;
     this.lightboxIndex = (this.lightboxIndex + 1) % this.lightboxGallery.length;
-    this.renderLightboxContent();
+    this.renderLightboxContent(1);
     this.syncFeedSelection();
   },
 
   setLightboxIndex(idx) {
     if (!this.lightboxGallery || idx < 0 || idx >= this.lightboxGallery.length) return;
+    const direction = idx > this.lightboxIndex ? 1 : (idx < this.lightboxIndex ? -1 : 0);
     this.lightboxIndex = idx;
-    this.renderLightboxContent();
+    this.renderLightboxContent(direction);
     this.syncFeedSelection();
   },
 
@@ -2382,6 +2666,10 @@ const App = {
   },
 
   handleLightboxBackdropClick(e) {
+    if (this._lightboxDragged) {
+      this._lightboxDragged = false;
+      return;
+    }
     if (e.target.id === "lightbox-modal" || e.target.classList.contains("lightbox-stage") || e.target.classList.contains("lightbox-image-wrapper")) {
       this.closeLightbox();
     }
@@ -6639,6 +6927,9 @@ const App = {
         this.handleResizeOrOrientationChange();
       }, 120);
     });
+
+    // Gestos de swipe e arrasto para galeria e lightbox
+    this.setupLightboxGestures();
   },
 
   handleResizeOrOrientationChange() {
