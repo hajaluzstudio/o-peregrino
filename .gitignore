@@ -27,3 +27,5 @@ check_cloud.py
 test_*.py
 *.tmp
 *.bak
+
+.vercel

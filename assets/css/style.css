@@ -463,26 +463,28 @@ main, .page-content, .body-wrapper, .workspace, .workspace-body, #workspace-body
   border: none;
 }
 
-.viewport-stage.preview-tablet {
-  padding: 20px;
-}
-.viewport-stage.preview-tablet .app-container {
-  width: 768px;
-  height: 100%;
-  border: 1px solid var(--border-strong);
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
-}
+@media (min-width: 851px) {
+  .viewport-stage.preview-tablet {
+    padding: 20px;
+  }
+  .viewport-stage.preview-tablet .app-container {
+    width: 768px;
+    height: 100%;
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+  }
 
-.viewport-stage.preview-mobile {
-  padding: 20px;
-}
-.viewport-stage.preview-mobile .app-container {
-  width: 390px;
-  height: 100%;
-  border: 2px solid var(--border-strong);
-  border-radius: 24px;
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.85);
+  .viewport-stage.preview-mobile {
+    padding: 20px;
+  }
+  .viewport-stage.preview-mobile .app-container {
+    width: 390px;
+    height: 100%;
+    border: 2px solid var(--border-strong);
+    border-radius: 24px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.85);
+  }
 }
 
 /* ==========================================================================
@@ -2373,7 +2375,13 @@ main, .page-content, .body-wrapper, .workspace, .workspace-body, #workspace-body
     width: 100% !important;
     max-width: 100vw !important;
     min-width: 0 !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
     overflow-x: hidden !important;
+  }
+
+  .viewport-switch {
+    display: none !important;
   }
 
   .app-container,
@@ -3184,9 +3192,17 @@ main, .page-content, .body-wrapper, .workspace, .workspace-body, #workspace-body
 }
 .preview-mobile .devlog-feed-grid,
 .preview-mobile .user-cards-grid,
+.preview-mobile .users-cards-grid,
+.preview-mobile #users-cards-grid,
 .preview-mobile .simulador-grid,
 .preview-mobile .dividendos-cenarios {
   grid-template-columns: 1fr !important;
+}
+
+.preview-mobile .stat-grid,
+.preview-mobile .stat-grid-4 {
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 8px !important;
 }
 
 /* 3D Tab Roster HUD no preview-mobile */
@@ -7844,16 +7860,73 @@ html, body {
   /* Blindagem universal para todas as abas e seções (Distritos, Bases, Personagens, Termo, etc.) */
   .kanban-board,
   .user-cards-grid,
+  .users-cards-grid,
+  #users-cards-grid,
   .simulador-grid,
   .dividendos-cenarios,
   .character-roster-grid,
   .stat-grid,
+  .stat-grid-4,
   .welcome-pillars-grid {
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
     box-sizing: border-box !important;
     overflow-x: hidden !important;
+  }
+
+  .users-cards-grid,
+  #users-cards-grid,
+  .user-cards-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .stat-grid,
+  .stat-grid-4 {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .users-filter-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    padding: 12px !important;
+  }
+
+  .users-filter-inputs {
+    width: 100% !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+
+  .users-filter-inputs input,
+  .users-filter-inputs select {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .users-filter-actions {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .users-filter-actions button {
+    justify-content: center !important;
+    width: 100% !important;
+  }
+
+  .user-item-card {
+    padding: 14px 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .kanban-card,
@@ -8126,6 +8199,20 @@ html, body {
     word-break: break-word !important;
   }
 }
+
+/* Grids utilitários base (Desktop/Geral) */
+.stat-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.users-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 16px;
+}
+
 
 
 

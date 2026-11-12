@@ -668,7 +668,7 @@ const App = {
 
       ${(isCreator && !isMobileScreen) ? `
       <!-- SELETOR DE VIEWPORT EM TEMPO REAL (SOMENTE SUPERADMIN DESKTOP) -->
-      <div class="viewport-switch" title="Alterne para testar a experiência visual em Desktop ou Mobile">
+      <div class="viewport-switch hide-on-mobile" title="Alterne para testar a experiência visual em Desktop ou Mobile">
         <button class="viewport-btn ${this.currentViewport === 'desktop' ? 'active' : ''}" onclick="App.setViewport('desktop')">
           ${Icons.desktop(14)}
           <span>Desktop</span>
@@ -4913,7 +4913,7 @@ const App = {
             ${Icons.coins ? Icons.coins(13) : ''}
             <span>2. Condições Financeiras & Participação no Marco Zero</span>
           </div>
-          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; font-size: 12.5px;">
+          <div class="stat-grid-4" style="gap: 12px; font-size: 12.5px;">
             <div>
               <span style="color: var(--text-muted); font-size: 11px; display: block;">APORTE MENSAL</span>
               <strong style="color: var(--gold-accent); font-family: var(--font-mono); font-size: 14.5px;">R$ ${Number(contract.monthlyContribution).toFixed(2)}</strong>
@@ -5908,7 +5908,7 @@ const App = {
         <div>
           <div style="font-size: 11px; font-weight: 700; color: var(--gold-accent); text-transform: uppercase; letter-spacing: 0.8px;">05 • PERFORMANCE & ENGENHARIA</div>
           <h3 style="color: #ffffff; font-size: 17px; margin: 4px 0 8px;">60 FPS Cravados em PC e Mobile (Godot 4.x)</h3>
-          <div class="stat-grid" style="grid-template-columns: repeat(4, 1fr); margin-top: 10px;">
+          <div class="stat-grid stat-grid-4" style="margin-top: 10px;">
             <div class="cenario-box">
               <div class="cenario-faturamento">Distance Culling</div>
               <div style="font-size: 12px; font-weight: 600; color: #ffffff; margin-top: 4px;">Oculta adereços a >120m</div>
@@ -6056,7 +6056,7 @@ const App = {
 
     bodyEl.innerHTML = `
       <!-- Métricas Resumo -->
-      <div class="stat-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 16px;">
+      <div class="stat-grid stat-grid-4" style="margin-bottom: 16px;">
         <div class="stat-item" style="background: var(--bg-surface); padding: 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm);">
           <span class="stat-label">Total de Contratos</span>
           <span class="stat-value">${allContracts.length}</span>
@@ -6222,7 +6222,7 @@ const App = {
 
     bodyEl.innerHTML = `
       <!-- Métricas Resumo -->
-      <div class="stat-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 20px;">
+      <div class="stat-grid stat-grid-4" style="margin-bottom: 16px;">
         <div class="stat-item" style="background: var(--bg-surface); padding: 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm);">
           <span class="stat-label">Total de Usuários</span>
           <span class="stat-value">${users.length}</span>
@@ -6246,10 +6246,10 @@ const App = {
       </div>
 
       <!-- Barra de Filtros e Ações Rápidas -->
-      <div class="card" style="margin-bottom: 20px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
-        <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 260px;">
-          <input type="text" id="user-search-input" class="form-input" placeholder="Buscar por nome, e-mail, cargo ou CPF..." oninput="App.onUserSearch(this.value)" value="${this.userSearchTerm || ''}" style="margin: 0; padding: 8px 12px; font-size: 13px; max-width: 360px;" />
-          <select id="user-role-filter" class="form-select" onchange="App.onUserRoleFilter(this.value)" style="margin: 0; padding: 8px 12px; font-size: 12.5px; width: auto;">
+      <div class="card users-filter-toolbar" style="margin-bottom: 16px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <div class="users-filter-inputs" style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 200px;">
+          <input type="text" id="user-search-input" class="form-input" placeholder="Buscar por nome, e-mail, cargo ou CPF..." oninput="App.onUserSearch(this.value)" value="${this.userSearchTerm || ''}" style="margin: 0; padding: 8px 12px; font-size: 13px; flex: 1; min-width: 0;" />
+          <select id="user-role-filter" class="form-select" onchange="App.onUserRoleFilter(this.value)" style="margin: 0; padding: 8px 10px; font-size: 12px; width: auto; flex-shrink: 0;">
             <option value="all" ${this.userRoleFilter === 'all' ? 'selected' : ''}>Todos os Perfis (${users.length})</option>
             <option value="creator" ${this.userRoleFilter === 'creator' ? 'selected' : ''}>Superadmins (${creators.length})</option>
             <option value="supporter" ${this.userRoleFilter === 'supporter' ? 'selected' : ''}>Investidores (${supporters.length})</option>
@@ -6257,7 +6257,7 @@ const App = {
           </select>
         </div>
 
-        <div style="display: flex; gap: 8px;">
+        <div class="users-filter-actions" style="display: flex; gap: 8px;">
           <button class="btn-secondary" onclick="App.exportUsersCsv()" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 7px 12px;">
             ${Icons.download(13)}
             <span>Exportar CSV</span>
@@ -6270,7 +6270,7 @@ const App = {
       </div>
 
       <!-- Grid de Usuários -->
-      <div id="users-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px;">
+      <div id="users-cards-grid" class="users-cards-grid">
         ${this.renderUserCardsHtml(this.getFilteredUsers())}
       </div>
     `;
@@ -6356,40 +6356,40 @@ const App = {
       }
 
       return `
-        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; gap: 14px; position: relative; border: 1px solid var(--border-strong); background: var(--card-bg, #0a0a0a); border-radius: var(--radius-md, 8px); padding: 18px;">
+        <div class="card user-item-card" style="display: flex; flex-direction: column; justify-content: space-between; gap: 12px; position: relative; border: 1px solid var(--border-strong); background: var(--card-bg, #0a0a0a); border-radius: var(--radius-md, 8px); padding: 16px; box-sizing: border-box; width: 100%; max-width: 100%; overflow: hidden;">
           
           <!-- Cabeçalho do Card com Avatar, Nome e Badge -->
-          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;">
-            <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
-              <div style="width: 44px; height: 44px; border-radius: 50%; background: ${avatarBg}; color: ${avatarColor}; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; border: 2px solid ${avatarBorder}; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.4);">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
+              <div style="width: 40px; height: 40px; border-radius: 50%; background: ${avatarBg}; color: ${avatarColor}; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; border: 2px solid ${avatarBorder}; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.4);">
                 ${u.avatarLetter || 'U'}
               </div>
-              <div style="min-width: 0;">
-                <div style="font-size: 15px; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              <div style="min-width: 0; flex: 1;">
+                <div style="font-size: 14.5px; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                   <span style="overflow: hidden; text-overflow: ellipsis;">${u.name}</span>
                   ${u.id === 'USR-001' ? `<span title="Criador Soberano Master" style="color: var(--gold-accent); font-size: 13px;">★</span>` : ''}
                 </div>
-                <div style="font-size: 12px; color: var(--gold-accent); font-weight: 600; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                <div style="font-size: 11.5px; color: var(--gold-accent); font-weight: 600; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                   ${u.title || (isCreator ? 'Superadmin Master' : (isGuest ? 'Convidado VIP' : 'Investidor Pioneiro'))}
                 </div>
-                <div style="font-size: 11px; color: var(--text-muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                   ${u.institution || 'Apoiador Individual'} ${u.city ? `• ${u.city}/${u.state || 'RS'}` : ''}
                 </div>
               </div>
             </div>
-            <span class="spec-badge" style="background: ${badgeBg}; color: ${badgeColor}; border-color: ${badgeBorder}; font-size: 10px; text-transform: uppercase; white-space: nowrap;">
+            <span class="spec-badge" style="background: ${badgeBg}; color: ${badgeColor}; border-color: ${badgeBorder}; font-size: 9.5px; text-transform: uppercase; white-space: nowrap; flex-shrink: 0; margin-top: 2px;">
               ${badgeLabel}
             </span>
           </div>
 
           <!-- Box de Credenciais (Login e Senha) -->
-          <div style="background: var(--bg-canvas, #060709); border: 1px solid var(--border-subtle, #1e222d); border-radius: 6px; padding: 10px 12px; font-size: 12px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <span style="color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Login / E-mail:</span>
-              <span style="font-family: var(--font-mono); font-weight: 600; color: #f1f5f9; font-size: 11.5px; user-select: all;">${u.email}</span>
+          <div style="background: var(--bg-canvas, #060709); border: 1px solid var(--border-subtle, #1e222d); border-radius: 6px; padding: 10px 12px; font-size: 12px; box-sizing: border-box; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; gap: 6px; flex-wrap: wrap;">
+              <span style="color: var(--text-muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0;">Login / E-mail:</span>
+              <span style="font-family: var(--font-mono); font-weight: 600; color: #f1f5f9; font-size: 11.5px; user-select: all; word-break: break-all; min-width: 0;">${u.email}</span>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Senha:</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+              <span style="color: var(--text-muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0;">Senha:</span>
               <div style="display: flex; align-items: center; gap: 6px;">
                 <span id="user-pwd-${u.id}" style="font-family: var(--font-mono); font-weight: 700; color: var(--gold-accent); font-size: 12px; letter-spacing: 1px;" data-real="${u.password || 'peregrino2026'}">••••••••</span>
                 <button type="button" class="btn-secondary" style="padding: 2px 7px; font-size: 10.5px; line-height: 1; border-color: rgba(255,255,255,0.15);" onclick="App.toggleUserPasswordVisibility('${u.id}')" title="Mostrar/Ocultar Senha">👁</button>
@@ -6399,7 +6399,7 @@ const App = {
 
           <!-- Métricas Financeiras / Permissões -->
           ${isSupporter ? `
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; background: rgba(199, 165, 152, 0.04); border: 1px solid rgba(199, 165, 152, 0.15); border-radius: 6px; padding: 8px 10px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; background: rgba(199, 165, 152, 0.04); border: 1px solid rgba(199, 165, 152, 0.15); border-radius: 6px; padding: 8px 10px; box-sizing: border-box; width: 100%;">
             <div>
               <span style="color: var(--text-muted); font-size: 10px; display: block;">Aporte Mensal:</span>
               <strong style="color: #ffffff; font-size: 12.5px;">R$ ${Number(u.monthlyContribution || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>
@@ -6412,7 +6412,7 @@ const App = {
             </div>
           </div>
           ` : `
-          <div style="display: flex; gap: 6px; flex-wrap: wrap; font-size: 11px;">
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; font-size: 11px; width: 100%; box-sizing: border-box;">
             ${u.canEditKanban ? `<span class="spec-badge" style="font-size: 10px; padding: 2px 6px; color: #38a169;">Kanban</span>` : ''}
             ${u.canSyncGodot ? `<span class="spec-badge" style="font-size: 10px; padding: 2px 6px; color: #38a169;">Godot Engine</span>` : ''}
             ${u.canPostDevlog ? `<span class="spec-badge" style="font-size: 10px; padding: 2px 6px; color: #38a169;">Devlog</span>` : ''}
@@ -6422,7 +6422,7 @@ const App = {
           `}
 
           <!-- Barra de Ações do Card -->
-          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; border-top: 1px solid var(--border-subtle); padding-top: 12px; margin-top: 2px; flex-wrap: wrap;">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; border-top: 1px solid var(--border-subtle); padding-top: 10px; margin-top: 2px; flex-wrap: wrap; width: 100%; box-sizing: border-box;">
             <div style="display: flex; gap: 6px;">
               <button class="btn-primary" style="padding: 5px 10px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;" onclick="App.loginDirect('${u.id}')" title="Entrar no sistema simulando a visão deste usuário">
                 ${Icons.user(12)}
