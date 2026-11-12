@@ -1718,13 +1718,16 @@ const Store = {
 
   // Protocolar Novo Contrato (Inicia OBRIGATORIAMENTE em 'pendente' de análise pelo Superadmin)
   async addContract(data) {
+    const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
     const nextSeq = (this.contracts.length + 1).toString().padStart(3, "0");
+    const contractId = `CTR-2026-${nextSeq}-${randomSuffix}`;
+
     const generatedUserId = data.userId && data.userId !== "USR-VIP" 
       ? data.userId 
       : `INV-${(this.users.length + 700 + Math.floor(Math.random() * 90)).toString().slice(-4)}`;
 
     const newContract = {
-      id: `CTR-2026-${nextSeq}`,
+      id: contractId,
       userId: generatedUserId,
       name: (data.name || "").trim(),
       cpf: (data.cpf || "").trim(),
@@ -1743,7 +1746,8 @@ const Store = {
       status: "pendente", // OBRIGATÓRIO: NUNCA entra aprovado automaticamente!
       approvedAt: null,
       approvedBy: null,
-      notes: "Aguardando análise de conformidade e qualificação civil pelo Criador Soberano (Superadmin)."
+      notes: "Aguardando análise de conformidade e qualificação civil pelo Criador Soberano (Superadmin).",
+      cloudSynced: false
     };
 
     // Insere no início da lista local
@@ -1751,6 +1755,9 @@ const Store = {
     try {
       localStorage.setItem("peregrino_contracts", JSON.stringify(this.contracts));
     } catch (e) {}
+
+    let cloudSaved = false;
+    let cloudError = null;
 
     // Sincroniza IMEDIATAMENTE com o Supabase Cloud
     if (typeof window !== "undefined" && window.SupabaseBridge) {
@@ -1793,13 +1800,21 @@ const Store = {
 
       // 2. Salva o contrato na nuvem Supabase
       try {
-        await window.SupabaseBridge.saveContractToCloud(newContract);
+        cloudSaved = await window.SupabaseBridge.saveContractToCloud(newContract);
+        newContract.cloudSynced = Boolean(cloudSaved);
+        if (!cloudSaved) cloudError = "O servidor na nuvem não confirmou o recebimento.";
       } catch (ce) {
+        cloudError = ce.message || String(ce);
         console.error("Erro ao salvar contrato na nuvem:", ce);
       }
     }
 
-    return newContract;
+    // Salva novamente com o status cloudSynced atualizado
+    try {
+      localStorage.setItem("peregrino_contracts", JSON.stringify(this.contracts));
+    } catch (e) {}
+
+    return { contract: newContract, cloudSaved, cloudError };
   },
 
   // Atualização dos Dados Civis e Financeiros do Contrato (Superadmin)

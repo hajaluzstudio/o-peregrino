@@ -632,6 +632,8 @@
     </div>
   </div>
 
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/supabase.js"></script>
   <script src="assets/js/store.js"></script>
   <script>
     const DossieManager = {
@@ -920,6 +922,7 @@
         this.saveCustomUsers();
         this.renderUserSelect();
         this.selectUser(customId);
+        alert(`✓ Parceiro '${newSupporter.name}' adicionado à simulação do Dossiê!\n\nImportante: Para oficializar o contrato jurídico com assinatura digital Hash SHA-256 e enviar para homologação da Diretoria, clique em '← Voltar ao Sistema' e acesse a aba 'Termo de Adesão Oficial'.`);
       }
     };
 

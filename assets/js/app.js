@@ -23,6 +23,15 @@ const App = {
     // 0. Inicializa listeners de PWA para instalação do App Mobile
     this.initPwa();
 
+    // Inicialização robusta e imediata da ponte Supabase Cloud
+    if (typeof window !== "undefined" && window.SupabaseBridge) {
+      try {
+        await window.SupabaseBridge.init();
+      } catch (e) {
+        console.warn("Aviso ao conectar Supabase Cloud no startup:", e);
+      }
+    }
+
     // Detecção se o usuário está abrindo a versão App Instalado no smartphone (PWA standalone)
     const isStandalone = (typeof window !== "undefined") && (
       window.matchMedia('(display-mode: standalone)').matches || 
@@ -4295,6 +4304,21 @@ const App = {
       <div class="termo-card">
         
         <!-- Banner de Status com Destaque -->
+        ${activeContract.cloudSynced === false ? `
+          <div class="contract-status-banner recusado" style="margin-bottom: 14px; background: rgba(239, 68, 68, 0.12); border-color: rgba(239, 68, 68, 0.4);">
+            <div style="color: #ef4444; display: flex; align-items: center;">${Icons.alertCircle ? Icons.alertCircle(24) : ''}</div>
+            <div style="flex: 1;">
+              <h4 style="color: #ef4444; margin: 0 0 4px 0;">ATENÇÃO: CONTRATO PENDENTE DE TRANSMISSÃO PARA A NUVEM</h4>
+              <p style="color: var(--text-secondary); margin: 0 0 10px 0; font-size: 12px;">
+                Este termo foi protocolado localmente neste navegador, mas ainda não foi confirmado no banco de dados da Diretoria. Clique no botão abaixo para transmitir agora.
+              </p>
+              <button class="btn-primary" style="font-size: 11.5px; padding: 6px 14px; background: #e53e3e; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" onclick="App.syncSingleContract('${activeContract.id}', this)">
+                ${Icons.refresh ? Icons.refresh(12) : ''}
+                <span>Transmitir para a Nuvem da Diretoria Agora</span>
+              </button>
+            </div>
+          </div>
+        ` : ''}
         ${!isApproved && !isRejected ? `
           <div class="contract-status-banner pendente">
             <div style="color: #fbbf24; display: flex; align-items: center;">${Icons.clock ? Icons.clock(24) : ''}</div>
@@ -4558,7 +4582,7 @@ const App = {
 
     try {
       // Registra o contrato com status OBRIGATÓRIO: 'pendente'
-      const newContract = await Store.addContract({
+      const addRes = await Store.addContract({
         name: nome,
         cpf: cpf,
         city: cidade,
@@ -4573,6 +4597,9 @@ const App = {
         equitySharePercent: calc.equityPercent,
         contractHash: hash
       });
+
+      const newContract = addRes.contract || addRes;
+      const isCloudSuccess = Boolean(addRes.cloudSaved);
 
       // Atualiza investidor atual da sessão
       Store.currentInvestor = {
@@ -4590,7 +4617,8 @@ const App = {
         equitySharePercent: calc.equityPercent,
         contractHash: hash,
         status: "pendente",
-        contractId: newContract.id
+        contractId: newContract.id,
+        cloudSynced: isCloudSuccess
       };
 
       try {
@@ -4604,13 +4632,51 @@ const App = {
       this.renderSidebar();
       this.renderTermo(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
 
-      alert(`✓ Contrato protocolado com sucesso sob ID ${newContract.id}!\n\nStatus: EM ANÁLISE PELA DIRETORIA.\nO contrato foi assinado com Hash SHA-256 e transmitido para o banco de dados na nuvem. Ele já está visível na mesa de homologação do Superadmin.`);
+      if (isCloudSuccess) {
+        alert(`✓ Contrato protocolado com sucesso sob ID ${newContract.id}!\n\nStatus: EM ANÁLISE PELA DIRETORIA.\nO contrato foi assinado com Hash SHA-256 e transmitido com sucesso para a nuvem. Ele já está visível na mesa de homologação do Superadmin.`);
+      } else {
+        alert(`⚠️ Contrato protocolado sob ID ${newContract.id}!\n\nStatus: SALVO LOCALMENTE NO SEU DISPOSITIVO.\nAviso de Conexão: Não foi possível confirmar a transmissão instantânea para o banco de dados na nuvem (${addRes.cloudError || 'verifique sua internet'}).\n\nO documento está seguro no seu navegador. Clique no botão 'Sincronizar com a Nuvem' para concluir o envio à Diretoria.`);
+      }
     } catch (err) {
       alert(`⚠️ Erro ao registrar contrato: ${err.message || err}`);
     } finally {
       if (signBtn) {
         signBtn.disabled = false;
         signBtn.innerHTML = origBtnHtml;
+      }
+    }
+  },
+
+  async syncSingleContract(contractId, btn) {
+    const origHtml = btn ? btn.innerHTML : "";
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<span>Transmitindo para a Nuvem...</span>`;
+    }
+    const contract = Store.contracts.find(c => c.id === contractId);
+    if (!contract) {
+      alert("Contrato não encontrado na memória local.");
+      return;
+    }
+    try {
+      const saved = await window.SupabaseBridge.saveContractToCloud(contract);
+      if (saved) {
+        contract.cloudSynced = true;
+        try {
+          localStorage.setItem("peregrino_contracts", JSON.stringify(Store.contracts));
+        } catch (e) {}
+        this.showToast(`✓ Contrato ${contractId} transmitido com sucesso para a nuvem!`);
+        this.renderTermo(document.getElementById("workspace-header"), document.getElementById("workspace-body"));
+        this.renderSidebar();
+      } else {
+        alert("⚠️ Falha na transmissão. Não foi possível conectar ao Supabase Cloud. Verifique a internet e tente novamente.");
+      }
+    } catch (err) {
+      alert(`⚠️ Erro ao sincronizar contrato: ${err.message || err}`);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
       }
     }
   },
@@ -4688,6 +4754,21 @@ const App = {
 
       bodyEl.innerHTML = `
         <!-- Banner de Status com Destaque -->
+        ${activeContract.cloudSynced === false ? `
+          <div class="contract-status-banner recusado" style="margin-bottom: 14px; background: rgba(239, 68, 68, 0.12); border-color: rgba(239, 68, 68, 0.4);">
+            <div style="color: #ef4444; display: flex; align-items: center;">${Icons.alertCircle ? Icons.alertCircle(24) : ''}</div>
+            <div style="flex: 1;">
+              <h4 style="color: #ef4444; margin: 0 0 4px 0;">ATENÇÃO: CONTRATO PENDENTE DE TRANSMISSÃO PARA A NUVEM</h4>
+              <p style="color: var(--text-secondary); margin: 0 0 10px 0; font-size: 12px;">
+                Este termo foi protocolado localmente neste navegador, mas ainda não foi confirmado no banco de dados da Diretoria. Clique no botão abaixo para transmitir agora.
+              </p>
+              <button class="btn-primary" style="font-size: 11.5px; padding: 6px 14px; background: #e53e3e; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" onclick="App.syncSingleContract('${activeContract.id}', this)">
+                ${Icons.refresh ? Icons.refresh(12) : ''}
+                <span>Transmitir para a Nuvem da Diretoria Agora</span>
+              </button>
+            </div>
+          </div>
+        ` : ''}
         ${!isApproved && !isRejected ? `
           <div class="contract-status-banner pendente" style="margin-bottom: 16px;">
             <div style="color: #fbbf24; display: flex; align-items: center;">${Icons.clock ? Icons.clock(24) : ''}</div>

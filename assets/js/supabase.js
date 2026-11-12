@@ -39,7 +39,49 @@ const SupabaseBridge = {
     return Boolean(config.url && config.anonKey);
   },
 
-  // Inicializa o cliente oficial do Supabase (@supabase/supabase-js)
+  // Chamada REST direta e nativa via fetch (PostgREST), blindada contra falhas de CDN
+  async restRequest(endpoint, method = "GET", body = null) {
+    const config = this.getConfig();
+    if (!config.url || !config.anonKey) return { data: null, error: new Error("Supabase não configurado") };
+
+    const cleanEndpoint = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
+    const fullUrl = `${config.url}/rest/v1/${cleanEndpoint}`;
+
+    const headers = {
+      "apikey": config.anonKey,
+      "Authorization": `Bearer ${config.anonKey}`,
+      "Content-Type": "application/json",
+      "Prefer": method === "POST" ? "resolution=merge-duplicates,return=representation" : "return=representation"
+    };
+
+    const options = {
+      method,
+      headers
+    };
+    if (body && (method === "POST" || method === "PATCH" || method === "PUT")) {
+      options.body = JSON.stringify(body);
+    }
+
+    try {
+      const resp = await fetch(fullUrl, options);
+      const text = await resp.text();
+      let data = null;
+      try {
+        data = text ? JSON.parse(text) : null;
+      } catch (e) {
+        data = text;
+      }
+
+      if (!resp.ok) {
+        return { data: null, error: new Error(`HTTP ${resp.status}: ${JSON.stringify(data)}`) };
+      }
+      return { data, error: null };
+    } catch (err) {
+      return { data: null, error: err };
+    }
+  },
+
+  // Inicializa o cliente oficial do Supabase (@supabase/supabase-js) ou ativa fallback REST nativo
   async init() {
     const config = this.getConfig();
 
@@ -49,31 +91,37 @@ const SupabaseBridge = {
       return false;
     }
 
-    if (typeof window.supabase === "undefined" || typeof window.supabase.createClient !== "function") {
-      console.warn("⚠️ Biblioteca Supabase JS não carregada. Verifique a conexão com a CDN.");
-      this.isOnline = false;
-      return false;
+    // Tenta carregar o cliente JS oficial se a biblioteca estiver disponível
+    if (typeof window !== "undefined" && window.supabase && typeof window.supabase.createClient === "function") {
+      try {
+        this.client = window.supabase.createClient(config.url, config.anonKey);
+      } catch (e) {
+        console.warn("Aviso ao criar Supabase Client:", e);
+      }
     }
 
-    try {
-      this.client = window.supabase.createClient(config.url, config.anonKey);
-      
-      // Teste rápido de conectividade
-      const { data, error } = await this.client.from("peregrino_users").select("id").limit(1);
-      if (error) {
-        console.warn("⚠️ Falha na conexão com Supabase:", error.message);
-        this.isOnline = false;
-        return false;
-      }
+    // Teste de conectividade (via client se houver, ou via fetch nativo)
+    let connected = false;
+    if (this.client) {
+      try {
+        const { data, error } = await this.client.from("peregrino_users").select("id").limit(1);
+        if (!error) connected = true;
+      } catch (e) {}
+    }
 
+    if (!connected) {
+      // Teste direto via REST fetch
+      const test = await this.restRequest("peregrino_users?select=id&limit=1");
+      if (!test.error) connected = true;
+    }
+
+    if (connected) {
       this.isOnline = true;
       console.log("⚡ Supabase Conectado com Sucesso! Sincronizando dados da nuvem...");
-      
-      // Sincroniza dados da nuvem para o Store
       await this.syncFromCloud();
       return true;
-    } catch (err) {
-      console.warn("⚠️ Erro ao inicializar Supabase:", err);
+    } else {
+      console.warn("⚠️ Não foi possível conectar ao Supabase Cloud. Verifique conexão com a internet.");
       this.isOnline = false;
       return false;
     }
@@ -124,35 +172,8 @@ const SupabaseBridge = {
         }
       }
 
-      // 2. Sincronizar Contratos
-      const { data: contracts, error: errContracts } = await this.client.from("peregrino_contracts").select("*");
-      if (!errContracts && Array.isArray(contracts)) {
-        Store.contracts = contracts.map(c => ({
-          id: c.id,
-          userId: c.user_id,
-          name: c.name,
-          cpf: c.cpf,
-          email: c.email,
-          phone: c.phone,
-          city: c.city,
-          state: c.state,
-          institution: c.institution,
-          monthlyContribution: Number(c.monthly_contribution) || 0,
-          monthsCommitted: Number(c.months_committed) || 12,
-          totalInvested: Number(c.total_invested) || 0,
-          weightedValue: Number(c.weighted_value) || 0,
-          equitySharePercent: Number(c.equity_share_percent) || 0,
-          contractHash: c.contract_hash,
-          signedAt: c.signed_at,
-          status: c.status || "pendente",
-          approvedAt: c.approved_at,
-          auditNotes: c.audit_notes,
-          notes: c.audit_notes
-        }));
-        try {
-          localStorage.setItem("peregrino_contracts", JSON.stringify(Store.contracts));
-        } catch (e) {}
-      }
+      // 2. Sincronizar Contratos com merge seguro e push de pendências
+      await this.syncContracts();
 
       // Notifica a UI para renderizar os dados sincronizados
       if (typeof window !== "undefined" && window.App) {
@@ -287,7 +308,7 @@ const SupabaseBridge = {
   },
 
   async ensureClient() {
-    if (this.client && this.isOnline) return this.client;
+    if (this.isOnline) return this.client;
     await this.init();
     return this.client;
   },
@@ -312,37 +333,53 @@ const SupabaseBridge = {
     }
   },
 
-  // Excluir Contrato no Supabase
+  // Excluir Contrato no Supabase (com fallback REST nativo)
   async deleteContractFromCloud(contractId) {
     await this.ensureClient();
-    if (!this.client) return false;
     try {
-      const { error } = await this.client.from("peregrino_contracts").delete().eq("id", contractId);
-      if (error) throw error;
-      console.log(`✓ Contrato ${contractId} excluído com sucesso do Supabase.`);
-      return true;
+      if (this.client) {
+        const { error } = await this.client.from("peregrino_contracts").delete().eq("id", contractId);
+        if (!error) {
+          console.log(`✓ Contrato ${contractId} excluído com sucesso do Supabase.`);
+          return true;
+        }
+      }
+      const restRes = await this.restRequest(`peregrino_contracts?id=eq.${contractId}`, "DELETE");
+      if (!restRes.error) {
+        console.log(`✓ Contrato ${contractId} excluído com sucesso do Supabase via REST.`);
+        return true;
+      }
+      return false;
     } catch (e) {
       console.warn("Falha ao excluir contrato no Supabase:", e);
       return false;
     }
   },
 
-  // Persistir Contrato no Supabase
+  // Persistir Contrato no Supabase (com fallback REST e blindagem)
   async saveContractToCloud(contract) {
     await this.ensureClient();
-    if (!this.client) return false;
+    const config = this.getConfig();
+    if (!config.url || !config.anonKey) {
+      console.warn("⚠️ Supabase não configurado para salvar contrato.");
+      return false;
+    }
+
     try {
       // Pré-validação do user_id para evitar rejeição por Foreign Key 23503
       let safeUserId = contract.userId || null;
       if (safeUserId) {
         try {
-          const { data: userExists } = await this.client
-            .from("peregrino_users")
-            .select("id")
-            .eq("id", safeUserId)
-            .limit(1);
-          if (!userExists || userExists.length === 0) {
-            safeUserId = null;
+          if (this.client) {
+            const { data: userExists } = await this.client
+              .from("peregrino_users")
+              .select("id")
+              .eq("id", safeUserId)
+              .limit(1);
+            if (!userExists || userExists.length === 0) safeUserId = null;
+          } else {
+            const { data: userExists } = await this.restRequest(`peregrino_users?id=eq.${safeUserId}&select=id&limit=1`);
+            if (!userExists || userExists.length === 0) safeUserId = null;
           }
         } catch (e) {
           safeUserId = null;
@@ -372,47 +409,89 @@ const SupabaseBridge = {
         updated_at: new Date().toISOString()
       };
 
-      const { data: updated, error: errUpdate } = await this.client
-        .from("peregrino_contracts")
-        .update(record)
-        .eq("id", contract.id)
-        .select();
-
-      if (errUpdate || !updated || updated.length === 0) {
-        let { error: errUpsert } = await this.client.from("peregrino_contracts").upsert(record, { onConflict: "id" });
-        if (errUpsert) {
-          // Se falhou por FK (user_id não presente em peregrino_users), tenta com user_id null
-          if (errUpsert.code === "23503" || (errUpsert.message && errUpsert.message.toLowerCase().includes("foreign key"))) {
-            console.warn("Aviso: Chave estrangeira de usuário pendente, salvando contrato com user_id null...");
+      // 1. Tenta via client SDK se disponível
+      if (this.client) {
+        try {
+          const { error: errUpsert } = await this.client.from("peregrino_contracts").upsert(record, { onConflict: "id" });
+          if (!errUpsert) {
+            console.log(`✓ Contrato ${contract.id} salvo na nuvem com sucesso (SDK).`);
+            contract.cloudSynced = true;
+            return true;
+          } else if (errUpsert.code === "23503") {
             record.user_id = null;
             const retry = await this.client.from("peregrino_contracts").upsert(record, { onConflict: "id" });
-            if (retry.error) throw retry.error;
-          } else {
-            throw errUpsert;
+            if (!retry.error) {
+              contract.cloudSynced = true;
+              return true;
+            }
           }
+        } catch (e) {
+          console.warn("Aviso ao tentar salvar contrato via SDK, tentando fallback REST...", e);
         }
       }
 
-      console.log(`✓ Contrato ${contract.id} salvo na nuvem com sucesso.`);
-      return true;
+      // 2. Fallback direto via REST fetch
+      const restRes = await this.restRequest("peregrino_contracts", "POST", record);
+      if (!restRes.error) {
+        console.log(`✓ Contrato ${contract.id} salvo na nuvem com sucesso (REST).`);
+        contract.cloudSynced = true;
+        return true;
+      } else {
+        // Se falhou por FK de user_id, tenta com user_id null
+        if (record.user_id) {
+          record.user_id = null;
+          const retryRest = await this.restRequest("peregrino_contracts", "POST", record);
+          if (!retryRest.error) {
+            console.log(`✓ Contrato ${contract.id} salvo na nuvem com user_id null (REST).`);
+            contract.cloudSynced = true;
+            return true;
+          }
+        }
+        console.error("❌ Falha ao salvar contrato no Supabase (REST):", restRes.error);
+        return false;
+      }
     } catch (e) {
-      console.error("❌ Falha ao salvar contrato no Supabase:", e);
+      console.error("❌ Falha crítica ao salvar contrato no Supabase:", e);
       return false;
     }
   },
 
-  // Sincroniza e recarrega os contratos do Supabase Cloud sob demanda
+  // Sincroniza e recarrega os contratos do Supabase Cloud sob demanda com MERGE seguro
   async syncContracts() {
     await this.ensureClient();
-    if (!this.client || !this.isOnline) return false;
+    if (!this.isOnline) {
+      await this.init();
+      if (!this.isOnline) return false;
+    }
+
     try {
-      const { data: contracts, error: errContracts } = await this.client
-        .from("peregrino_contracts")
-        .select("*")
-        .order("created_at", { ascending: false });
+      let contracts = null;
+      let errContracts = null;
+
+      if (this.client) {
+        try {
+          const res = await this.client
+            .from("peregrino_contracts")
+            .select("*")
+            .order("created_at", { ascending: false });
+          contracts = res.data;
+          errContracts = res.error;
+        } catch (e) {
+          errContracts = e;
+        }
+      }
+
+      if (!contracts || errContracts) {
+        const restRes = await this.restRequest("peregrino_contracts?select=*&order=created_at.desc");
+        if (!restRes.error && Array.isArray(restRes.data)) {
+          contracts = restRes.data;
+          errContracts = null;
+        }
+      }
 
       if (!errContracts && Array.isArray(contracts)) {
-        Store.contracts = contracts.map(c => ({
+        const cloudIds = new Set(contracts.map(c => c.id));
+        const cloudContracts = contracts.map(c => ({
           id: c.id,
           userId: c.user_id,
           name: c.name,
@@ -432,8 +511,22 @@ const SupabaseBridge = {
           status: c.status || "pendente",
           approvedAt: c.approved_at,
           auditNotes: c.audit_notes,
-          notes: c.audit_notes
+          notes: c.audit_notes,
+          cloudSynced: true
         }));
+
+        // Preserva contratos locais que ainda não subiram para a nuvem
+        const localPendingNotOnCloud = (Store.contracts || []).filter(c => !cloudIds.has(c.id));
+
+        // Tenta enviar os contratos locais pendentes para a nuvem em background
+        for (const localC of localPendingNotOnCloud) {
+          try {
+            const saved = await this.saveContractToCloud(localC);
+            if (saved) localC.cloudSynced = true;
+          } catch (e) {}
+        }
+
+        Store.contracts = [...cloudContracts, ...localPendingNotOnCloud];
         try {
           localStorage.setItem("peregrino_contracts", JSON.stringify(Store.contracts));
         } catch (e) {}

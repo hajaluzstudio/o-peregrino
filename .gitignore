@@ -23,5 +23,7 @@ venv/
 ENV/
 
 # Arquivos temporários de teste local
+check_cloud.py
+test_*.py
 *.tmp
 *.bak
